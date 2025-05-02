@@ -1,0 +1,2 @@
+# wordle-js-py
+wordle
