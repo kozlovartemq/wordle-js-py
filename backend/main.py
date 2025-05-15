@@ -1,50 +1,44 @@
-from contextlib import asynccontextmanager
-import uuid
+import logging
+from contextlib import asynccontextmanager, closing
 from fastapi.responses import ORJSONResponse
 from sqlalchemy import text
 import uvicorn
 
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
-
+from core.config import settings
 from core.models.db_helper import db_helper
 from core.models.base import Base
-from core.config import settings
 from game_handler import GameHandler
 from api.v1 import router as v1_router
 import sqlite3
 
-#todo launch logger
-#todo run sql script
 
-
+settings.logging.setup_logging
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with db_helper.engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
-        # with open("words-russian-nouns.sql", "r", encoding="utf-8") as f:
-        #     sql_script = text(f.read())
-        #     await connection.execute(sql_script)
         
     # create dictionary table
-    # sqlite3_conn = sqlite3.connect(settings.db.name)
-    # cursor = sqlite3_conn.cursor()
-    # with open("words-russian-nouns.sql", "r", encoding="utf-8") as f:
-    #     sql_script = f.read()
+    with closing(sqlite3.connect(settings.db.name)) as sqlite3_conn:
+        cursor = sqlite3_conn.cursor()
+        with open("words-russian-nouns.sql", "r", encoding="utf-8") as f:
+            sql_script = f.read()
 
-    # cursor.executescript(sql_script)
-    # sqlite3_conn.commit()
-    # sqlite3_conn.close()
+        cursor.executescript(sql_script)
+        sqlite3_conn.commit()
 
     yield
     await db_helper.dispose()
     
 
 app = FastAPI(
-    title="Wordle app",
+    title="Wordle app (Backend)",
     lifespan=lifespan,
-    default_response_class=ORJSONResponse
+    default_response_class=ORJSONResponse,
 )
 app.include_router(v1_router)
 
@@ -62,5 +56,5 @@ if __name__ == "__main__":
         "main:app",
         host=settings.run.host,
         port=settings.run.port,
-        log_config=settings.logging,
+        log_config=None,
         reload=True)
