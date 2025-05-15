@@ -1,28 +1,56 @@
-import logging
+from logging.config import dictConfig
 from pathlib import Path
-from typing import Literal
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent
 
-LOG_DEFAULT_FORMAT = (
-    "[%(asctime)s.%(msecs)03d] %(module)10s:%(lineno)-3d %(levelname)-7s - %(message)s"
-)
 
 class LoggingConfig(BaseModel):
-    log_level: Literal[
-        "debug",
-        "info",
-        "warning",
-        "error",
-        "critical",
-    ] = "info"
-    log_format: str = LOG_DEFAULT_FORMAT
+    
+    LOG_FORMAT: str = "[%(asctime)s.%(msecs)03d] %(module)10s:%(lineno)-3d %(levelname)-7s - %(message)s"
+    LOG_LEVEL: str = "INFO"
 
     @property
-    def log_level_value(self) -> int:
-        return logging.getLevelNamesMapping()[self.log_level.upper()]
+    def setup_logging(self):
+        dictConfig({
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "format": self.LOG_FORMAT,
+                    "datefmt": "%d-%m-%Y %H:%M:%S"
+                },
+            },
+            "handlers": {
+                "default": {
+                    "class": "logging.StreamHandler",
+                    "formatter": "default",
+                    "stream": "ext://sys.stdout",
+                },
+            },
+            "loggers": {
+                "uvicorn": {
+                    "handlers": ["default"],
+                    "level": self.LOG_LEVEL,
+                    "propagate": False,
+                },
+                "uvicorn.error": {
+                    "handlers": ["default"],
+                    "level": self.LOG_LEVEL,
+                    "propagate": False,
+                },
+                "uvicorn.access": {
+                    "handlers": ["default"],
+                    "level": self.LOG_LEVEL,
+                    "propagate": False,
+                },
+            },
+            "root": {
+                "level": self.LOG_LEVEL,
+                "handlers": ["default"]
+            },
+        })
     
 
 class RunConfig(BaseModel):
@@ -32,8 +60,11 @@ class RunConfig(BaseModel):
 
 class DatabaseConfig(BaseModel):
     name: str = "1database.sqlite3"
-    url: str = f"sqlite+aiosqlite:///{BASE_DIR}/{name}"
     echo: bool = False
+    
+    @property
+    def url(self) -> str:
+        return f"sqlite+aiosqlite:///{BASE_DIR}/{self.name}"
 
 
 class Setting(BaseSettings):
@@ -43,7 +74,7 @@ class Setting(BaseSettings):
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
     )
-    api_prefix_v1: str = "/api/v1"
+    main_api_prefix: str = "/api"
     run: RunConfig = RunConfig()
     logging: LoggingConfig = LoggingConfig()
     db: DatabaseConfig = DatabaseConfig()
