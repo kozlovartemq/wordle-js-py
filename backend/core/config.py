@@ -59,7 +59,7 @@ class RunConfig(BaseModel):
 
 
 class DatabaseConfig(BaseModel):
-    name: str = "1database.sqlite3"
+    name: str = "database.sqlite3"
     echo: bool = False
     
     @property

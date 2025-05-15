@@ -12,7 +12,7 @@ from core.models.game import get_all_games, create_game, get_game_by_word
 
 
 
-game_router = APIRouter(tags=["Game"], prefix='/game')
+game_router = APIRouter(tags=["Game"], prefix='/games')
 
 
 @game_router.post('/create_custom')
@@ -25,7 +25,7 @@ async def create_custom_game(
     if old_game is not None:
         return {"msg": "Игра уже существует", "game_uuid": old_game.uuid}
     
-    game_uuid = str(uuid.uuid4())
+    game_uuid = uuid.uuid4()
     new_game = await create_game(session=session, game_create=GameCreate(uuid=game_uuid, word=new_word))
     
     return {"msg": "Создана новая игра", "game_uuid": new_game.uuid}
@@ -34,7 +34,7 @@ async def create_custom_game(
 
 @game_router.get("/create_casual")
 async def create_casual_game(request: Request):
-    game_id = str(uuid.uuid4())
+    game_id = uuid.uuid4()
 
     #todo
     # get_word: word from dictionary
@@ -51,13 +51,13 @@ async def get_games(
     games = await get_all_games(session=session)
     return games
 
-@game_router.get('/games')
+@game_router.get('/')
 def all_games():
     # todo html- img
     return Response(status_code=401, ) # content=
 
 
-@game_router.get('/games/{game_id}')
+@game_router.get('/{game_id}')
 def get_game(game_id: uuid.UUID):
     # if not active_words.get(game_id):
     #     raise HTTPException(404, "Слово с таким идентификатором не найдено")
