@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager, closing
 from fastapi.responses import ORJSONResponse
 from sqlalchemy import text
 import uvicorn
-
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
@@ -17,8 +17,11 @@ import sqlite3
 settings.logging.setup_logging
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from core.models.game import delete_old_games
+
     async with db_helper.engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
         
@@ -31,7 +34,24 @@ async def lifespan(app: FastAPI):
         cursor.executescript(sql_script)
         sqlite3_conn.commit()
 
+    # launch scheduler that will delete games (24 hour old games every day by default)
+    scheduler: AsyncIOScheduler | None = None
+    if settings.deleteJob.enable:
+        scheduler = AsyncIOScheduler()
+
+        async def delete_old_games_job():
+            async with db_helper.session_factory() as session:
+                await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours)
+        
+        scheduler.add_job(delete_old_games_job, "interval", hours=settings.deleteJob.interval_hours)
+        scheduler.start()
+        logging.info("[lifespan][AsyncIOScheduler] Jobs set:\n%s", scheduler.get_jobs())
+        # run the job at the application start
+        await delete_old_games_job()
+
     yield
+    if scheduler:
+        scheduler.shutdown()
     await db_helper.dispose()
     
 

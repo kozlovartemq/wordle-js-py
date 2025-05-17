@@ -67,6 +67,13 @@ class DatabaseConfig(BaseModel):
         return f"sqlite+aiosqlite:///{BASE_DIR}/{self.name}"
 
 
+class DeletingGamesJobConfig(BaseModel):
+    enable: bool = True
+    # could be less than 1
+    threshold_hours: float = 24
+    interval_hours: float = 24
+
+
 class Setting(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -78,6 +85,7 @@ class Setting(BaseSettings):
     run: RunConfig = RunConfig()
     logging: LoggingConfig = LoggingConfig()
     db: DatabaseConfig = DatabaseConfig()
+    deleteJob: DeletingGamesJobConfig = DeletingGamesJobConfig()
 
 
 settings = Setting()
