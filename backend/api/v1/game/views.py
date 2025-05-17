@@ -1,14 +1,15 @@
 
 import uuid
-
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Request, Response, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.game.schemas import GameCreate, GameRead, WordRequest
+from api.v1.game.schemas import GameCreate, GameRead, GameDelete, WordRequest
+from core.config import settings
 from core.models.db_helper import db_helper
-from core.models.game import get_all_games, create_game, get_game_by_word
+from core.models.game import get_all_games, create_game, get_game_by_word, delete_old_games
 
 
 
@@ -26,7 +27,10 @@ async def create_custom_game(
         return {"msg": "Игра уже существует", "game_uuid": old_game.uuid}
     
     game_uuid = uuid.uuid4()
-    new_game = await create_game(session=session, game_create=GameCreate(uuid=game_uuid, word=new_word))
+    new_game = await create_game(
+        session=session,
+        game_create=GameCreate(uuid=game_uuid, word=new_word, created_at=datetime.now(timezone.utc).timestamp())
+    )
     
     return {"msg": "Создана новая игра", "game_uuid": new_game.uuid}
 
@@ -57,8 +61,8 @@ def all_games():
     return Response(status_code=401, ) # content=
 
 
-@game_router.get('/{game_id}')
-def get_game(game_id: uuid.UUID):
+# @game_router.get('/{game_id}')
+# def get_game(game_id: uuid.UUID):
     # if not active_words.get(game_id):
     #     raise HTTPException(404, "Слово с таким идентификатором не найдено")
     # word = active_words[game_id]
@@ -66,7 +70,17 @@ def get_game(game_id: uuid.UUID):
     # new_game = GameHandler(word=word)
     # active_sessions[session_id] = new_game
     # return Response({'success': True, "len": len(word)})
-    ...
+    # ...
+
+@game_router.delete('/delete_old',
+                    summary=f"Delete games older than {settings.deleteJob.threshold_hours} hours",
+                    response_model=list[GameDelete]
+)
+async def delete_old(
+    session: AsyncSession = Depends(db_helper.session_dependency)
+) -> list[GameDelete]:
+    deleted_games = await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours)
+    return deleted_games
 
 
 class ResponseContent(BaseModel):
