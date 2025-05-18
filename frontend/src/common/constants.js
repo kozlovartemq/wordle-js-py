@@ -19,6 +19,10 @@
            game: 'game',
        }
     },
+    custom_color:{
+        green: '#1ba122',
+        red: '#e53935'
+    }
 }
 
 export default appConstants

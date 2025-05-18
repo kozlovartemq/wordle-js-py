@@ -1,127 +1,65 @@
-import appConstants from '../common/constants'
-
 class WordComponent extends HTMLElement {
     constructor(){
         super()
         const shadow = this.attachShadow({mode: 'open'})
         const wrapper = document.createElement('div')
-        this.searchType = appConstants.search.types.game
-
         wrapper.setAttribute('class', 'word-container')
-        this.links = [
-            {href: appConstants.routes.index, name: 'Домой', class: 'home-link'},
-            {href: appConstants.routes.create, name: 'Создать игру', class: 'create-link'},
-            {href: appConstants.routes.games, name: 'Найти игру', class: 'games-link'},
-        ]
+        this._content = ''
 
         const style = document.createElement('style')
-
         style.textContent = `
-           .main-menu {
-           
-                position: fixed;
-                top: 20px;       /* Можешь изменить на bottom: 20px для нижнего угла */
-                left: 20px;      /* Или right: 20px для правого края */
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                z-index: 1000;
-                width: 160px;
-
-                justify-content: center;
-                gap: 10px;
-                padding: 1rem 0;
-                background-color: #1e1e1e;
-                border-bottom: 1px solid #333;
-                border-radius: 12px;
-           }
-
-           .global-search {
-               font-size: 16px;
-               border: 1px solid #ccc;
-               border-radius: 8px;
-               padding: 4px 20px;
-               width: 100%;
-               margin: 0 50px;
-           }
-
-           .global-search:placeholder{
-               color: #aaa;
-           }
+        .word-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            justify-content: center;
+        }
+        
+        .letter-box {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ccc;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 50px;
+            text-transform: uppercase;
+            background-color: white;
+            color: black;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
            
         `
 
         shadow.appendChild(style)
         shadow.appendChild(wrapper)
-
-        this.links.forEach(link => {
-            const l = document.createElement('nav-link')
-            l.setAttribute('class', `main-link ${link.class}`)
-            l.setAttribute('href', link.href)
-            l.setAttribute('text', link.name)
-            wrapper.appendChild(l)
-        })
-
-        const search = document.createElement('input')
-        search.setAttribute('class', 'global-search')
-        search.addEventListener('keyup', (e) => {
-            e.stopPropagation()
-            if(e.key === 'Enter') {
-                e.preventDefault()
-                const text = e.target.value
-                console.log('search', text)
-            }
-        })
-
-        // wrapper.appendChild(search)
-
     }
 
-    // updateSearch() {
-    //     const shadow = this.shadowRoot
-    //     const input = shadow.querySelector('input')
-    //     const search = this.getAttribute('search')
-    //     input.value = search
-    //     if(this.searchType === appConstants.search.types.game){
-    //         input.setAttribute('placeholder', 'Search game by id...')
-    //     }
-        
-    // }
+    get content() {
+        return this._content;
+    }
 
-    connectedCallback(){
-        const shadow = this.shadowRoot;
-        // const searchText = this.getAttribute('search')
-        this.searchType = this.getAttribute('type') ? this.getAttribute('type') : appConstants.search.types.game
+    set content(value) {
+        if (this._content === value) return;
+        this._content = value.toUpperCase()
+        this._renderLetters()
+    }
 
-        // if(searchText){
-        //     const input = shadow.querySelector('input')
-        //     input.value = searchText
-        // }
+    _renderLetters() {
+        const wrapper = this.shadowRoot.querySelector('.word-container')
+        if (!wrapper) return
 
-        const {pathname: path} = new URL(window.location.href)
-        const link = this.links.find((l) => l.href === path)
-
-        if(link) {
-            const linkElement = shadow.querySelector(`.${link.class}`)
-            linkElement.setAttribute('selected', 'true')
+        wrapper.innerHTML = ''
+        for (let i = 0; i < this._content.length; i++) {
+            const letter = document.createElement("div")
+            letter.className = "letter-box"
+            letter.id = i
+            letter.textContent = this._content[i]
+            wrapper.appendChild(letter)
         }
     }
 
-    
-    static get observedAttributes(){
-        return ['search', 'type']
-    }
-
-    attributeChangedCallback(name, oldValue, newValue){
-        // if(name === 'search'){
-        //     this.updateSearch()
-        // }
-        if(name === 'type'){
-            this.searchType = newValue
-            // this.updateSearch()
-        }
-    }
 }
 
 customElements.define('word-component', WordComponent)

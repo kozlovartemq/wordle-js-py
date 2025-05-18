@@ -1,3 +1,4 @@
+<header-component></header-component>
 <main-nav></main-nav>
 <div class="common-container" id="common">
   <div class="attempts-remaining">Осталось попыток: 6/6</div>

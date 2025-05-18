@@ -1,2 +1,3 @@
+<header-component></header-component>
 <main-nav></main-nav>
 <content-component type="games"></content-component>
