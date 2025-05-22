@@ -5,6 +5,7 @@ import MainPage from '../pages/main.template'
 import GamesPage from '../pages/games.template'
 import CreatePage from '../pages/create.template'
 import GamePage from '../pages/game.template'
+import NotFoundPage from '../pages/not_found.template'
 
 
 export const routes = {
@@ -14,18 +15,40 @@ export const routes = {
     Game: new Route(appConstants.routes.game),
 }
 
-export const render = (path) => {
-    let result = '<h1>404</h1>'
+const routesWithPages = [
+    { route: routes.Main, page: MainPage },
+    { route: routes.Games, page: GamesPage },
+    { route: routes.Create, page: CreatePage },
+    { route: routes.Game, page: GamePage },
+]
 
-    if(routes.Main.match(path)){
-        result = MainPage()
-    } else if(routes.Games.match(path)){
-        result = GamesPage()
-    } else if(routes.Create.match(path)){
-        result = CreatePage()
+export const getPathRoute = (path) => {
+    const target = routesWithPages.find(r => r.route.match(path))
+    if (target) {
+        const params = target.route.match(path)
+        return {
+            page: target.page,
+            route: target.route,
+            params
+        }
     }
+    return null
+}
 
+export const render = (path) => {
+    let result = NotFoundPage()
+
+    const pathRoute = getPathRoute(path)
+
+    if (pathRoute) {
+        result = pathRoute.page(pathRoute.params)
+    }
     document.querySelector('#app').innerHTML = result
+}
+
+export const getRouterParams = () => {
+    const url = new URL(window.location.href).pathname
+    return getPathRoute(url)
 }
 
 export const goTo = (path) => {
