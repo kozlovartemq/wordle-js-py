@@ -12,8 +12,8 @@ export default defineConfig({
         port: 3000,
         host: '0.0.0.0',
         hmr: {
-            protocol: 'wss',
-            clientPort: 443,
+            // protocol: 'wss',
+            clientPort: 3000,
         },
     },
     plugins: [
