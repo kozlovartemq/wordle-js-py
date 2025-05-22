@@ -37,6 +37,16 @@ async def get_game_by_word(
     return res.first()
 
 
+async def get_game_by_uuid(
+        session: AsyncSession,
+        game_uuid: UUID
+) -> GameModel | None:
+    
+    stmt = select(GameModel).where(GameModel.uuid == game_uuid)
+    res = await session.scalars(stmt)
+    return res.first()
+
+
 async def create_game(
         session: AsyncSession,
         game_create: GameCreate

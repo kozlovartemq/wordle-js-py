@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.v1.game.schemas import GameCreate, GameRead, GameDelete, WordRequest
 from core.config import settings
 from core.models.db_helper import db_helper
-from core.models.game import get_all_games, create_game, get_game_by_word, delete_old_games
+from core.models.game import get_all_games, create_game, get_game_by_word, get_game_by_uuid, delete_old_games
 
 
 
@@ -22,9 +22,9 @@ async def create_custom_game(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
     new_word = data.word.upper()
-    old_game = await get_game_by_word(session, new_word)
-    if old_game is not None:
-        return {"msg": "Игра уже существует", "game_uuid": old_game.uuid}
+    game = await get_game_by_word(session, new_word)
+    if game is not None:
+        return {"msg": "Игра уже существует", "game_uuid": game.uuid}
     
     game_uuid = uuid.uuid4()
     new_game = await create_game(
@@ -33,7 +33,6 @@ async def create_custom_game(
     )
     
     return {"msg": "Создана новая игра", "game_uuid": new_game.uuid}
-
 
 
 @game_router.get("/create_casual")
@@ -55,22 +54,23 @@ async def get_games(
     games = await get_all_games(session=session)
     return games
 
+
+@game_router.get('/{game_id}')
+async def get_game(
+    game_id: uuid.UUID,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    game = await get_game_by_uuid(session, game_id)
+    if game is None:
+        raise HTTPException(404, "Игра с таким идентификатором не найдена")
+    return {"msg": "Игра существует", "len": len(game.word)}
+    
+
 @game_router.get('/')
 def all_games():
     # todo html- img
     return Response(status_code=401, ) # content=
 
-
-# @game_router.get('/{game_id}')
-# def get_game(game_id: uuid.UUID):
-    # if not active_words.get(game_id):
-    #     raise HTTPException(404, "Слово с таким идентификатором не найдено")
-    # word = active_words[game_id]
-    # session_id = str(uuid.uuid4())
-    # new_game = GameHandler(word=word)
-    # active_sessions[session_id] = new_game
-    # return Response({'success': True, "len": len(word)})
-    # ...
 
 @game_router.delete('/delete_old',
                     summary=f"Delete games older than {settings.deleteJob.threshold_hours} hours",

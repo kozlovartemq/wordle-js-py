@@ -1,4 +1,6 @@
 import appConstants from '../common/constants'
+import { goTo, routes } from '../router'
+import { createCustomGame } from '../api/endpoints'
 
 class ContentComponent extends HTMLElement {
     constructor(){
@@ -45,17 +47,17 @@ class ContentComponent extends HTMLElement {
                 width: 500px;
             }
   
-            .word-input {
+            input {
                 padding: 10px 16px;
                 font-size: 18px;
                 border: 2px solid #ccc;
                 border-radius: 8px;
                 outline: none;
-                width: 200px;
+                width: 300px;
                 transition: border-color 0.3s, box-shadow 0.3s;
             }
             
-            .word-input:focus {
+            input:focus {
                 border-color: ${appConstants.custom_color.green};
                 box-shadow: 0 0 5px rgba(76, 175, 80, 0.4);
             }
@@ -78,6 +80,16 @@ class ContentComponent extends HTMLElement {
             .submit-button:active {
                 transform: scale(0.98);
             }
+
+            .submit-button:disabled {
+                background-color: ${appConstants.custom_color.dark_green};
+            } 
+
+            .submit-button:disabled:hover,
+            .submit-button:disabled:active {
+                background-color: ${appConstants.custom_color.dark_green};
+                transform: scale(1);
+            } 
             
             .input-hint {
                 text-align: center;
@@ -94,7 +106,6 @@ class ContentComponent extends HTMLElement {
     }
 
     connectedCallback(){
-        console.log('connectedCallback')
         this.updateComponent()
     }
     
@@ -109,21 +120,41 @@ class ContentComponent extends HTMLElement {
     // }
 
     updateComponent(){
-        console.log('updateComponent')
         const type = this.getAttribute('type')
         if (type) {
             this.type = type
         }
-        if (this.type === appConstants.container.types.main) {
+        if (this.type === appConstants.container.types.not_found) {
+            this.getNotFoundPage()
+        }
+        else if (this.type === appConstants.container.types.main) {
             this.getMainPage()
         }
-        if (this.type === appConstants.container.types.create) {
+        else if (this.type === appConstants.container.types.create) {
             this.getCreatePage()
         }
-        if (this.type === appConstants.container.types.games) {
+        else if (this.type === appConstants.container.types.games) {
             this.getGamesPage()
         }
+    }
 
+    getNotFoundPage(){
+        const shadow = this.shadowRoot;
+        const wrapper = shadow.querySelector('.common-container')
+        const word = document.createElement('word-component')
+        word.content = '404'
+        const letters = word.shadowRoot.querySelectorAll('.letter-box')
+        letters.forEach(element => {
+            element.style.background = appConstants.custom_color.red
+            element.style.color = 'white'
+        });
+        wrapper.appendChild(word)
+        const title = document.createElement('h2')
+        title.setAttribute('class', 'content-title')
+        title.textContent = 'Cтраница не найдена!'
+
+        wrapper.appendChild(word)
+        wrapper.appendChild(title)
     }
 
     getMainPage(){
@@ -147,7 +178,33 @@ class ContentComponent extends HTMLElement {
             <p class="input-hint"></p>
         </div>
         `
+        // TODO: dry listeners
+        const button = shadow.querySelector('button[type="create-word"]')
+        const input = shadow.querySelector('input.word-input')
+        const p = wrapper.querySelector('.input-hint')
 
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation()
+            button.disabled = true
+            p.textContent = ""
+            
+            const word = input.value.trim().toUpperCase()
+            const { game_uuid } = await createCustomGame(word)
+            
+            if (!game_uuid){
+                p.textContent = "Не удалось получить id игры"
+            } else {
+                const url = routes.Game.reverse({game: game_uuid})
+                goTo(url)
+                // TODO
+                // 'перейти к игре' OR copy game Link
+            }
+            
+        })
+        input.addEventListener("input", (e) => {
+            e.stopPropagation()
+            button.disabled = false
+        })
     }    
         
     getGamesPage(){
@@ -156,12 +213,25 @@ class ContentComponent extends HTMLElement {
         wrapper.innerHTML = `
         <h2 class="content-title">Найди игру, если у тебя есть его id!</h2>
         <div class="input-container">
-            <input type="text" class="word-input" maxLength=32 placeholder="Найди игру по его id!" />
+            <input type="text" class="game-input" maxLength=32 placeholder="Найди игру по его id!" />
             <button class="submit-button" type="check-game">Проверить</button>
             <p class="input-hint"></p>
         </div>
         `
-
+        const button = shadow.querySelector('button[type="check-game"]')
+        button.addEventListener('click', (e) => {
+            e.stopPropagation()
+            console.log('button')
+            button.disabled = true
+            //goto game 
+            //const url = 
+            //goTo(url)
+        })
+        const input = shadow.querySelector('input.game-input')
+        input.addEventListener("input", (e) => {
+            e.stopPropagation()
+            button.disabled = false
+        })
     }    
     
 }

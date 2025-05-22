@@ -1,15 +1,22 @@
-const apiServer = import.meta.env.DEV ? 'http://localhost:1111' : 'http://localhost:1111'
+const apiServer = import.meta.env.DEV ? 'http://localhost:8000' : 'http://localhost:8000'
+const api_prefix = import.meta.env.DEV ? '/api/v1' : '/api/v1'
 
 const baseFetch = (url, config = {}, params) => {
     return new Promise((resolve, reject) => {
         try{
+            const defaultHeaders = {
+                'Content-Type': 'application/json'
+            }
             const _config = {
+                headers: {
+                    ...defaultHeaders
+                },
                 ...config
             }
             if(params){
                 _config['body'] = JSON.stringify(params)
             }
-            window.fetch(`${apiServer}${url}`, {
+            window.fetch(`${apiServer}${api_prefix}${url}`, {
                 ..._config
             }).then(response=>response.json())
             .then(resolve, reject)
