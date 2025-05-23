@@ -1,36 +1,43 @@
+import { goTofailure } from '../router'
+
 const apiServer = import.meta.env.DEV ? 'http://localhost:8000' : 'http://localhost:8000'
 const api_prefix = import.meta.env.DEV ? '/api/v1' : '/api/v1'
 
-const baseFetch = (url, config = {}, params) => {
-    return new Promise((resolve, reject) => {
-        try{
-            const defaultHeaders = {
-                'Content-Type': 'application/json'
-            }
-            const _config = {
-                headers: {
-                    ...defaultHeaders
-                },
-                ...config
-            }
-            if(params){
-                _config['body'] = JSON.stringify(params)
-            }
-            window.fetch(`${apiServer}${api_prefix}${url}`, {
-                ..._config
-            }).then(async response=>{
-                const data = await response.json()
-                resolve({
-                        status: response.status,
-                        ok: response.ok,
-                        data
-                    })
-            }) 
-            .then(reject)
-        } catch(e){
-            reject(e)
+const baseFetch = async (url, config = {}, params) => {
+    const defaultHeaders = {
+        'Content-Type': 'application/json'
+    }
+
+    const _config = {
+        headers: {
+            ...defaultHeaders,
+            ...(config.headers || {})
+        },
+        ...config
+    }
+
+    if (params) {
+        _config.body = JSON.stringify(params)
+    }
+
+    try {
+        const response = await fetch(`${apiServer}${api_prefix}${url}`, _config)
+        const data = await response.json()
+
+        if (response.status >= 500) {
+            goTofailure()
+            throw { status: response.status, data }
         }
-    })
+
+        return {
+            status: response.status,
+            ok: response.ok,
+            data
+        }
+    } catch (err) {
+        goTofailure()
+        throw err
+    }
 }
 
 const fetchGet = (url, config) => {
