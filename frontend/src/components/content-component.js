@@ -189,12 +189,12 @@ class ContentComponent extends HTMLElement {
             p.textContent = ""
             
             const word = input.value.trim().toUpperCase()
-            const { game_uuid } = await createCustomGame(word)
+            const create_response = await createCustomGame(word)
             
-            if (!game_uuid){
+            if (!create_response.ok){
                 p.textContent = "Не удалось получить id игры"
             } else {
-                const url = routes.Game.reverse({game: game_uuid})
+                const url = routes.Game.reverse({game: create_response.data.game_uuid})
                 goTo(url)
                 // TODO
                 // 'перейти к игре' OR copy game Link

@@ -7,6 +7,7 @@ class GameComponent extends HTMLElement {
         super()
         this._suppressCallback = true
         this.id = this.getAttribute('id')
+        this.len = this.getAttribute('len')
 
         const shadow = this.attachShadow({mode: 'open'})
         const wrapper = document.createElement('div')

@@ -1,4 +1,4 @@
 <header-component></header-component>
 <main-nav></main-nav>
-<game-component id="${props.game}">
+<game-component id="${props.game}" len="${props.len}">
 </game-component>

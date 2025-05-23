@@ -18,8 +18,15 @@ const baseFetch = (url, config = {}, params) => {
             }
             window.fetch(`${apiServer}${api_prefix}${url}`, {
                 ..._config
-            }).then(response=>response.json())
-            .then(resolve, reject)
+            }).then(async response=>{
+                const data = await response.json()
+                resolve({
+                        status: response.status,
+                        ok: response.ok,
+                        data
+                    })
+            }) 
+            .then(reject)
         } catch(e){
             reject(e)
         }

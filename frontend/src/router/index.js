@@ -7,6 +7,8 @@ import CreatePage from '../pages/create.template'
 import GamePage from '../pages/game.template'
 import NotFoundPage from '../pages/not_found.template'
 
+import { getGameByUUID } from '../api/endpoints'
+
 
 export const routes = {
     Main: new Route(appConstants.routes.index),
@@ -22,10 +24,20 @@ const routesWithPages = [
     { route: routes.Game, page: GamePage },
 ]
 
-export const getPathRoute = (path) => {
+export const getPathRoute = async (path) => {
     const target = routesWithPages.find(r => r.route.match(path))
     if (target) {
         const params = target.route.match(path)
+        if (target.page === GamePage) {
+            const game_uuid = params.game
+            const game_response = await getGameByUUID(game_uuid)
+            
+            if (!game_response.ok) {
+                return null
+            }
+            params.len = game_response.data.len.len
+        }
+        
         return {
             page: target.page,
             route: target.route,
@@ -35,10 +47,10 @@ export const getPathRoute = (path) => {
     return null
 }
 
-export const render = (path) => {
+export const render = async (path) => {
     let result = NotFoundPage()
 
-    const pathRoute = getPathRoute(path)
+    const pathRoute = await getPathRoute(path)
 
     if (pathRoute) {
         result = pathRoute.page(pathRoute.params)
@@ -46,9 +58,9 @@ export const render = (path) => {
     document.querySelector('#app').innerHTML = result
 }
 
-export const getRouterParams = () => {
+export const getRouterParams = async () => {
     const url = new URL(window.location.href).pathname
-    return getPathRoute(url)
+    return await getPathRoute(url)
 }
 
 export const goTo = (path) => {
