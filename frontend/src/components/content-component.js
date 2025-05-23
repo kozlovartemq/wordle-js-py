@@ -136,6 +136,28 @@ class ContentComponent extends HTMLElement {
         else if (this.type === appConstants.container.types.games) {
             this.getGamesPage()
         }
+        else if (this.type === appConstants.container.types.failure) {
+            this.getFailurePage()
+        }
+    }
+
+    getFailurePage(){
+        const shadow = this.shadowRoot;
+        const wrapper = shadow.querySelector('.common-container')
+        const word = document.createElement('word-component')
+        word.content = '500'
+        const letters = word.shadowRoot.querySelectorAll('.letter-box')
+        letters.forEach(element => {
+            element.style.background = appConstants.custom_color.red
+            element.style.color = 'white'
+        });
+        wrapper.appendChild(word)
+        const title = document.createElement('h2')
+        title.setAttribute('class', 'content-title')
+        title.textContent = 'Произошла внутренняя ошибка! Сообщите админу что вы делали.'
+
+        wrapper.appendChild(word)
+        wrapper.appendChild(title)
     }
 
     getNotFoundPage(){
@@ -225,7 +247,7 @@ class ContentComponent extends HTMLElement {
             button.disabled = true
             //goto game 
             //const url = 
-            //goTo(url)
+            //
         })
         const input = shadow.querySelector('input.game-input')
         input.addEventListener("input", (e) => {

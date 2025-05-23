@@ -4,6 +4,7 @@
         games: '/games',
         game: '/games/:game',
         create: '/create',
+        fail: '/failure',
     },
     search: {
        types: {
@@ -18,6 +19,7 @@
            games: 'games',
            game: 'game',
            not_found: '404',
+           failure: '5xx',
        }
     },
     custom_color:{
