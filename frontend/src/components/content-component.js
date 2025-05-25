@@ -1,6 +1,7 @@
 import appConstants from '../common/constants'
 import { goTo, routes } from '../router'
-import { createCustomGame } from '../api/endpoints'
+import { createCustomGame, getGameByUUID } from '../api/endpoints'
+import { isValidUUID, isValidWord } from '../common/utils'
 
 class ContentComponent extends HTMLElement {
     constructor(){
@@ -40,11 +41,19 @@ class ContentComponent extends HTMLElement {
             .input-container {
                 display: flex;
                 justify-content: center;
-                align-items: center;
+                align-items: flex-start;
                 gap: 12px;
                 margin-top: 30px;
                 padding-bottom: 20px;
                 width: 500px;
+            }
+
+            .input-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0px
+                flex-grow: 1;
             }
   
             input {
@@ -55,6 +64,7 @@ class ContentComponent extends HTMLElement {
                 outline: none;
                 width: 300px;
                 transition: border-color 0.3s, box-shadow 0.3s;
+                height: 1rem;
             }
             
             input:focus {
@@ -71,6 +81,7 @@ class ContentComponent extends HTMLElement {
                 border-radius: 8px;
                 cursor: pointer;
                 transition: background-color 0.3s, transform 0.2s;
+                height: 41px;
             }
             
             .submit-button:hover {
@@ -184,7 +195,7 @@ class ContentComponent extends HTMLElement {
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
         <h2 class="content-title">Начни обычную игру нажатием кнопки!</h2>
-        <button class="submit-button" type="start-casual">Начать игру!</button>
+        <button class="submit-button" data-action="start-casual">Начать игру!</button>
         `
 
     }
@@ -195,13 +206,15 @@ class ContentComponent extends HTMLElement {
         wrapper.innerHTML = `
         <h2 class="content-title">Создай свою игру, загадав слово!</h2>
         <div class="input-container">
-            <input type="text" class="word-input" maxLength=6 placeholder="Загадайте слово!" />
-            <button class="submit-button" type="create-word">Ввод</button>
-            <p class="input-hint"></p>
+            <div class="input-wrapper">
+                <input type="text" class="word-input" maxLength=6 placeholder="Загадайте слово!" />
+                <p class="input-hint"></p>
+            </div>
+            <button class="submit-button" data-action="create-word">Проверить</button>
         </div>
         `
         // TODO: dry listeners
-        const button = shadow.querySelector('button[type="create-word"]')
+        const button = shadow.querySelector('button[data-action="create-word"]')
         const input = shadow.querySelector('input.word-input')
         const p = wrapper.querySelector('.input-hint')
 
@@ -225,7 +238,12 @@ class ContentComponent extends HTMLElement {
         })
         input.addEventListener("input", (e) => {
             e.stopPropagation()
-            button.disabled = false
+            input.value = input.value.replace(' ', '')
+            if (isValidWord(input.value)) {
+                button.disabled = false
+            } else {
+                button.disabled = true
+            }
         })
     }    
         
@@ -235,24 +253,41 @@ class ContentComponent extends HTMLElement {
         wrapper.innerHTML = `
         <h2 class="content-title">Найди игру, если у тебя есть его id!</h2>
         <div class="input-container">
-            <input type="text" class="game-input" maxLength=32 placeholder="Найди игру по его id!" />
-            <button class="submit-button" type="check-game">Проверить</button>
-            <p class="input-hint"></p>
+            <div class="input-wrapper">
+                <input type="text" class="game-input" maxLength=36 placeholder="Найди игру по его id!" />
+                <p class="input-hint"></p>
+            </div>
+            <button class="submit-button" data-action="check-game">Проверить</button>
         </div>
         `
-        const button = shadow.querySelector('button[type="check-game"]')
-        button.addEventListener('click', (e) => {
-            e.stopPropagation()
-            console.log('button')
-            button.disabled = true
-            //goto game 
-            //const url = 
-            //
-        })
+        const button = shadow.querySelector('button[data-action="check-game"]')
         const input = shadow.querySelector('input.game-input')
+        const p = wrapper.querySelector('.input-hint')
+
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation()
+            const game_uuid = input.value.trim().toLowerCase()
+            button.disabled = true
+            p.textContent = ""
+
+            const game_response = await getGameByUUID(game_uuid)
+            if (game_response.status >= 400 && game_response.status < 500) {
+                p.textContent = game_response.data["detail"]["0"]["msg"]
+            }
+            if (game_response.ok){
+                const url = routes.Game.reverse({game: game_uuid})
+                goTo(url)
+            }
+
+        })
         input.addEventListener("input", (e) => {
             e.stopPropagation()
-            button.disabled = false
+            input.value = input.value.replace(' ', '')
+            if (isValidUUID(input.value)) {
+                button.disabled = false
+            } else {
+                button.disabled = true
+            }
         })
     }    
     
