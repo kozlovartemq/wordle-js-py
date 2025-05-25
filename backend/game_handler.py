@@ -1,12 +1,13 @@
 from collections import Counter
+from api.v1.game.schemas import WordRevision
 
 
 class GameHandler:
 
-    def __init__(self, word: str):
-        self.correct_word = word
+    def __init__(self, correct_word: str):
+        self.correct_word = correct_word
 
-    def check_word(self, word: str) -> dict[int, str]:
+    def check_word(self, word: str) -> WordRevision:
         word_len = len(word)
         if len(self.correct_word) != len(word):
             return {"error": "Wrong word length", "error_code": 400}

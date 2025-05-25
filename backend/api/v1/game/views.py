@@ -3,10 +3,11 @@ import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Request, Response, HTTPException
 from fastapi.responses import RedirectResponse
+from starlette.status import HTTP_404_NOT_FOUND
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.game.schemas import GameCreate, GameRead, GameDelete, WordRequest
+from api.v1.game.schemas import GameCreate, GameRead, GameDelete, WordRequest, WordRevision, CheckRequest
 from core.config import settings
 from core.models.db_helper import db_helper
 from core.models.game import get_all_games, create_game, get_game_by_word, get_game_by_uuid, delete_old_games
@@ -14,6 +15,17 @@ from core.models.game import get_all_games, create_game, get_game_by_word, get_g
 
 
 game_router = APIRouter(tags=["Game"], prefix='/games')
+
+
+@game_router.post('/check_word', response_model=WordRevision)
+async def check_word(
+    data: CheckRequest,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    from game_handler import GameHandler
+    
+    game = await get_game_by_uuid(session, data.uuid)
+    return GameHandler(game.word).check_word(data.word)
 
 
 @game_router.post('/create_custom')
@@ -62,7 +74,7 @@ async def get_game(
 ):
     game = await get_game_by_uuid(session, game_id)
     if game is None:
-        raise HTTPException(404, "Игра с таким идентификатором не найдена")
+        raise HTTPException(HTTP_404_NOT_FOUND, "Игра с таким идентификатором не найдена")
     return {"msg": "Игра существует", "len": len(game.word)}
     
 
