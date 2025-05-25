@@ -1,4 +1,4 @@
- const appConstants = {
+const appConstants = {
     routes: {
         index: '/',
         games: '/games',
@@ -25,7 +25,8 @@
     custom_color:{
         green: '#1ba122',
         red: '#e53935',
-        dark_green: '#08610c'
+        dark_green: '#08610c',
+        yellow: '#f3c237'
     }
 }
 
