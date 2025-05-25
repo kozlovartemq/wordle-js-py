@@ -4,12 +4,12 @@ import { createCustomGame, getGameByUUID } from '../api/endpoints'
 import { isValidUUID, isValidWord } from '../common/utils'
 
 class ContentComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
         this._suppressCallback = true
         this.type = appConstants.container.types.main
 
-        const shadow = this.attachShadow({mode: 'open'})
+        const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'common-container')
 
@@ -116,10 +116,10 @@ class ContentComponent extends HTMLElement {
 
     }
 
-    connectedCallback(){
+    connectedCallback() {
         this.updateComponent()
     }
-    
+
     // static get observedAttributes(){
     //     return ['type']
     // }
@@ -130,7 +130,7 @@ class ContentComponent extends HTMLElement {
     //     this.updateComponent()
     // }
 
-    updateComponent(){
+    updateComponent() {
         const type = this.getAttribute('type')
         if (type) {
             this.type = type
@@ -152,7 +152,7 @@ class ContentComponent extends HTMLElement {
         }
     }
 
-    getFailurePage(){
+    getFailurePage() {
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         const word = document.createElement('word-component')
@@ -171,7 +171,7 @@ class ContentComponent extends HTMLElement {
         wrapper.appendChild(title)
     }
 
-    getNotFoundPage(){
+    getNotFoundPage() {
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         const word = document.createElement('word-component')
@@ -190,7 +190,7 @@ class ContentComponent extends HTMLElement {
         wrapper.appendChild(title)
     }
 
-    getMainPage(){
+    getMainPage() {
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
@@ -200,7 +200,7 @@ class ContentComponent extends HTMLElement {
 
     }
 
-    getCreatePage(){
+    getCreatePage() {
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
@@ -222,19 +222,19 @@ class ContentComponent extends HTMLElement {
             e.stopPropagation()
             button.disabled = true
             p.textContent = ""
-            
+
             const word = input.value.trim().toUpperCase()
             const create_response = await createCustomGame(word)
-            
-            if (!create_response.ok){
+
+            if (!create_response.ok) {
                 p.textContent = "Не удалось получить id игры"
             } else {
-                const url = routes.Game.reverse({game: create_response.data.game_uuid})
+                const url = routes.Game.reverse({ game: create_response.data.game_uuid })
                 goTo(url)
                 // TODO
                 // 'перейти к игре' OR copy game Link
             }
-            
+
         })
         input.addEventListener("input", (e) => {
             e.stopPropagation()
@@ -245,9 +245,9 @@ class ContentComponent extends HTMLElement {
                 button.disabled = true
             }
         })
-    }    
-        
-    getGamesPage(){
+    }
+
+    getGamesPage() {
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
@@ -274,8 +274,8 @@ class ContentComponent extends HTMLElement {
             if (game_response.status >= 400 && game_response.status < 500) {
                 p.textContent = game_response.data["detail"]["0"]["msg"]
             }
-            if (game_response.ok){
-                const url = routes.Game.reverse({game: game_uuid})
+            if (game_response.ok) {
+                const url = routes.Game.reverse({ game: game_uuid })
                 goTo(url)
             }
 
@@ -289,8 +289,8 @@ class ContentComponent extends HTMLElement {
                 button.disabled = true
             }
         })
-    }    
-    
+    }
+
 }
 
 customElements.define('content-component', ContentComponent)

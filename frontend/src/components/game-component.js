@@ -28,7 +28,7 @@ class GameComponent extends HTMLElement {
         input_container.setAttribute('class', 'input-container')
         const input_wrapper = document.createElement('div')
         input_wrapper.setAttribute('class', 'input-wrapper')
-        
+
         const input = document.createElement('input')
         input.setAttribute('type', 'text')
         input.setAttribute('class', 'word-input')

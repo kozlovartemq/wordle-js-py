@@ -1,9 +1,9 @@
 import appConstants from '../common/constants'
 
 class HeaderComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
-        const shadow = this.attachShadow({mode: 'open'})
+        const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'header-panel')
 
@@ -26,7 +26,7 @@ class HeaderComponent extends HTMLElement {
         shadow.appendChild(wrapper)
     }
 
-    connectedCallback(){
+    connectedCallback() {
         const wrapper = this.shadowRoot.querySelector('.header-panel')
         const word = document.createElement('word-component')
         word.content = 'WORDLE'

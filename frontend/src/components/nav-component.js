@@ -1,17 +1,17 @@
 import appConstants from '../common/constants'
 
 class NavComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
-        const shadow = this.attachShadow({mode: 'open'})
+        const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
         this.searchType = appConstants.search.types.game
 
         wrapper.setAttribute('class', 'main-menu')
         this.links = [
-            {href: appConstants.routes.index, name: 'Домой', class: 'home-link'},
-            {href: appConstants.routes.create, name: 'Создать игру', class: 'create-link'},
-            {href: appConstants.routes.games, name: 'Найти игру', class: 'games-link'},
+            { href: appConstants.routes.index, name: 'Домой', class: 'home-link' },
+            { href: appConstants.routes.create, name: 'Создать игру', class: 'create-link' },
+            { href: appConstants.routes.games, name: 'Найти игру', class: 'games-link' },
         ]
 
         const style = document.createElement('style')
@@ -67,7 +67,7 @@ class NavComponent extends HTMLElement {
         search.setAttribute('class', 'global-search')
         search.addEventListener('keyup', (e) => {
             e.stopPropagation()
-            if(e.key === 'Enter') {
+            if (e.key === 'Enter') {
                 e.preventDefault()
                 const text = e.target.value
                 console.log('search', text)
@@ -86,10 +86,10 @@ class NavComponent extends HTMLElement {
     //     if(this.searchType === appConstants.search.types.game){
     //         input.setAttribute('placeholder', 'Search game by id...')
     //     }
-        
+
     // }
 
-    connectedCallback(){
+    connectedCallback() {
         const shadow = this.shadowRoot;
         // const searchText = this.getAttribute('search')
         this.searchType = this.getAttribute('type') ? this.getAttribute('type') : appConstants.search.types.game
@@ -99,25 +99,25 @@ class NavComponent extends HTMLElement {
         //     input.value = searchText
         // }
 
-        const {pathname: path} = new URL(window.location.href)
+        const { pathname: path } = new URL(window.location.href)
         const link = this.links.find((l) => l.href === path)
 
-        if(link) {
+        if (link) {
             const linkElement = shadow.querySelector(`.${link.class}`)
             linkElement.setAttribute('selected', 'true')
         }
     }
 
-    
-    static get observedAttributes(){
+
+    static get observedAttributes() {
         return ['search', 'type']
     }
 
-    attributeChangedCallback(name, oldValue, newValue){
+    attributeChangedCallback(name, oldValue, newValue) {
         // if(name === 'search'){
         //     this.updateSearch()
         // }
-        if(name === 'type'){
+        if (name === 'type') {
             this.searchType = newValue
             // this.updateSearch()
         }

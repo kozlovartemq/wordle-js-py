@@ -2,9 +2,9 @@ import appConstants from '../common/constants'
 import { goTo } from '../router'
 
 class LinkComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
-        const shadow = this.attachShadow({mode: 'open'})
+        const shadow = this.attachShadow({ mode: 'open' })
         const link = document.createElement('a')
         const style = document.createElement('style')
         this.selected = false;
@@ -34,7 +34,7 @@ class LinkComponent extends HTMLElement {
 
     }
 
-    connectedCallback(){
+    connectedCallback() {
         const shadow = this.shadowRoot;
         const childNodes = shadow.choldNodes;
 
@@ -47,24 +47,24 @@ class LinkComponent extends HTMLElement {
 
     onClick = (e) => {
         e.preventDefault()
-        if(!this.selected){
-            const { pathname: path} = new URL(e.target.href)
+        if (!this.selected) {
+            const { pathname: path } = new URL(e.target.href)
             goTo(path)
         }
     }
 
-    static get observedAttributes(){
+    static get observedAttributes() {
         return ['selected']
     }
 
-    attributeChangedCallback(name, oldValue, newValue){
-        if(name === 'selected'){
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === 'selected') {
             this.updateStyle(JSON.parse(newValue))
         }
     }
 
-    updateStyle(selected){
-        if(selected){
+    updateStyle(selected) {
+        if (selected) {
             const shadow = this.shadowRoot
             const style = shadow.querySelector('style')
             this.selected = true

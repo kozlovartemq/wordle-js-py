@@ -1,7 +1,7 @@
 class WordComponent extends HTMLElement {
-    constructor(){
+    constructor() {
         super()
-        const shadow = this.attachShadow({mode: 'open'})
+        const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'word-container')
         this._content = ''

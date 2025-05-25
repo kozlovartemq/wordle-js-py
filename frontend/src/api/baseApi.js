@@ -44,27 +44,27 @@ const fetchGet = (url, config) => {
     return baseFetch(url, config)
 }
 
-const fetchPost = (url, params ={}, config = {}) => {
+const fetchPost = (url, params = {}, config = {}) => {
     return baseFetch(url, {
         ...config,
         method: 'POST'
     }, params)
 }
 
-const fetchPut = (url, params ={}, config = {}) => {
+const fetchPut = (url, params = {}, config = {}) => {
     return baseFetch(url, {
         ...config,
         method: 'PUT'
     }, params)
 }
-const fetchPatch = (url, params ={}, config = {}) => {
+const fetchPatch = (url, params = {}, config = {}) => {
     return baseFetch(url, {
         ...config,
         method: 'PATCH'
     }, params)
 }
 
-const fetchDelete = (url, params ={}, config = {}) => {
+const fetchDelete = (url, params = {}, config = {}) => {
     return baseFetch(url, {
         ...config,
         method: 'DELETE'

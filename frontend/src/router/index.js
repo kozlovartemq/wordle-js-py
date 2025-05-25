@@ -34,13 +34,13 @@ export const getPathRoute = async (path) => {
         if (target.page === GamePage) {
             const game_uuid = params.game
             const game_response = await getGameByUUID(game_uuid)
-            
+
             if (!game_response.ok) {
                 return null
             }
             params.len = game_response.data.len
         }
-        
+
         return {
             page: target.page,
             route: target.route,
@@ -67,7 +67,7 @@ export const getRouterParams = async () => {
 }
 
 export const goTo = (path) => {
-    window.history.pushState({path}, path, path)
+    window.history.pushState({ path }, path, path)
     render(path)
 }
 
@@ -77,12 +77,12 @@ export const goTofailure = () => {
 
 const initRouter = () => {
     window.addEventListener('popstate', e => {
-        render( new URL(window.location.href).pathname)
+        render(new URL(window.location.href).pathname)
     })
     document.querySelectorAll('[href^="/"]').forEach(el => {
         el.addEventListener('click', (env) => {
             env.preventDefault()
-            const {pathname: path} = new URL(env.target.href)
+            const { pathname: path } = new URL(env.target.href)
             goTo(path)
         })
     })
