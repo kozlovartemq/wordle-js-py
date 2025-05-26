@@ -1,6 +1,7 @@
 
-export const isValidWord = (value) => {
-    return /^[а-яА-Я]{5}$/.test(value);
+export const isValidWord = (value, length) => {
+    // return /^[а-яА-Я]{5}$/.test(value);
+    return RegExp(`^[а-яА-Я]{${length}}$`).test(value);
 }
 
 export const isValidUUID = (value) => {

@@ -7,6 +7,7 @@ class GameComponent extends HTMLElement {
         super()
         this.game_id = this.getAttribute('id')
         this.len = parseInt(this.getAttribute('len'))
+        this.dictionary = this.getAttribute('dictionary')
         this.attempts = 6
 
         const shadow = this.attachShadow({ mode: 'open' })
@@ -55,7 +56,7 @@ class GameComponent extends HTMLElement {
             .common-container {
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 0px;
                 align-items: center;
             }
 
@@ -176,18 +177,19 @@ class GameComponent extends HTMLElement {
         const shadow = this.shadowRoot
         const button = shadow.querySelector('button[data-action="check-word"]')
         const input = shadow.querySelector('input.word-input')
+        const p = shadow.querySelector('.input-hint')
 
         button.addEventListener('click', (e) => {
             e.stopPropagation()
             const word = input.value.trim().toUpperCase()
             button.disabled = true
-            input.value = ""
-            this.fillNext(this.game_id, word)
+            p.textContent = ""
+            this.fillNext(this.game_id, word, this.dictionary)
         })
         input.addEventListener("input", (e) => {
             e.stopPropagation()
             input.value = input.value.replace(' ', '')
-            if (isValidWord(input.value)) {
+            if (isValidWord(input.value, this.len)) {
                 button.disabled = false
             } else {
                 button.disabled = true
@@ -196,27 +198,35 @@ class GameComponent extends HTMLElement {
         })
     }
 
-    async fillNext(game_id, word) {
+    async fillNext(game_id, word, dictionary) {
         const shadow = this.shadowRoot
+        const input = shadow.querySelector('input.word-input')
+        const p = shadow.querySelector('.input-hint')
         const word_id = 6 - this.attempts
         const word_component = shadow.querySelector(`word-component[id="${word_id}"]`)
         const word_shadow = word_component.shadowRoot
-        const response = await checkWord(game_id, word)
-        word_component.content = word
-        const game_revision = response.data
-        const colorMap = {
-            true: appConstants.custom_color.green,
-            false: appConstants.custom_color.yellow,
-            none: appConstants.custom_color.red,
-        }
+        const response = await checkWord(game_id, word.toUpperCase(), dictionary)
+        if (!response.ok){
+            p.textContent = response.data["detail"]
+        } else {
+            input.value = ""
+            word_component.content = word
+            const game_revision = response.data
+            const colorMap = {
+                true: appConstants.custom_color.green,
+                false: appConstants.custom_color.yellow,
+                none: appConstants.custom_color.red,
+            }
 
-        for (let i = 0; i < this.len; i++) {
-            const letter = word_shadow.querySelector(`div[id="${i}"]`)
-            const result = game_revision[i]
-            letter.style.background = colorMap[result]
+            for (let i = 0; i < this.len; i++) {
+                const letter = word_shadow.querySelector(`div[id="${i}"]`)
+                const result = game_revision[i]
+                letter.style.background = colorMap[result]
+            }
+            this.attempts--
+            this.updateAttemptsH2()
         }
-        this.attempts--
-        this.updateAttemptsH2()
+        
     }
 
 }
