@@ -13,8 +13,10 @@ from core.models.base import Base
 class GameModel(Base):
     __tablename__ = "games" # type: ignore
     
+    id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[UUID] = mapped_column(index=True)
     word: Mapped[str]
+    dictionary: Mapped[bool]
     created_at: Mapped[float]
 
 
@@ -29,10 +31,11 @@ async def get_all_games(
 
 async def get_game_by_word(
         session: AsyncSession,
-        game_word: str
+        game_word: str,
+        dictionary: bool
 ) -> GameModel | None:
     
-    stmt = select(GameModel).where(GameModel.word == game_word)
+    stmt = select(GameModel).where(GameModel.word == game_word.upper()).where(GameModel.dictionary == dictionary)
     res = await session.scalars(stmt)
     return res.first()
 

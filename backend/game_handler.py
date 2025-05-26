@@ -5,12 +5,11 @@ from api.v1.game.schemas import WordRevision
 class GameHandler:
 
     def __init__(self, correct_word: str):
-        self.correct_word = correct_word
+        self.correct_word = correct_word.upper()
 
     def check_word(self, word: str) -> WordRevision:
         word_len = len(word)
-        if len(self.correct_word) != len(word):
-            return {"error": "Wrong word length", "error_code": 400}
+        assert len(self.correct_word) == len(word), "Проверяемое слово и эталонное слово имеют разную длину."
         word = word.upper()
         count_dict = dict(Counter(self.correct_word).items())
         res = {}

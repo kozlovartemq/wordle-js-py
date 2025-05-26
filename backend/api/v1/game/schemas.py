@@ -5,17 +5,21 @@ from pydantic import BaseModel, RootModel, Field, field_validator, conint, root_
 
 
 class WordRequest(BaseModel):
-    word: str = Field(min_length=5, max_length=6)
+    word: str = Field(min_length=4, max_length=6)
 
     @field_validator('word')
     @classmethod
     def validate_cyrillic(cls, value):
-        if not re.fullmatch(r'^[а-яА-Я]{5,6}$', value):
+        if not re.fullmatch(r'^[а-яА-Я]{4,6}$', value):
             raise ValueError('String should have only cyrillic characters')
         return value
 
 
-class CheckRequest(WordRequest):
+class CreateCustomRequest(WordRequest):
+    dictionary: bool
+
+
+class CheckRequest(CreateCustomRequest):
     uuid: UUID
 
 
@@ -24,14 +28,20 @@ class WordRevision(RootModel):
 
     @root_validator(pre=True)
     def check_length(cls, values):
-        if not (5 <= len(values.get('__root__')) <= 6):
-            raise ValueError("Expected 5 or 6 items")
+        if not (4 <= len(values.get('__root__')) <= 6):
+            raise ValueError("Expected 4 or 5 or 6 items")
         return values
+
+
+class SuccessGameResponse(BaseModel):
+    msg: str
+    game_uuid: UUID
 
 
 class GameBase(BaseModel):
     uuid: UUID
     word: str
+    dictionary: bool
     created_at: float
 
 
