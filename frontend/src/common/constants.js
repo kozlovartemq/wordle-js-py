@@ -26,6 +26,7 @@ const appConstants = {
         green: '#1ba122',
         red: '#e53935',
         dark_green: '#08610c',
+        wordle_green: '#6aaa64',
         yellow: '#f3c237'
     }
 }
