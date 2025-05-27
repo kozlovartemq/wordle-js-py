@@ -19,7 +19,7 @@ class CreateCustomRequest(WordRequest):
     dictionary: bool
 
 
-class CheckRequest(CreateCustomRequest):
+class CheckRequest(WordRequest):
     uuid: UUID
 
 
@@ -43,6 +43,8 @@ class GameBase(BaseModel):
     word: str
     dictionary: bool
     created_at: float
+    is_daily: bool = False
+    is_archived: bool = False
 
 
 class GameCreate(GameBase):

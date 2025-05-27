@@ -1,5 +1,6 @@
 from collections import Counter
-from api.v1.game.schemas import WordRevision
+
+from api.v1.schemas import WordRevision
 
 
 class GameHandler:

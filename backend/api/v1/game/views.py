@@ -1,16 +1,16 @@
 import uuid
-from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Request, Response, HTTPException
 from fastapi.responses import RedirectResponse
-from starlette.status import HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY
-from pydantic import BaseModel
+from starlette.status import HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY, HTTP_401_UNAUTHORIZED
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.game.schemas import GameCreate, GameRead, GameDelete, WordRevision, CheckRequest, CreateCustomRequest, SuccessGameResponse
+from api.v1.schemas import GameCreate, WordRevision, CheckRequest, CreateCustomRequest, SuccessGameResponse
 from core.config import settings
 from core.models.db_helper import db_helper
 from core.models.game import get_all_games, create_game, get_game_by_word, get_game_by_uuid, delete_old_games
 from core.models.word import get_random_word, get_word
+from utils.time_helper import utc_now_timestamp
+from utils.game_handler import GameHandler
 
 
 game_router = APIRouter(tags=["Game"], prefix='/games')
@@ -22,22 +22,21 @@ async def check_word(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
 
-    async def check():
-        from game_handler import GameHandler
-
-        game = await get_game_by_uuid(session, data.uuid)
-        if len(data.word) != len(game.word):
-            raise HTTPException(HTTP_422_UNPROCESSABLE_ENTITY, "Введнное слово и эталонное слово имеют разную длину.")
+    game = await get_game_by_uuid(session, data.uuid)
+    if len(data.word) != len(game.word):
+        raise HTTPException(HTTP_422_UNPROCESSABLE_ENTITY, "Введнное слово и эталонное слово имеют разную длину.")
+      
+    def check():
         return GameHandler(game.word).check_word(data.word)
-
-    if data.dictionary:
-        is_in_dictionary = await get_word(session=session, word=data.word)
-        if is_in_dictionary is not None:
-            return await check()
+  
+    if game.dictionary:
+        word_in_dictionary = await get_word(session=session, word=data.word)
+        if word_in_dictionary is not None:
+            return check()
         else:
             raise HTTPException(HTTP_404_NOT_FOUND, "Такого слова нет в словаре.")
     else:
-        return await check()
+        return check()
 
     
 
@@ -64,7 +63,9 @@ async def create_custom_game(
             uuid=game_uuid,
             word=new_word.upper(),
             dictionary=data.dictionary,
-            created_at=datetime.now(timezone.utc).timestamp()
+            created_at=utc_now_timestamp(),
+            is_daily=False,
+            is_archived=False
         )
     )
     
@@ -84,19 +85,13 @@ async def create_casual_game(
             uuid=game_uuid,
             word=random_word_response.word.upper(),
             dictionary=True,
-            created_at=datetime.now(timezone.utc).timestamp()
+            created_at=utc_now_timestamp(),
+            is_daily=False,
+            is_archived=False
         )
     )
     
     return {"msg": "Создана новая игра", "game_uuid": new_game.uuid}
-
-
-@game_router.get("/games", response_model=list[GameRead])
-async def get_games(
-    session: AsyncSession = Depends(db_helper.session_dependency)
-):
-    games = await get_all_games(session=session)
-    return games
 
 
 @game_router.get('/{game_id}')
@@ -113,15 +108,6 @@ async def get_game(
 @game_router.get('/')
 def all_games():
     # todo html- img
-    return Response(status_code=401, ) # content=
+    raise HTTPException(HTTP_401_UNAUTHORIZED)
 
 
-@game_router.delete('/delete_old',
-                    summary=f"Delete games older than {settings.deleteJob.threshold_hours} hours",
-                    response_model=list[GameDelete]
-)
-async def delete_old(
-    session: AsyncSession = Depends(db_helper.session_dependency)
-) -> list[GameDelete]:
-    deleted_games = await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours)
-    return deleted_games

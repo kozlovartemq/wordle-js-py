@@ -83,6 +83,7 @@ class Setting(BaseSettings):
         env_prefix="APP_CONFIG__",
     )
     main_api_prefix: str = "/api"
+    admin_secret: str = "admin"
     run: RunConfig = RunConfig()
     logging: LoggingConfig = LoggingConfig()
     db: DatabaseConfig = DatabaseConfig()
