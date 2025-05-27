@@ -110,7 +110,7 @@ class ContentComponent extends HTMLElement {
                 height: 20px; /* зарезервировать место, даже когда пусто */
             }
 
-            // length-selector
+            /* length-selector */
 
             .word-length-selector {
                 text-align: center;
@@ -154,7 +154,7 @@ class ContentComponent extends HTMLElement {
             }
 
 
-            // checkbox
+            /* чекбокс */
 
             .dictionary-check {
                 margin-top: 1.5rem;
@@ -333,6 +333,7 @@ class ContentComponent extends HTMLElement {
 
         const length_buttons = shadow.querySelectorAll('button.length-button')
         const submit_button = shadow.querySelector('button[data-action="create-word"]')
+        submit_button.disabled = true
         const input = shadow.querySelector('input.word-input')
         const p = wrapper.querySelector('.input-hint')
         let word_len = "5"
@@ -378,7 +379,7 @@ class ContentComponent extends HTMLElement {
         })
         input.addEventListener("input", (e) => {
             e.stopPropagation()
-            input.value = input.value.replace(' ', '')
+            e.target.value = e.target.value.replace(/[^а-яА-Я]/g, "")
             if (isValidWord(input.value, word_len)) {
                 submit_button.disabled = false
             } else {
@@ -401,6 +402,7 @@ class ContentComponent extends HTMLElement {
         </div>
         `
         const button = shadow.querySelector('button[data-action="check-game"]')
+        button.disabled = true
         const input = shadow.querySelector('input.game-input')
         const p = wrapper.querySelector('.input-hint')
 
@@ -422,7 +424,7 @@ class ContentComponent extends HTMLElement {
         })
         input.addEventListener("input", (e) => {
             e.stopPropagation()
-            input.value = input.value.replace(' ', '')
+            e.target.value = e.target.value.replace(" ", "")
             if (isValidUUID(input.value)) {
                 button.disabled = false
             } else {

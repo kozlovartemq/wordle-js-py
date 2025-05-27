@@ -20,8 +20,8 @@ class NavComponent extends HTMLElement {
            .main-menu {
            
                 position: fixed;
-                top: 20px;       /* Можешь изменить на bottom: 20px для нижнего угла */
-                left: 20px;      /* Или right: 20px для правого края */
+                top: 20px;
+                left: 20px;    
                 box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                 display: flex;
                 flex-direction: column;
