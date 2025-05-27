@@ -14,6 +14,18 @@ class GameComponent extends HTMLElement {
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'common-container')
 
+        const dictionary_status = document.createElement('div')
+        dictionary_status.setAttribute('class', 'dictionary-status')
+        const status_indicator = document.createElement('span')
+        status_indicator.setAttribute('class', 'status-indicator')
+        const status_text = document.createElement('span')
+        status_text.setAttribute('class', 'status-text')
+
+
+        dictionary_status.appendChild(status_indicator)
+        dictionary_status.appendChild(status_text)
+        wrapper.appendChild(dictionary_status)
+
         const title = document.createElement('h2')
         title.setAttribute('class', 'attempts-remaining')
         wrapper.appendChild(title)
@@ -159,8 +171,26 @@ class GameComponent extends HTMLElement {
                 font-size: 16px;
                 color: ${appConstants.custom_color.red};
                 margin-top: 10px;
-                height: 20px; /* зарезервировать место, даже когда пусто */
+                height: 20px;
             }
+
+            /* dictionary-status */
+
+            .dictionary-status {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 12px;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .status-indicator {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background-color: gray; /* по умолчанию */
+            }
+
         `
         shadow.appendChild(style)
         shadow.appendChild(wrapper)
@@ -184,11 +214,11 @@ class GameComponent extends HTMLElement {
             const word = input.value.trim().toUpperCase()
             button.disabled = true
             p.textContent = ""
-            this.fillNext(this.game_id, word, this.dictionary)
+            this.fillNext(this.game_id, word)
         })
         input.addEventListener("input", (e) => {
             e.stopPropagation()
-            input.value = input.value.replace(' ', '')
+            e.target.value = e.target.value.replace(/[^а-яА-Я]/g, "")
             if (isValidWord(input.value, this.len)) {
                 button.disabled = false
             } else {
@@ -196,17 +226,29 @@ class GameComponent extends HTMLElement {
             }
 
         })
+
+        const status_indicator = shadow.querySelector('.status-indicator')
+        const status_text = shadow.querySelector('.status-text')
+        if (this.dictionary === "true") {
+            status_indicator.style.backgroundColor = appConstants.custom_color.wordle_green
+            status_text.textContent = "Проверка слов в словаре включена"
+            status_text.style.color = appConstants.custom_color.wordle_green
+        } else {
+            status_indicator.style.backgroundColor = appConstants.custom_color.red
+            status_text.textContent = "Проверка слов в словаре отключена"
+            status_text.style.color = appConstants.custom_color.red
+        }
     }
 
-    async fillNext(game_id, word, dictionary) {
+    async fillNext(game_id, word) {
         const shadow = this.shadowRoot
         const input = shadow.querySelector('input.word-input')
         const p = shadow.querySelector('.input-hint')
         const word_id = 6 - this.attempts
         const word_component = shadow.querySelector(`word-component[id="${word_id}"]`)
         const word_shadow = word_component.shadowRoot
-        const response = await checkWord(game_id, word.toUpperCase(), dictionary)
-        if (!response.ok){
+        const response = await checkWord(game_id, word.toUpperCase())
+        if (!response.ok) {
             p.textContent = response.data["detail"]
         } else {
             input.value = ""
@@ -226,7 +268,7 @@ class GameComponent extends HTMLElement {
             this.attempts--
             this.updateAttemptsH2()
         }
-        
+
     }
 
 }
