@@ -4,12 +4,12 @@ from fastapi.responses import ORJSONResponse
 from sqlalchemy import text
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from core.models.db_helper import db_helper
 from core.models.base import Base
-from game_handler import GameHandler
 from api.v1 import router as v1_router
 import sqlite3
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from core.models.game import delete_old_games
+    from core.models.game import delete_old_games, create_daily_game
 
     async with db_helper.engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
@@ -43,11 +43,28 @@ async def lifespan(app: FastAPI):
             async with db_helper.session_factory() as session:
                 await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours)
         
-        scheduler.add_job(delete_old_games_job, "interval", hours=settings.deleteJob.interval_hours)
+        async def create_daily_game_job():
+            async with db_helper.session_factory() as session:
+                await create_daily_game(session, to_replace=False)
+        
+        scheduler.add_job(
+            delete_old_games_job,
+            "interval",
+            hours=settings.deleteJob.interval_hours,
+            id="Delete Old Games"
+        )
+
+        scheduler.add_job(
+            create_daily_game_job,
+            trigger=CronTrigger(hour=0, minute=0, second=0, timezone="UTC"),
+            id="Create Daily Game",
+            replace_existing=True
+        )
         scheduler.start()
         logging.info("[lifespan][AsyncIOScheduler] Jobs set:\n%s", scheduler.get_jobs())
-        # run the job at the application start
+        # run the jobs at the application start
         await delete_old_games_job()
+        await create_daily_game_job()
 
     yield
     if scheduler:
