@@ -1,10 +1,11 @@
-const appConstants = {
+export const appConstants = {
     routes: {
         index: '/',
         games: '/games',
         game: '/games/:game',
         create: '/create',
         fail: '/failure',
+        daily: '/daily',
     },
     search: {
         types: {
@@ -25,10 +26,20 @@ const appConstants = {
     custom_color: {
         green: '#1ba122',
         red: '#e53935',
+        dark_red: '#8B0000',
         dark_green: '#08610c',
         wordle_green: '#6aaa64',
-        yellow: '#f3c237'
+        light_green: '#4caf50',
+        yellow: '#f3c237',
+        dark_yellow: '#997612',
+        link_blue: '#0c47a1'
     }
+}
+
+appConstants["map_color"] = {
+    true: appConstants.custom_color.green,
+    false: appConstants.custom_color.yellow,
+    none: appConstants.custom_color.red
 }
 
 export default appConstants

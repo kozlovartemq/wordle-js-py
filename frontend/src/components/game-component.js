@@ -1,5 +1,5 @@
 import appConstants from '../common/constants'
-import { isValidWord } from "../common/utils.js"
+import { arrayRemove } from "../common/utils.js"
 import { checkWord } from '../api/endpoints'
 
 class GameComponent extends HTMLElement {
@@ -9,59 +9,32 @@ class GameComponent extends HTMLElement {
         this.len = parseInt(this.getAttribute('len'))
         this.dictionary = this.getAttribute('dictionary')
         this.attempts = 6
+        this.current_word_id = 6 - this.attempts
+        this.pressed_buttons = []
 
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'common-container')
 
-        const dictionary_status = document.createElement('div')
-        dictionary_status.setAttribute('class', 'dictionary-status')
-        const status_indicator = document.createElement('span')
-        status_indicator.setAttribute('class', 'status-indicator')
-        const status_text = document.createElement('span')
-        status_text.setAttribute('class', 'status-text')
-
-
-        dictionary_status.appendChild(status_indicator)
-        dictionary_status.appendChild(status_text)
-        wrapper.appendChild(dictionary_status)
-
-        const title = document.createElement('h2')
-        title.setAttribute('class', 'attempts-remaining')
-        wrapper.appendChild(title)
-
-        for (let i = 0; i < 6; i++) {
-            const word = document.createElement('word-component')
-            word.id = i
-            word.content = ' '.repeat(this.len)
-            wrapper.appendChild(word)
-        }
-
-        const input_container = document.createElement('div')
-        input_container.setAttribute('class', 'input-container')
-        const input_wrapper = document.createElement('div')
-        input_wrapper.setAttribute('class', 'input-wrapper')
-
-        const input = document.createElement('input')
-        input.setAttribute('type', 'text')
-        input.setAttribute('class', 'word-input')
-        input.setAttribute('maxLength', this.len)
-        input.setAttribute('placeholder', "Введите слово!")
-        const input_hint = document.createElement('p')
-        input_hint.setAttribute('class', 'input-hint')
-
-        const button = document.createElement('button')
-        button.setAttribute('class', 'submit-button')
-        button.setAttribute('data-action', 'check-word')
-        button.textContent = "Ввод"
-        button.disabled = true
-
-        input_wrapper.appendChild(input)
-        input_wrapper.appendChild(input_hint)
-        input_container.appendChild(input_wrapper)
-        input_container.appendChild(button)
-
-        wrapper.appendChild(input_container)
+        wrapper.innerHTML = `
+            <div class="dictionary-status">
+                <span class="status-indicator"></span>
+                <span class="status-text"></span>
+            </div>
+            <h2 class="attempts-remaining"></h2>
+            <word-component id="0"></word-component>
+            <word-component id="1"></word-component>
+            <word-component id="2"></word-component>
+            <word-component id="3"></word-component>
+            <word-component id="4"></word-component>
+            <word-component id="5"></word-component>
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <p class="input-hint"></p>
+                </div>
+            </div>
+            <keyboard-component></keyboard-component>
+        `
 
         const style = document.createElement('style')
         style.textContent = `
@@ -99,7 +72,6 @@ class GameComponent extends HTMLElement {
                 width: fit-content;
                 margin-left: auto;
                 margin-right: auto;
-                // display: none;
             }
 
             .input-container {
@@ -119,52 +91,6 @@ class GameComponent extends HTMLElement {
                 gap: 0px
                 flex-grow: 1;
             }
-  
-            input {
-                padding: 10px 16px;
-                font-size: 18px;
-                border: 2px solid #ccc;
-                border-radius: 8px;
-                outline: none;
-                width: 200px;
-                transition: border-color 0.3s, box-shadow 0.3s;
-                height: 1rem;
-            }
-            
-            input:focus {
-                border-color: ${appConstants.custom_color.green};
-                box-shadow: 0 0 5px rgba(76, 175, 80, 0.4);
-            }
-            
-            .submit-button {
-                padding: 10px 20px;
-                font-size: 18px;
-                background-color: ${appConstants.custom_color.green};
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                transition: background-color 0.3s, transform 0.2s;
-                height: 41px;
-            }
-            
-            .submit-button:hover {
-                background-color: #4caf50;
-            }
-            
-            .submit-button:active {
-                transform: scale(0.98);
-            }
-
-            .submit-button:disabled {
-                background-color: ${appConstants.custom_color.dark_green};
-            } 
-
-            .submit-button:disabled:hover,
-            .submit-button:disabled:active {
-                background-color: ${appConstants.custom_color.dark_green};
-                transform: scale(1);
-            } 
             
             .input-hint {
                 text-align: center;
@@ -203,30 +129,23 @@ class GameComponent extends HTMLElement {
         h2.textContent = `Осталось попыток: ${this.attempts}/6`
     }
 
+    spendAttempt(){
+        this.attempts--
+        this.current_word_id = 6 - this.attempts
+        this.pressed_buttons = []
+        this.updateAttemptsH2()
+    }
+
+    getCurrentWord(){
+        const shadow = this.shadowRoot
+        return shadow.querySelector(`word-component[id="${this.current_word_id}"]`)
+    }
+
     connectedCallback() {
         const shadow = this.shadowRoot
-        const button = shadow.querySelector('button[data-action="check-word"]')
-        const input = shadow.querySelector('input.word-input')
-        const p = shadow.querySelector('.input-hint')
-
-        button.addEventListener('click', (e) => {
-            e.stopPropagation()
-            const word = input.value.trim().toUpperCase()
-            button.disabled = true
-            p.textContent = ""
-            this.fillNext(this.game_id, word)
-        })
-        input.addEventListener("input", (e) => {
-            e.stopPropagation()
-            e.target.value = e.target.value.replace(/[^а-яА-Я]/g, "")
-            if (isValidWord(input.value, this.len)) {
-                button.disabled = false
-            } else {
-                button.disabled = true
-            }
-
-        })
-
+        const documentTitle = document.head.querySelector('title')
+        documentTitle.textContent = "Игра - Wordle"
+        
         const status_indicator = shadow.querySelector('.status-indicator')
         const status_text = shadow.querySelector('.status-text')
         if (this.dictionary === "true") {
@@ -238,35 +157,72 @@ class GameComponent extends HTMLElement {
             status_text.textContent = "Проверка слов в словаре отключена"
             status_text.style.color = appConstants.custom_color.red
         }
+
+        const word_components = shadow.querySelectorAll(`word-component`)
+        word_components.forEach(word => word.content = ' '.repeat(this.len))
+        
+        const p = shadow.querySelector('.input-hint')
+        const keyboard = shadow.querySelector(`keyboard-component`)
+        const keyboard_shadow = keyboard.shadowRoot
+        const k_enter_button = keyboard_shadow.querySelector('button[data-action="check-word"]')
+        k_enter_button.addEventListener('click', (e) => {
+            e.stopPropagation()
+            const current_word = this.getCurrentWord()
+            const word = current_word.content
+            k_enter_button.disabled = true
+            this.checkCurrent(this.game_id, word)
+        })
+        const letter_buttons = keyboard_shadow.querySelectorAll('button.letter')
+        letter_buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation()
+                const current_word = this.getCurrentWord()
+                const was_filled = current_word.fillNextEmpty(button.textContent)
+                if (was_filled === true) {
+                    this.pressed_buttons.push(button)
+                    if (current_word.is_full() === true) {
+                        k_enter_button.disabled = false
+                    }
+                }
+                
+            })
+        })
+        const backspace_button = keyboard_shadow.querySelector('button[data-action="backspace"]')
+        backspace_button.addEventListener('click', (e) => {
+            e.stopPropagation()
+            p.textContent = ""
+            const current_word = this.getCurrentWord()
+            k_enter_button.disabled = true
+            const cleared_letter = current_word.clearPreviousBusy()
+            if (cleared_letter != null) {
+                this.pressed_buttons = arrayRemove(this.pressed_buttons, keyboard.findButton(cleared_letter))
+            }
+        })
+
+
     }
 
-    async fillNext(game_id, word) {
+    async checkCurrent(game_id, word) {
         const shadow = this.shadowRoot
-        const input = shadow.querySelector('input.word-input')
         const p = shadow.querySelector('.input-hint')
-        const word_id = 6 - this.attempts
-        const word_component = shadow.querySelector(`word-component[id="${word_id}"]`)
-        const word_shadow = word_component.shadowRoot
+        p.textContent = ""
+        const word_component = this.getCurrentWord()
         const response = await checkWord(game_id, word.toUpperCase())
         if (!response.ok) {
             p.textContent = response.data["detail"]
         } else {
-            input.value = ""
-            word_component.content = word
-            const game_revision = response.data
-            const colorMap = {
-                true: appConstants.custom_color.green,
-                false: appConstants.custom_color.yellow,
-                none: appConstants.custom_color.red,
-            }
+            const word_revision = response.data
+            word_component.setColors(word_revision)
+            
+            const keyboard = shadow.querySelector(`keyboard-component`)
+            const colored_button = []
+            this.pressed_buttons.forEach((button, index) => {
+                if (colored_button.includes(button.textContent)) return
 
-            for (let i = 0; i < this.len; i++) {
-                const letter = word_shadow.querySelector(`div[id="${i}"]`)
-                const result = game_revision[i]
-                letter.style.background = colorMap[result]
-            }
-            this.attempts--
-            this.updateAttemptsH2()
+                keyboard.setColor(button, word_revision[index])
+                colored_button.push(button.textContent)
+            })
+            this.spendAttempt()
         }
 
     }

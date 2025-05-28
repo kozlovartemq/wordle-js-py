@@ -1,3 +1,6 @@
+import appConstants from '../common/constants'
+import { countOccurrences } from '../common/utils'
+
 class WordComponent extends HTMLElement {
     constructor() {
         super()
@@ -28,6 +31,7 @@ class WordComponent extends HTMLElement {
             background-color: white;
             color: black;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
         }
            
         `
@@ -60,6 +64,35 @@ class WordComponent extends HTMLElement {
         }
     }
 
+    setColors(word_revision){
+        const shadow = this.shadowRoot
+        const letters = shadow.querySelectorAll("div.letter-box")
+        letters.forEach((element, index) => {
+            element.style.backgroundColor = appConstants.map_color[word_revision[index]]
+        })
+    }
+
+    fillNextEmpty(letter){
+        const empties = countOccurrences(this.content, ' ')
+        const letters_part = this.content.replaceAll(' ', '')
+        if (empties > 0) {
+           this.content = letters_part + letter + ' '.repeat(empties - 1)
+           return true 
+        } else return false
+    }
+    
+    clearPreviousBusy(){
+        const empties = countOccurrences(this.content, ' ')
+        const letter_part = this.content.replaceAll(' ', '')
+        if (letter_part.length > 0) {
+            this.content = letter_part.slice(0, -1) + ' '.repeat(empties + 1)
+            return letter_part.slice(-1)
+        } else return null
+    }
+
+    is_full(){
+        return this.content.search(' ') === -1
+    }
 }
 
 customElements.define('word-component', WordComponent)
