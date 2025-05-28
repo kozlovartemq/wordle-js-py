@@ -30,24 +30,10 @@ class NavComponent extends HTMLElement {
                 width: 160px;
 
                 justify-content: center;
-                gap: 10px;
                 padding: 1rem 0;
                 background-color: #1e1e1e;
                 border-bottom: 1px solid #333;
                 border-radius: 12px;
-           }
-
-           .global-search {
-               font-size: 16px;
-               border: 1px solid #ccc;
-               border-radius: 8px;
-               padding: 4px 20px;
-               width: 100%;
-               margin: 0 50px;
-           }
-
-           .global-search:placeholder{
-               color: #aaa;
            }
            
         `

@@ -1,4 +1,3 @@
-import appConstants from '../common/constants'
 import { goTo } from '../router'
 
 class LinkComponent extends HTMLElement {
@@ -7,7 +6,7 @@ class LinkComponent extends HTMLElement {
         const shadow = this.attachShadow({ mode: 'open' })
         const link = document.createElement('a')
         const style = document.createElement('style')
-        this.selected = false;
+        this.selected = false
 
         style.textContent = `
            
@@ -35,12 +34,12 @@ class LinkComponent extends HTMLElement {
     }
 
     connectedCallback() {
-        const shadow = this.shadowRoot;
-        const childNodes = shadow.choldNodes;
+        const shadow = this.shadowRoot
+        const childNodes = shadow.childNodes
 
         const href = this.getAttribute('href')
         const link = shadow.querySelector('a')
-        link.href = href;
+        link.href = href
         link.textContent = this.getAttribute('text')
         link.addEventListener('click', this.onClick)
     }
