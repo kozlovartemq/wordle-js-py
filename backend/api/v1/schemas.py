@@ -38,6 +38,12 @@ class SuccessGameResponse(BaseModel):
     game_uuid: UUID
 
 
+class GameParamsResponse(BaseModel):
+    msg: str
+    len: int
+    dictionary: bool
+
+
 class GameBase(BaseModel):
     uuid: UUID
     word: str
@@ -58,3 +64,7 @@ class GameRead(GameBase):
 class GameDelete(BaseModel):
     id: int
     word: str
+
+
+class DefaultHTTPError(BaseModel):
+    detail: str

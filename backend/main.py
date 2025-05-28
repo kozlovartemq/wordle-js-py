@@ -56,7 +56,7 @@ async def lifespan(app: FastAPI):
 
         scheduler.add_job(
             create_daily_game_job,
-            trigger=CronTrigger(hour=0, minute=0, second=0, timezone="UTC"),
+            trigger=CronTrigger(hour=0, minute=0, second=5, timezone="UTC"),
             id="Create Daily Game",
             replace_existing=True
         )

@@ -59,7 +59,9 @@ async def get_game_by_is_daily(
     
     stmt = select(GameModel).where(GameModel.is_daily == True)
     res = await session.scalars(stmt)
-    return res.first()
+    all_results = res.all()
+    assert len(all_results) == 1, "There must only be one daily game"
+    return all_results[0] if all_results else None
 
 
 async def create_game(
@@ -86,10 +88,13 @@ async def create_daily_game(
         else:
             todays_timestamp = todays_first_timestamp()
             if old_daily.created_at > todays_timestamp:
-                logging.info("[create_daily_game] Todays daily game is already set. Returning.. \n"
-                             "todays_timestamp: %s\n"
-                             "Daily game was created at: %s",
-                             todays_timestamp, old_daily.created_at)
+                logging.info(
+                    "[create_daily_game] Todays daily game is already set. Returning.. \n"
+                    "todays_timestamp: %s\n"
+                    "Daily game was created at: %s",
+                    todays_timestamp,
+                    old_daily.created_at
+                )
                 return
 
             old_daily.is_daily = False    
@@ -110,6 +115,7 @@ async def create_daily_game(
             is_archived=False
         )
     )
+    logging.info("[create_daily_game] New daily game is set: %s", new_daily.word)
     return new_daily
         
 

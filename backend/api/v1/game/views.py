@@ -1,13 +1,13 @@
 import uuid
 from fastapi import APIRouter, Depends, Request, Response, HTTPException
 from fastapi.responses import RedirectResponse
-from starlette.status import HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY, HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.schemas import GameCreate, WordRevision, CheckRequest, CreateCustomRequest, SuccessGameResponse
+from api.v1.schemas import GameCreate, WordRevision, CheckRequest, CreateCustomRequest, SuccessGameResponse, GameParamsResponse, DefaultHTTPError
 from core.config import settings
 from core.models.db_helper import db_helper
-from core.models.game import get_all_games, create_game, get_game_by_word, get_game_by_uuid, delete_old_games
+from core.models.game import get_all_games, create_game, get_game_by_word, get_game_by_uuid, delete_old_games, get_game_by_is_daily
 from core.models.word import get_random_word, get_word
 from utils.time_helper import utc_now_timestamp
 from utils.game_handler import GameHandler
@@ -16,7 +16,16 @@ from utils.game_handler import GameHandler
 game_router = APIRouter(tags=["Game"], prefix='/games')
 
 
-@game_router.post('/check_word', response_model=WordRevision)
+@game_router.post(
+    '/check_word',
+    response_model=WordRevision,
+    responses={
+        404: {
+            "model": DefaultHTTPError,
+            "description": "The word not found"
+        }
+    }
+)
 async def check_word(
     data: CheckRequest,
     session: AsyncSession = Depends(db_helper.session_dependency)
@@ -38,10 +47,17 @@ async def check_word(
     else:
         return check()
 
-    
 
-
-@game_router.post('/create_custom', response_model=SuccessGameResponse)
+@game_router.post(
+    '/create_custom',
+    response_model=SuccessGameResponse,
+    responses={
+        404: {
+            "model": DefaultHTTPError,
+            "description": "The word not found"
+        }
+    }
+)
 async def create_custom_game(
     data: CreateCustomRequest,
     session: AsyncSession = Depends(db_helper.session_dependency)
@@ -94,7 +110,36 @@ async def create_casual_game(
     return {"msg": "Создана новая игра", "game_uuid": new_game.uuid}
 
 
-@game_router.get('/{game_id}')
+@game_router.get(
+    '/daily',
+    response_model=SuccessGameResponse,
+    responses={
+        404: {
+            "model": DefaultHTTPError,
+            "description": "The game not found"
+        }
+    }    
+)
+async def get_daily_game(
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    daily = await get_game_by_is_daily(session)
+    if daily is None:
+        raise HTTPException(HTTP_404_NOT_FOUND, "Ежедневная игра не найдена")
+
+    return {"msg": "Ежедневная игра существует", "game_uuid": daily.uuid}
+
+
+@game_router.get(
+    '/{game_id}',
+    response_model=GameParamsResponse,
+    responses={
+        404: {
+            "model": DefaultHTTPError,
+            "description": "The game not found"
+        }
+    }  
+)
 async def get_game(
     game_id: uuid.UUID,
     session: AsyncSession = Depends(db_helper.session_dependency)
@@ -102,6 +147,7 @@ async def get_game(
     game = await get_game_by_uuid(session, game_id)
     if game is None:
         raise HTTPException(HTTP_404_NOT_FOUND, "Игра с таким идентификатором не найдена")
+        
     return {"msg": "Игра существует", "len": len(game.word), "dictionary": game.dictionary}
     
 
