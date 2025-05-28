@@ -8,7 +8,7 @@ import GamePage from '../pages/game.template'
 import NotFoundPage from '../pages/not_found.template'
 import FailurePage from '../pages/failure.template'
 
-import { getGameByUUID } from '../api/endpoints'
+import { getGameByUUID, getDailyGame } from '../api/endpoints'
 
 
 export const routes = {
@@ -17,6 +17,7 @@ export const routes = {
     Create: new Route(appConstants.routes.create),
     Game: new Route(appConstants.routes.game),
     Fail: new Route(appConstants.routes.fail),
+    Daily: new Route(appConstants.routes.daily),
 }
 
 const routesWithPages = [
@@ -25,6 +26,7 @@ const routesWithPages = [
     { route: routes.Create, page: CreatePage },
     { route: routes.Game, page: GamePage },
     { route: routes.Fail, page: FailurePage },
+    { route: routes.Daily, page: GamePage },
 ]
 
 export const getPathRoute = async (path) => {
@@ -32,9 +34,14 @@ export const getPathRoute = async (path) => {
     if (target) {
         const params = target.route.match(path)
         if (target.page === GamePage) {
+            if (target.route === routes.Daily) {
+                const daily_game = await getDailyGame()
+                if (daily_game.ok) {
+                    params.game = daily_game.data.game_uuid
+                }
+            }
             const game_uuid = params.game
             const game_response = await getGameByUUID(game_uuid)
-
             if (!game_response.ok) {
                 return null
             }
@@ -50,6 +57,7 @@ export const getPathRoute = async (path) => {
     }
     return null
 }
+
 
 export const render = async (path) => {
     let result = NotFoundPage()

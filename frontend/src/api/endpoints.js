@@ -4,6 +4,10 @@ export const createCustomGame = (word, dictionary) => {
     return baseApi.post(`/games/create_custom`, { word: `${word}`, dictionary: `${dictionary}` })
 }
 
+export const createCasualGame = () => {
+    return baseApi.post(`/games/create_casual`)
+}
+
 export const getGameByUUID = (game_uuid) => {
     return baseApi.get(`/games/${game_uuid}`)
 }
@@ -15,8 +19,14 @@ export const checkWord = (game_uuid, word) => {
     )
 }
 
+export const getDailyGame = () => {
+    return baseApi.get(`/games/daily`)
+}
+
 export default {
     createCustomGame,
+    createCasualGame,
     getGameByUUID,
-    checkWord
+    checkWord,
+    getDailyGame,
 }

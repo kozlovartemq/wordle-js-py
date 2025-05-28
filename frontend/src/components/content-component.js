@@ -1,6 +1,6 @@
 import appConstants from '../common/constants'
 import { goTo, routes } from '../router'
-import { createCustomGame, getGameByUUID } from '../api/endpoints'
+import { createCustomGame, createCasualGame, getGameByUUID } from '../api/endpoints'
 import { isValidUUID, isValidWord } from '../common/utils'
 
 class ContentComponent extends HTMLElement {
@@ -85,7 +85,7 @@ class ContentComponent extends HTMLElement {
             }
             
             .submit-button:hover {
-                background-color: #4caf50;
+                background-color: ${appConstants.custom_color.light_green};
             }
             
             .submit-button:active {
@@ -94,6 +94,7 @@ class ContentComponent extends HTMLElement {
 
             .submit-button:disabled {
                 background-color: ${appConstants.custom_color.dark_green};
+                cursor: auto;
             } 
 
             .submit-button:disabled:hover,
@@ -114,7 +115,7 @@ class ContentComponent extends HTMLElement {
 
             .word-length-selector {
                 text-align: center;
-                margin: 2rem auto;
+                margin: 1rem auto;
             }
 
             .selector-title {
@@ -157,7 +158,6 @@ class ContentComponent extends HTMLElement {
             /* чекбокс */
 
             .dictionary-check {
-                margin-top: 1.5rem;
                 display: flex;
                 justify-content: center;
             }
@@ -229,7 +229,11 @@ class ContentComponent extends HTMLElement {
         if (type) {
             this.type = type
         }
-        if (this.type === appConstants.container.types.not_found) {
+
+        if (this.type === appConstants.container.types.failure) {
+            this.getFailurePage()
+        }
+        else if (this.type === appConstants.container.types.not_found) {
             this.getNotFoundPage()
         }
         else if (this.type === appConstants.container.types.main) {
@@ -241,12 +245,12 @@ class ContentComponent extends HTMLElement {
         else if (this.type === appConstants.container.types.games) {
             this.getGamesPage()
         }
-        else if (this.type === appConstants.container.types.failure) {
-            this.getFailurePage()
-        }
     }
 
     getFailurePage() {
+        const documentTitle = document.head.querySelector('title')
+        documentTitle.textContent = "500 - Wordle"
+        
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         const word = document.createElement('word-component')
@@ -255,17 +259,21 @@ class ContentComponent extends HTMLElement {
         letters.forEach(element => {
             element.style.background = appConstants.custom_color.red
             element.style.color = 'white'
-        });
+        })
         wrapper.appendChild(word)
+        const timestamp = new Date().getTime()
         const title = document.createElement('h2')
         title.setAttribute('class', 'content-title')
-        title.textContent = 'Произошла внутренняя ошибка! Сообщите админу что вы делали.'
+        title.innerHTML = `Произошла внутренняя ошибка! Сообщите админу что вы делали.<br>Timestamp: ${timestamp}`
 
         wrapper.appendChild(word)
         wrapper.appendChild(title)
     }
 
     getNotFoundPage() {
+        const documentTitle = document.head.querySelector('title')
+        documentTitle.textContent = "404 - Wordle"
+        
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         const word = document.createElement('word-component')
@@ -285,6 +293,9 @@ class ContentComponent extends HTMLElement {
     }
 
     getMainPage() {
+        const documentTitle = document.head.querySelector('title')
+        documentTitle.textContent = "Главная - Wordle"
+                
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
@@ -294,15 +305,32 @@ class ContentComponent extends HTMLElement {
         <button class="submit-button" data-action="start-daily">Начать ежедневную игру!</button>
         <button class="submit-button" data-action="start-casual">Начать случайную игру!</button>
         `
-        wrapper.querySelector('button[data-action="rules"]').addEventListener('click', () => {
+        wrapper.querySelector('button[data-action="rules"]').addEventListener('click', (e) => {
+            e.stopPropagation()
             const popup = document.createElement('pop-up')
             popup.renderRules()
             shadow.appendChild(popup)
         })
-        // TODO daily game
+        wrapper.querySelector('button[data-action="start-daily"]').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const url = routes.Daily.reverse()
+            goTo(url)
+        })
+        wrapper.querySelector('button[data-action="start-casual"]').addEventListener('click', async (e) => {
+            e.stopPropagation()
+            const create_response = await createCasualGame()
+            if (create_response.ok) {
+                const url = routes.Game.reverse({ game: create_response.data.game_uuid })
+                goTo(url)
+            }
+        })
+
     }
 
     getCreatePage() {
+        const documentTitle = document.head.querySelector('title')
+        documentTitle.textContent = "Своя игра - Wordle"
+
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
@@ -327,7 +355,7 @@ class ContentComponent extends HTMLElement {
                 <input type="text" class="word-input" maxLength=5 placeholder="Загадайте слово!" />
                 <p class="input-hint"></p>
             </div>
-            <button class="submit-button" data-action="create-word">Проверить</button>
+            <button class="submit-button" data-action="create-word">Создать</button>
         </div>
         `
 
@@ -389,6 +417,9 @@ class ContentComponent extends HTMLElement {
     }
 
     getGamesPage() {
+        const documentTitle = document.head.querySelector('title')
+        documentTitle.textContent = "Поиск игры - Wordle"
+        
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
