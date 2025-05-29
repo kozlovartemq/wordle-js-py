@@ -3,6 +3,7 @@ import { goTo, routes } from '../router'
 import { createCustomGame, createCasualGame, getGameByUUID } from '../api/endpoints'
 import { isValidUUID, isValidWord } from '../common/utils'
 
+
 class ContentComponent extends HTMLElement {
     constructor() {
         super()
@@ -390,6 +391,8 @@ class ContentComponent extends HTMLElement {
 
             const word = input.value.trim().toUpperCase()
             const checkbox = shadow.querySelector("input#check-dictionary")
+
+    
             const create_response = await createCustomGame(word, checkbox.checked)
             if (create_response.status === 404) {
                 p.textContent = create_response.data["detail"]
@@ -398,8 +401,13 @@ class ContentComponent extends HTMLElement {
             } else if (!create_response.ok) {
                 p.textContent = "Не удалось получить id игры"
             } else {
+                p.textContent = "Игра успешно создана"
                 const url = routes.Game.reverse({ game: create_response.data.game_uuid })
-                goTo(url)
+                const copy_comp = document.createElement('copy-component')
+                copy_comp.content = url
+                wrapper.appendChild(copy_comp)
+
+                // goTo(url)
                 // TODO
                 // 'перейти к игре' `на страницу игры` OR copy game Link
             }

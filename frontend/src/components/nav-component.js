@@ -1,5 +1,6 @@
 import appConstants from '../common/constants'
 
+
 class NavComponent extends HTMLElement {
     constructor() {
         super()

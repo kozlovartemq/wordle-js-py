@@ -1,6 +1,7 @@
 import appConstants from '../common/constants'
 import { countOccurrences } from '../common/utils'
 
+
 class WordComponent extends HTMLElement {
     constructor() {
         super()

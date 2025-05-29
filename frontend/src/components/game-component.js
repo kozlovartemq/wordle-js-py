@@ -2,6 +2,7 @@ import appConstants from '../common/constants'
 import { arrayRemove } from "../common/utils.js"
 import { checkWord } from '../api/endpoints'
 
+
 class GameComponent extends HTMLElement {
     constructor() {
         super()

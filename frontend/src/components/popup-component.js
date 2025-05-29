@@ -1,5 +1,6 @@
 import appConstants from '../common/constants'
 
+
 class PopUpComponent extends HTMLElement {
     constructor() {
         super()

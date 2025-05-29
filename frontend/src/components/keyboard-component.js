@@ -1,5 +1,6 @@
 import appConstants from '../common/constants'
 
+
 class KeyboardComponent extends HTMLElement {
     constructor() {
         super()

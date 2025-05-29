@@ -1,5 +1,6 @@
 import appConstants from '../common/constants'
 
+
 class HeaderComponent extends HTMLElement {
     constructor() {
         super()

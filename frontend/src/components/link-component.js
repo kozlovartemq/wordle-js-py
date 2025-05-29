@@ -1,5 +1,6 @@
 import { goTo } from '../router'
 
+
 class LinkComponent extends HTMLElement {
     constructor() {
         super()
