@@ -10,13 +10,13 @@ def todays_first_timestamp() -> float:
 
 
 def timedelta_from_now_timestamp(
-    days=0, 
-    seconds=0, 
-    microseconds=0,     
-    milliseconds=0, 
-    minutes=0, 
-    hours=0, 
-    weeks=0
+    days: float = 0, 
+    seconds: float = 0, 
+    microseconds: float = 0,     
+    milliseconds: float = 0, 
+    minutes: float = 0, 
+    hours: float = 0, 
+    weeks: float = 0, 
 ) -> float:
 
     return (

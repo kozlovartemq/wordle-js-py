@@ -1,6 +1,4 @@
-import logging
-from typing import Sequence
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.sql.expression import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -21,19 +19,21 @@ class WordModel(Base):
 
 
 async def get_random_word(
-        session: AsyncSession,
-        length: int
+    session: AsyncSession,
+    length: int
 ) -> WordModel:
     
     stmt = select(WordModel).where(func.char_length(WordModel.word) == length).order_by(func.random()).limit(1)
     res = await session.scalars(stmt)
-    return res.first()
+    word = res.first()
+    assert word
+    return word
 
 
 async def get_word(
-        session: AsyncSession,
-        word: str
-) -> WordModel:
+    session: AsyncSession,
+    word: str
+) -> WordModel | None:
     
     stmt = select(WordModel).where(WordModel.word == word.lower())
     res = await session.scalars(stmt)

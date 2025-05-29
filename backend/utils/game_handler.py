@@ -30,7 +30,7 @@ class GameHandler:
             else:
                 res[j] = 'none'
     
-        return res
+        return WordRevision(res)
 
 
 

@@ -1,13 +1,28 @@
 import uuid
-from fastapi import APIRouter, Depends, Request, Response, HTTPException
-from fastapi.responses import RedirectResponse
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY
+from fastapi import APIRouter, Depends, HTTPException
+from starlette.status import (
+    HTTP_401_UNAUTHORIZED,
+    HTTP_404_NOT_FOUND,
+    HTTP_422_UNPROCESSABLE_ENTITY
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.schemas import GameCreate, WordRevision, CheckRequest, CreateCustomRequest, SuccessGameResponse, GameParamsResponse, DefaultHTTPError
-from core.config import settings
+from api.v1.schemas import (
+    GameCreate,
+    WordRevision,
+    CheckRequest,
+    CreateCustomRequest,
+    SuccessGameResponse,
+    GameParamsResponse,
+    DefaultHTTPError
+)
 from core.models.db_helper import db_helper
-from core.models.game import get_all_games, create_game, get_game_by_word, get_game_by_uuid, delete_old_games, get_game_by_is_daily
+from core.models.game import (
+    create_game,
+    get_game_by_word,
+    get_game_by_uuid,
+    get_game_by_is_daily
+)
 from core.models.word import get_random_word, get_word
 from utils.time_helper import utc_now_timestamp
 from utils.game_handler import GameHandler
@@ -32,6 +47,7 @@ async def check_word(
 ):
 
     game = await get_game_by_uuid(session, data.uuid)
+    assert game
     if len(data.word) != len(game.word):
         raise HTTPException(HTTP_422_UNPROCESSABLE_ENTITY, "Введнное слово и эталонное слово имеют разную длину.")
       

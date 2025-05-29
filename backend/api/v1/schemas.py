@@ -1,7 +1,7 @@
 import re
-from typing import Literal, Dict
+from typing import Annotated, Literal, Dict
 from uuid import UUID
-from pydantic import BaseModel, RootModel, Field, field_validator, conint, root_validator
+from pydantic import BaseModel, RootModel, Field, field_validator, model_validator
 
 
 class WordRequest(BaseModel):
@@ -23,13 +23,18 @@ class CheckRequest(WordRequest):
     uuid: UUID
 
 
-class WordRevision(RootModel):
-    root: Dict[conint(ge=0, le=5), Literal["true", "false", "none"]]
+class WordRevision(RootModel[
+    Dict[
+        Annotated[int, Field(ge=0, le=5)],
+        Literal["true", "false", "none"]
+    ]
+]):
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
+    @classmethod
     def check_length(cls, values):
         if not (4 <= len(values.get('__root__')) <= 6):
-            raise ValueError("Expected 4 or 5 or 6 items")
+            raise ValueError("Expected 4 to 6 items")
         return values
 
 

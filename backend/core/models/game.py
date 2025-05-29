@@ -24,7 +24,7 @@ class GameModel(Base):
 
 
 async def get_all_games(
-        session: AsyncSession,
+    session: AsyncSession,
 ) -> Sequence[GameModel]:
     
     stmt = select(GameModel).order_by(GameModel.id)
@@ -33,9 +33,9 @@ async def get_all_games(
 
 
 async def get_game_by_word(
-        session: AsyncSession,
-        game_word: str,
-        dictionary: bool
+    session: AsyncSession,
+    game_word: str,
+    dictionary: bool
 ) -> GameModel | None:
     
     stmt = select(GameModel).where(GameModel.word == game_word.upper()).where(GameModel.dictionary == dictionary)
@@ -44,8 +44,8 @@ async def get_game_by_word(
 
 
 async def get_game_by_uuid(
-        session: AsyncSession,
-        game_uuid: UUID
+    session: AsyncSession,
+    game_uuid: UUID
 ) -> GameModel | None:
     
     stmt = select(GameModel).where(GameModel.uuid == game_uuid)
@@ -54,19 +54,22 @@ async def get_game_by_uuid(
 
 
 async def get_game_by_is_daily(
-        session: AsyncSession,
+    session: AsyncSession,
 ) -> GameModel | None:
     
     stmt = select(GameModel).where(GameModel.is_daily == True)
     res = await session.scalars(stmt)
     all_results = res.all()
-    assert len(all_results) == 1, "There must only be one daily game"
-    return all_results[0] if all_results else None
+    if all_results:
+        assert len(all_results) == 1, "There must only be one daily game"
+        return all_results[0] 
+    else:
+        return None
 
 
 async def create_game(
-        session: AsyncSession,
-        game_create: GameCreate
+    session: AsyncSession,
+    game_create: GameCreate
 ) -> GameModel:
     
     game = GameModel(**game_create.model_dump())
@@ -77,9 +80,9 @@ async def create_game(
 
 
 async def create_daily_game(
-        session: AsyncSession,
-        to_replace: bool,
-) -> GameModel:
+    session: AsyncSession,
+    to_replace: bool,
+) -> GameModel | None:
     
     old_daily = await get_game_by_is_daily(session)
     if old_daily is not None:
@@ -120,16 +123,16 @@ async def create_daily_game(
         
 
 async def delete_old_games(
-        session: AsyncSession,
-        delta_hours: float
+    session: AsyncSession,
+    delta_hours: float
 ) -> list[GameDelete]:
     
     threshold = timedelta_from_now_timestamp(hours=-delta_hours)
     games = (await session.execute(
         select(GameModel).
         where(GameModel.created_at < threshold).
-        where(GameModel.is_daily is False).
-        where(GameModel.is_archived is False)
+        where(GameModel.is_daily.is_(False)).
+        where(GameModel.is_archived.is_(False))
     )).scalars().all()
 
     deleted_games = [GameDelete(id=game.id, word=game.word) for game in games]

@@ -1,14 +1,11 @@
-import uuid
 from fastapi import APIRouter, Depends, Header, HTTPException
-from fastapi.responses import RedirectResponse
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_403_FORBIDDEN
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.v1.schemas import GameRead, GameDelete, SuccessGameResponse
 from core.config import settings
 from core.models.db_helper import db_helper
 from core.models.game import get_all_games, delete_old_games, create_daily_game
-from core.models.word import get_random_word, get_word
 
 
 async def verify_admin_header(X_Admin_Token: str = Header(...)):
@@ -53,6 +50,7 @@ async def replace_daily_game(
 ):
     
     new_game = await create_daily_game(session, to_replace=True)
+    assert new_game
     return {"msg": "Поменяна ежедневная игра", "game_uuid": new_game.uuid}
 ###
 

@@ -1,4 +1,3 @@
-from asyncio import current_task
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
