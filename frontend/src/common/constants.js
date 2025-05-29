@@ -33,6 +33,16 @@ export const appConstants = {
         yellow: '#f3c237',
         dark_yellow: '#997612',
         link_blue: '#0c47a1'
+    },
+    map_key: {
+        KeyQ: "Й", KeyW: "Ц", KeyE: "У", KeyR: "К", KeyT: "Е", KeyY: "Н", 
+        KeyU: "Г", KeyI: "Ш", KeyO: "Щ", KeyP: "З", BracketLeft: "Х", BracketRight: "Ъ",
+
+        KeyA: "Ф", KeyS: "Ы", KeyD: "В", KeyF: "А", KeyG: "П", KeyH: "Р",
+        KeyJ: "О", KeyK: "Л", KeyL: "Д", Semicolon: "Ж", Quote: "Э",
+
+        Backspace: "BACKSPACE", KeyZ: "Я", KeyX: "Ч", KeyC: "С", KeyV: "М", KeyB: "И",
+        KeyN: "Т", KeyM: "Ь", Comma: "Б", Period: "Ю", Enter: "ENTER"
     }
 }
 

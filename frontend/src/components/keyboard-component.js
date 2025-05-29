@@ -11,44 +11,44 @@ class KeyboardComponent extends HTMLElement {
         wrapper.innerHTML = `
             
             <div class="keyboard-row">
-                <button class="letter">Й</button>
-                <button class="letter">Ц</button>
-                <button class="letter">У</button>
-                <button class="letter">К</button>
-                <button class="letter">Е</button>
-                <button class="letter">Н</button>
-                <button class="letter">Г</button>
-                <button class="letter">Ш</button>
-                <button class="letter">Щ</button>
-                <button class="letter">З</button>
-                <button class="letter">Х</button>
-                <button class="letter">Ъ</button>
+                <button class="letter" data-letter="Й">Й</button>
+                <button class="letter" data-letter="Ц">Ц</button>
+                <button class="letter" data-letter="У">У</button>
+                <button class="letter" data-letter="К">К</button>
+                <button class="letter" data-letter="Е">Е</button>
+                <button class="letter" data-letter="Н">Н</button>
+                <button class="letter" data-letter="Г">Г</button>
+                <button class="letter" data-letter="Ш">Ш</button>
+                <button class="letter" data-letter="Щ">Щ</button>
+                <button class="letter" data-letter="З">З</button>
+                <button class="letter" data-letter="Х">Х</button>
+                <button class="letter" data-letter="Ъ">Ъ</button>
             </div>
             <div class="keyboard-row">
-                <button class="letter">Ф</button>
-                <button class="letter">Ы</button>
-                <button class="letter">В</button>
-                <button class="letter">А</button>
-                <button class="letter">П</button>
-                <button class="letter">Р</button>
-                <button class="letter">О</button>
-                <button class="letter">Л</button>
-                <button class="letter">Д</button>
-                <button class="letter">Ж</button>
-                <button class="letter">Э</button>
+                <button class="letter" data-letter="Ф">Ф</button>
+                <button class="letter" data-letter="Ы">Ы</button>
+                <button class="letter" data-letter="В">В</button>
+                <button class="letter" data-letter="А">А</button>
+                <button class="letter" data-letter="П">П</button>
+                <button class="letter" data-letter="Р">Р</button>
+                <button class="letter" data-letter="О">О</button>
+                <button class="letter" data-letter="Л">Л</button>
+                <button class="letter" data-letter="Д">Д</button>
+                <button class="letter" data-letter="Ж">Ж</button>
+                <button class="letter" data-letter="Э">Э</button>
             </div>
             <div class="keyboard-row">
-                <button class="action-button" data-action="backspace">⌫</button>
-                <button class="letter">Я</button>
-                <button class="letter">Ч</button>
-                <button class="letter">С</button>
-                <button class="letter">М</button>
-                <button class="letter">И</button>
-                <button class="letter">Т</button>
-                <button class="letter">Ь</button>
-                <button class="letter">Б</button>  
-                <button class="letter">Ю</button>           
-                <button class="action-button" data-action="check-word" disabled>⏎</button>
+                <button class="action-button" data-letter="BACKSPACE" data-action="backspace">⌫</button>
+                <button class="letter" data-letter="Я">Я</button>
+                <button class="letter" data-letter="Ч">Ч</button>
+                <button class="letter" data-letter="С">С</button>
+                <button class="letter" data-letter="М">М</button>
+                <button class="letter" data-letter="И">И</button>
+                <button class="letter" data-letter="Т">Т</button>
+                <button class="letter" data-letter="Ь">Ь</button>
+                <button class="letter" data-letter="Б">Б</button>  
+                <button class="letter" data-letter="Ю">Ю</button>           
+                <button class="action-button" data-letter="ENTER" data-action="check-word" disabled>⏎</button>
             </div>
             
         `
@@ -157,8 +157,7 @@ class KeyboardComponent extends HTMLElement {
     }
 
     findButton(letter){
-        const buttons = this.shadowRoot.querySelectorAll('button.letter')
-        return Array.from(buttons).find((button) => button.textContent === letter)
+        return this.shadowRoot.querySelector(`button[data-letter="${letter.toUpperCase()}"]`)
     }
 
     setColor(button, value){
@@ -173,7 +172,6 @@ class KeyboardComponent extends HTMLElement {
 
     connectedCallback() {
         const shadow = this.shadowRoot
-        // const buttons = shadow.querySelectorAll('button.letter')
         // buttons.forEach(button => {
         //     button.addEventListener('click', (e) => {
         //         e.stopPropagation()

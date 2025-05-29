@@ -199,7 +199,16 @@ class GameComponent extends HTMLElement {
                 this.pressed_buttons = arrayRemove(this.pressed_buttons, keyboard.findButton(cleared_letter))
             }
         })
-
+        const mountKeyUpToKeyboardComponent = (event) => {
+            const letter = appConstants.map_key[event.code]
+            if (letter) {
+                const k_button = keyboard.findButton(letter)
+                k_button.click()
+            }
+            
+        }
+        document.removeEventListener('keyup', mountKeyUpToKeyboardComponent)
+        document.addEventListener('keyup', mountKeyUpToKeyboardComponent)
 
     }
 
