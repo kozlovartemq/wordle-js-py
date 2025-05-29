@@ -23,17 +23,16 @@ class CheckRequest(WordRequest):
     uuid: UUID
 
 
-class WordRevision(RootModel[
-    Dict[
+class WordRevision(RootModel):
+    root: Dict[
         Annotated[int, Field(ge=0, le=5)],
         Literal["true", "false", "none"]
     ]
-]):
 
     @model_validator(mode='before')
     @classmethod
     def check_length(cls, values):
-        if not (4 <= len(values.get('__root__')) <= 6):
+        if not (4 <= len(values) <= 6):
             raise ValueError("Expected 4 to 6 items")
         return values
 
