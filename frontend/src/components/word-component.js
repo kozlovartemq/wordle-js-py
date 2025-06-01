@@ -69,7 +69,7 @@ class WordComponent extends HTMLElement {
         const shadow = this.shadowRoot
         const letters = shadow.querySelectorAll("div.letter-box")
         letters.forEach((element, index) => {
-            element.style.backgroundColor = appConstants.map_color[word_revision[index]]
+            element.style.backgroundColor = appConstants.letter_color[word_revision[index]]
         })
     }
 

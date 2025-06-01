@@ -24,3 +24,7 @@ export const arrayRemove = (array, element) => {
     }
     return array
 }
+
+export const areMapsEqual = (map1, map2) => {
+    return JSON.stringify(map1) === JSON.stringify(map2)
+}

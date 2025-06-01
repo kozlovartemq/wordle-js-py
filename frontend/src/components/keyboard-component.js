@@ -97,27 +97,27 @@ class KeyboardComponent extends HTMLElement {
             background-color: #ccc;
         }
 
-        .keyboard-row .letter-none {
-            background-color: ${appConstants.map_color.none};
+        .keyboard-row .letter-red {
+            background-color: ${appConstants.letter_color.red};
         }
         
-        .keyboard-row .letter-none:hover {
+        .keyboard-row .letter-red:hover {
             background-color: ${appConstants.custom_color.dark_red};
         }
 
-        .keyboard-row .letter-false {
-            background-color: ${appConstants.map_color.false};
+        .keyboard-row .letter-yellow {
+            background-color: ${appConstants.letter_color.yellow};
         }
         
-        .keyboard-row .letter-false:hover {
+        .keyboard-row .letter-yellow:hover {
             background-color: ${appConstants.custom_color.dark_yellow};
         }
 
-        .keyboard-row .letter-true {
-            background-color: ${appConstants.map_color.true};
+        .keyboard-row .letter-green {
+            background-color: ${appConstants.letter_color.green};
         }
         
-        .keyboard-row .letter-true:hover {
+        .keyboard-row .letter-green:hover {
             background-color: ${appConstants.custom_color.dark_green};
         }
 
@@ -161,12 +161,8 @@ class KeyboardComponent extends HTMLElement {
     }
 
     setColor(button, value){
-        const value_map = {
-            true: 'letter-true',
-            false: 'letter-false',
-            none: 'letter-none',
-        }
-        button.classList.add(value_map[value])
+        button.classList.remove('letter-green', 'letter-yellow', 'letter-red')
+        button.classList.add('letter-' + value)
     }
 
 

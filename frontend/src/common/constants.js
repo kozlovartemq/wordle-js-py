@@ -46,10 +46,10 @@ export const appConstants = {
     }
 }
 
-appConstants["map_color"] = {
-    true: appConstants.custom_color.green,
-    false: appConstants.custom_color.yellow,
-    none: appConstants.custom_color.red
+appConstants["letter_color"] = {
+    green: appConstants.custom_color.green,
+    yellow: appConstants.custom_color.yellow,
+    red: appConstants.custom_color.red
 }
 
 export default appConstants

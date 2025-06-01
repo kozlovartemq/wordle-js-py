@@ -1,5 +1,5 @@
 import appConstants from '../common/constants'
-import { arrayRemove } from "../common/utils.js"
+import { arrayRemove, areMapsEqual } from "../common/utils.js"
 import { checkWord } from '../api/endpoints'
 
 
@@ -8,10 +8,10 @@ class GameComponent extends HTMLElement {
         super()
         this.game_id = this.getAttribute('id')
         this.len = parseInt(this.getAttribute('len'))
-        this.dictionary = this.getAttribute('dictionary')
-        this.attempts = 6
-        this.current_word_id = 6 - this.attempts
+        this.dictionary = this.getAttribute('dictionary') === "true"
+        this.current_word_id = 0
         this.pressed_buttons = []
+        this.colored_letters = {}
 
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
@@ -127,14 +127,19 @@ class GameComponent extends HTMLElement {
     updateAttemptsH2() {
         const shadow = this.shadowRoot
         const h2 = shadow.querySelector('h2.attempts-remaining')
-        h2.textContent = `Осталось попыток: ${this.attempts}/6`
+        h2.textContent = `Использовано попыток: ${this.current_word_id}/6`
     }
 
-    spendAttempt(){
-        this.attempts--
-        this.current_word_id = 6 - this.attempts
+    spendAttempt(success){
+        this.current_word_id++
         this.pressed_buttons = []
         this.updateAttemptsH2()
+        if ( this.current_word_id === 6 || success ) {
+            const shadow = this.shadowRoot
+            const popup = document.createElement('pop-up')
+            popup.renderResults()
+            shadow.appendChild(popup)
+        }
     }
 
     getCurrentWord(){
@@ -149,13 +154,14 @@ class GameComponent extends HTMLElement {
         
         const status_indicator = shadow.querySelector('.status-indicator')
         const status_text = shadow.querySelector('.status-text')
-        if (this.dictionary === "true") {
+        const text_core = "Проверка слов в словаре "
+        if (this.dictionary) {
             status_indicator.style.backgroundColor = appConstants.custom_color.wordle_green
-            status_text.textContent = "Проверка слов в словаре включена"
+            status_text.textContent = text_core + "включена"
             status_text.style.color = appConstants.custom_color.wordle_green
         } else {
             status_indicator.style.backgroundColor = appConstants.custom_color.red
-            status_text.textContent = "Проверка слов в словаре отключена"
+            status_text.textContent = text_core + "отключена"
             status_text.style.color = appConstants.custom_color.red
         }
 
@@ -224,15 +230,27 @@ class GameComponent extends HTMLElement {
             const word_revision = response.data
             word_component.setColors(word_revision)
             
+            // Set keyboard buttons color by color prority
             const keyboard = shadow.querySelector(`keyboard-component`)
-            const colored_button = []
-            this.pressed_buttons.forEach((button, index) => {
-                if (colored_button.includes(button.textContent)) return
+            const priority = {
+                'red': 0,
+                'yellow': 1,
+                'green': 2
+            }
 
-                keyboard.setColor(button, word_revision[index])
-                colored_button.push(button.textContent)
+            this.pressed_buttons.forEach((button, index) => {
+                const letter = button.textContent
+                const new_result = word_revision[index]
+
+                const existing_result = this.colored_letters[letter]
+
+                if (!existing_result || priority[new_result] > priority[existing_result]) {
+                    this.colored_letters[letter] = new_result
+                    keyboard.setColor(button, new_result)
+                }
             })
-            this.spendAttempt()
+            const success_revision = Object.fromEntries( [...Array(this.len).keys()].map( x => [x, 'green']))
+            this.spendAttempt(areMapsEqual(word_revision, success_revision))
         }
 
     }
