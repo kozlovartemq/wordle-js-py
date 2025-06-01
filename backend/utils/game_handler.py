@@ -17,7 +17,7 @@ class GameHandler:
         indx_to_skip = []
         for i in range(word_len):
             if self.correct_word[i] == word[i]:
-                res[i] = 'true'
+                res[i] = 'green'
                 count_dict[word[i]] -= 1
                 indx_to_skip.append(i)
             
@@ -25,10 +25,10 @@ class GameHandler:
             if j in indx_to_skip:
                 continue
             if count_dict.get(word[j]):
-                res[j] = 'false'
+                res[j] = 'yellow'
                 count_dict[word[j]] -= 1
             else:
-                res[j] = 'none'
+                res[j] = 'red'
     
         return WordRevision(res)
 
@@ -40,17 +40,17 @@ class GameHandler:
 
 correct_word = 'ВЕСНА'
 
-assert check_word('ВЕСНА') == {0: "true", 1: "true", 2: "true", 3: "true", 4: "true"}
-assert check_word('Весна') == {0: "true", 1: "true", 2: "true", 3: "true", 4: "true"}
-assert check_word('ручка') == {0: "none", 1: "none", 2: "none", 3: "none", 4: "true"}
-assert check_word('ручей') == {0: "none", 1: "none", 2: "none", 3: "false", 4: "none"}
-assert check_word('басня') == {0: "none", 1: "false", 2: "true", 3: "true", 4: "none"}
+assert check_word('ВЕСНА') == {0: "green", 1: "green", 2: "green", 3: "green", 4: "green"}
+assert check_word('Весна') == {0: "green", 1: "green", 2: "green", 3: "green", 4: "green"}
+assert check_word('ручка') == {0: "red", 1: "red", 2: "red", 3: "red", 4: "green"}
+assert check_word('ручей') == {0: "red", 1: "red", 2: "red", 3: "yellow", 4: "red"}
+assert check_word('басня') == {0: "red", 1: "yellow", 2: "green", 3: "green", 4: "red"}
 
 
 # correct_word = 'ГОСТЬ'
 
-# assert check_word('СОСНА') == {0: 'none', 1: 'true', 2: 'true', 3: 'none', 4: 'none'}
-# assert check_word('СОНCА') == {0: 'false', 1: 'true', 2: 'none', 3: 'none', 4: 'none'}
+# assert check_word('СОСНА') == {0: 'red', 1: 'green', 2: 'green', 3: 'red', 4: 'red'}
+# assert check_word('СОНCА') == {0: 'yellow', 1: 'green', 2: 'red', 3: 'red', 4: 'red'}
 
 
 

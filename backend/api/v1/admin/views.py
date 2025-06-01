@@ -51,7 +51,7 @@ async def replace_daily_game(
     
     new_game = await create_daily_game(session, to_replace=True)
     assert new_game
-    return {"msg": "Поменяна ежедневная игра", "game_uuid": new_game.uuid}
+    return {"msg": "Ежедневная игра успешна поменяна ", "game_uuid": new_game.uuid}
 ###
 
 # @admin_router.post("/create_daily_game", response_model=SuccessGameResponse)

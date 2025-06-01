@@ -32,7 +32,7 @@ async def get_all_games(
     return res.all()
 
 
-async def get_game_by_word(
+async def get_game_by_word_dictionary(
     session: AsyncSession,
     game_word: str,
     dictionary: bool
@@ -135,7 +135,7 @@ async def delete_old_games(
         where(GameModel.is_archived.is_(False))
     )).scalars().all()
 
-    deleted_games = [GameDelete(id=game.id, word=game.word) for game in games]
+    deleted_games = [GameDelete(id=game.id, word=game.word, uuid=game.uuid, dictionary=game.dictionary) for game in games]
     for game in games:
         await session.delete(game)
 

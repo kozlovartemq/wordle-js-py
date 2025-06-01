@@ -26,7 +26,7 @@ class CheckRequest(WordRequest):
 class WordRevision(RootModel):
     root: Dict[
         Annotated[int, Field(ge=0, le=5)],
-        Literal["true", "false", "none"]
+        Literal["green", "yellow", "red"]
     ]
 
     @model_validator(mode='before')
@@ -48,9 +48,8 @@ class GameParamsResponse(BaseModel):
     dictionary: bool
 
 
-class GameBase(BaseModel):
+class GameBase(WordRequest):
     uuid: UUID
-    word: str
     dictionary: bool
     created_at: float
     is_daily: bool = False
@@ -65,9 +64,10 @@ class GameRead(GameBase):
     id: int
 
 
-class GameDelete(BaseModel):
+class GameDelete(WordRequest):
     id: int
-    word: str
+    uuid: UUID
+    dictionary: bool
 
 
 class DefaultHTTPError(BaseModel):

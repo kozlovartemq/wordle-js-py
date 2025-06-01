@@ -19,7 +19,7 @@ from api.v1.schemas import (
 from core.models.db_helper import db_helper
 from core.models.game import (
     create_game,
-    get_game_by_word,
+    get_game_by_word_dictionary,
     get_game_by_uuid,
     get_game_by_is_daily
 )
@@ -64,6 +64,30 @@ async def check_word(
         return check()
 
 
+async def create_game_if_not_exists(
+    session: AsyncSession,
+    word: str,
+    dictionary: bool
+):
+    game = await get_game_by_word_dictionary(session, word, dictionary)
+    if game is not None:
+        return {"msg": "Игра уже существует", "game_uuid": game.uuid}
+    
+    game_uuid = uuid.uuid4()
+    new_game = await create_game(
+        session=session,
+        game_create=GameCreate(
+            uuid=game_uuid,
+            word=word.upper(),
+            dictionary=dictionary,
+            created_at=utc_now_timestamp(),
+            is_daily=False,
+            is_archived=False
+        )
+    )
+    return {"msg": "Игра успешно создана", "game_uuid": new_game.uuid}
+
+
 @game_router.post(
     '/create_custom',
     response_model=SuccessGameResponse,
@@ -84,24 +108,7 @@ async def create_custom_game(
             raise HTTPException(HTTP_404_NOT_FOUND, "Такого слова нет в словаре.")
 
     new_word = data.word
-    game = await get_game_by_word(session, new_word, data.dictionary)
-    if game is not None:
-        return {"msg": "Игра уже существует", "game_uuid": game.uuid}
-    
-    game_uuid = uuid.uuid4()
-    new_game = await create_game(
-        session=session,
-        game_create=GameCreate(
-            uuid=game_uuid,
-            word=new_word.upper(),
-            dictionary=data.dictionary,
-            created_at=utc_now_timestamp(),
-            is_daily=False,
-            is_archived=False
-        )
-    )
-    
-    return {"msg": "Создана новая игра", "game_uuid": new_game.uuid}
+    return await create_game_if_not_exists(session, new_word, dictionary=data.dictionary)
 
 
 @game_router.post("/create_casual", response_model=SuccessGameResponse)
@@ -109,21 +116,9 @@ async def create_casual_game(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
     random_word_response = await get_random_word(session=session, length=5)
-    
-    game_uuid = uuid.uuid4()
-    new_game = await create_game(
-        session=session,
-        game_create=GameCreate(
-            uuid=game_uuid,
-            word=random_word_response.word.upper(),
-            dictionary=True,
-            created_at=utc_now_timestamp(),
-            is_daily=False,
-            is_archived=False
-        )
-    )
-    
-    return {"msg": "Создана новая игра", "game_uuid": new_game.uuid}
+
+    new_word = random_word_response.word
+    return await create_game_if_not_exists(session, new_word, dictionary=True)
 
 
 @game_router.get(
