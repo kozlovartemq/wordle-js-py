@@ -63,7 +63,7 @@ class ContentComponent extends HTMLElement {
                 border: 2px solid #ccc;
                 border-radius: 8px;
                 outline: none;
-                width: 300px;
+                width: 350px;
                 transition: border-color 0.3s, box-shadow 0.3s;
                 height: 1rem;
             }
@@ -297,7 +297,7 @@ class ContentComponent extends HTMLElement {
         const documentTitle = document.head.querySelector('title')
         documentTitle.textContent = "Главная - Wordle"
                 
-        const shadow = this.shadowRoot;
+        const shadow = this.shadowRoot
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
         <h2 class="content-title"><b>Wordle</b> – игра-головоломка, в которой нужно угадать слово из пяти букв.</h2>
@@ -386,8 +386,12 @@ class ContentComponent extends HTMLElement {
         // TODO: dry listeners
         submit_button.addEventListener('click', async (e) => {
             e.stopPropagation()
+            const existed_copy_comp = shadow.querySelector('copy-component')// DIV-container
             submit_button.disabled = true
             p.textContent = ""
+            if (existed_copy_comp) {
+                existed_copy_comp.remove()
+            }
 
             const word = input.value.trim().toUpperCase()
             const checkbox = shadow.querySelector("input#check-dictionary")
@@ -401,15 +405,11 @@ class ContentComponent extends HTMLElement {
             } else if (!create_response.ok) {
                 p.textContent = "Не удалось получить id игры"
             } else {
-                p.textContent = "Игра успешно создана"
+                p.textContent = create_response.data.msg
                 const url = routes.Game.reverse({ game: create_response.data.game_uuid })
                 const copy_comp = document.createElement('copy-component')
                 copy_comp.content = url
                 wrapper.appendChild(copy_comp)
-
-                // goTo(url)
-                // TODO
-                // 'перейти к игре' `на страницу игры` OR copy game Link
             }
 
         })

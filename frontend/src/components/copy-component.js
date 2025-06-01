@@ -1,5 +1,4 @@
-import appConstants from '../common/constants'
-
+import { goTo } from '../router'
 
 class CopyComponent extends HTMLElement {
     constructor() {
@@ -13,8 +12,11 @@ class CopyComponent extends HTMLElement {
         wrapper.innerHTML = `
             
             <p class="copy-text"></p>
-            <button class="copy-button" title="Скопировать">
+            <button class="copy-button" data-action="copy" title="Скопировать">
                 📋
+            </button>
+            <button class="copy-button" data-action="goto" title="На страницу игры">
+                🡕
             </button>
             <span class="copied-popup">Скопировано!</span>
             
@@ -53,6 +55,7 @@ class CopyComponent extends HTMLElement {
             font-size: 1rem;
             border-radius: 6px;
             transition: background 0.2s ease;
+            width: 2.5rem;
         }
 
         .copy-button:hover {
@@ -91,12 +94,12 @@ class CopyComponent extends HTMLElement {
     renderText() {
         const shadow = this.shadowRoot
         const p = shadow.querySelector(".copy-text")
-        p.textContent = this._content 
+        p.textContent = window.location.origin + this._content 
     }
 
     connectedCallback() {
         const shadow = this.shadowRoot
-        const copyButton = shadow.querySelector('.copy-button')
+        const copyButton = shadow.querySelector('button[data-action="copy"]')
         const copyText = shadow.querySelector('.copy-text')
         const copiedPopup = shadow.querySelector('.copied-popup')
 
@@ -107,6 +110,10 @@ class CopyComponent extends HTMLElement {
                     copiedPopup.style.opacity = '0'
                 }, 2000)
             })
+        })
+        const gotoButton = shadow.querySelector('button[data-action="goto"]')
+        gotoButton.addEventListener('click', () => {
+            goTo(this._content)
         })
     }
 }
