@@ -12,7 +12,7 @@ export const countOccurrences = (text, search) => {
     let count = 0, position = 0, step = search.length > 0 ? search.length : 1;
     while ((position = text.indexOf(search, position)) !== -1) {
         count++;
-        position += step; 
+        position += step;
     }
     return count;
 }

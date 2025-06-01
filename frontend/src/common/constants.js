@@ -35,7 +35,7 @@ export const appConstants = {
         link_blue: '#0c47a1'
     },
     map_key: {
-        KeyQ: "Й", KeyW: "Ц", KeyE: "У", KeyR: "К", KeyT: "Е", KeyY: "Н", 
+        KeyQ: "Й", KeyW: "Ц", KeyE: "У", KeyR: "К", KeyT: "Е", KeyY: "Н",
         KeyU: "Г", KeyI: "Ш", KeyO: "Щ", KeyP: "З", BracketLeft: "Х", BracketRight: "Ъ",
 
         KeyA: "Ф", KeyS: "Ы", KeyD: "В", KeyF: "А", KeyG: "П", KeyH: "Р",

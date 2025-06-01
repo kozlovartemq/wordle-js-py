@@ -156,11 +156,11 @@ class KeyboardComponent extends HTMLElement {
         shadow.appendChild(wrapper)
     }
 
-    findButton(letter){
+    findButton(letter) {
         return this.shadowRoot.querySelector(`button[data-letter="${letter.toUpperCase()}"]`)
     }
 
-    setColor(button, value){
+    setColor(button, value) {
         button.classList.remove('letter-green', 'letter-yellow', 'letter-red')
         button.classList.add('letter-' + value)
     }

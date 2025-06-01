@@ -94,7 +94,7 @@ class CopyComponent extends HTMLElement {
     renderText() {
         const shadow = this.shadowRoot
         const p = shadow.querySelector(".copy-text")
-        p.textContent = window.location.origin + this._content 
+        p.textContent = window.location.origin + this._content
     }
 
     connectedCallback() {

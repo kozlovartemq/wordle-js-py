@@ -65,7 +65,7 @@ class WordComponent extends HTMLElement {
         }
     }
 
-    setColors(word_revision){
+    setColors(word_revision) {
         const shadow = this.shadowRoot
         const letters = shadow.querySelectorAll("div.letter-box")
         letters.forEach((element, index) => {
@@ -73,16 +73,16 @@ class WordComponent extends HTMLElement {
         })
     }
 
-    fillNextEmpty(letter){
+    fillNextEmpty(letter) {
         const empties = countOccurrences(this.content, ' ')
         const letters_part = this.content.replaceAll(' ', '')
         if (empties > 0) {
-           this.content = letters_part + letter + ' '.repeat(empties - 1)
-           return true 
+            this.content = letters_part + letter + ' '.repeat(empties - 1)
+            return true
         } else return false
     }
-    
-    clearPreviousBusy(){
+
+    clearPreviousBusy() {
         const empties = countOccurrences(this.content, ' ')
         const letter_part = this.content.replaceAll(' ', '')
         if (letter_part.length > 0) {
@@ -91,7 +91,7 @@ class WordComponent extends HTMLElement {
         } else return null
     }
 
-    is_full(){
+    is_full() {
         return this.content.search(' ') === -1
     }
 }

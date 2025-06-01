@@ -251,7 +251,7 @@ class ContentComponent extends HTMLElement {
     getFailurePage() {
         const documentTitle = document.head.querySelector('title')
         documentTitle.textContent = "500 - Wordle"
-        
+
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         const word = document.createElement('word-component')
@@ -274,7 +274,7 @@ class ContentComponent extends HTMLElement {
     getNotFoundPage() {
         const documentTitle = document.head.querySelector('title')
         documentTitle.textContent = "404 - Wordle"
-        
+
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         const word = document.createElement('word-component')
@@ -296,7 +296,7 @@ class ContentComponent extends HTMLElement {
     getMainPage() {
         const documentTitle = document.head.querySelector('title')
         documentTitle.textContent = "Главная - Wordle"
-                
+
         const shadow = this.shadowRoot
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
@@ -386,7 +386,7 @@ class ContentComponent extends HTMLElement {
         // TODO: dry listeners
         submit_button.addEventListener('click', async (e) => {
             e.stopPropagation()
-            const existed_copy_comp = shadow.querySelector('copy-component')// DIV-container
+            const existed_copy_comp = shadow.querySelector('copy-component')
             submit_button.disabled = true
             p.textContent = ""
             if (existed_copy_comp) {
@@ -396,7 +396,7 @@ class ContentComponent extends HTMLElement {
             const word = input.value.trim().toUpperCase()
             const checkbox = shadow.querySelector("input#check-dictionary")
 
-    
+
             const create_response = await createCustomGame(word, checkbox.checked)
             if (create_response.status === 404) {
                 p.textContent = create_response.data["detail"]
@@ -427,7 +427,7 @@ class ContentComponent extends HTMLElement {
     getGamesPage() {
         const documentTitle = document.head.querySelector('title')
         documentTitle.textContent = "Поиск игры - Wordle"
-        
+
         const shadow = this.shadowRoot;
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `

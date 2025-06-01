@@ -130,11 +130,11 @@ class GameComponent extends HTMLElement {
         h2.textContent = `Использовано попыток: ${this.current_word_id}/6`
     }
 
-    spendAttempt(success){
+    spendAttempt(success) {
         this.current_word_id++
         this.pressed_buttons = []
         this.updateAttemptsH2()
-        if ( this.current_word_id === 6 || success ) {
+        if (this.current_word_id === 6 || success) {
             const shadow = this.shadowRoot
             const popup = document.createElement('pop-up')
             popup.renderResults()
@@ -142,7 +142,7 @@ class GameComponent extends HTMLElement {
         }
     }
 
-    getCurrentWord(){
+    getCurrentWord() {
         const shadow = this.shadowRoot
         return shadow.querySelector(`word-component[id="${this.current_word_id}"]`)
     }
@@ -151,7 +151,7 @@ class GameComponent extends HTMLElement {
         const shadow = this.shadowRoot
         const documentTitle = document.head.querySelector('title')
         documentTitle.textContent = "Игра - Wordle"
-        
+
         const status_indicator = shadow.querySelector('.status-indicator')
         const status_text = shadow.querySelector('.status-text')
         const text_core = "Проверка слов в словаре "
@@ -167,7 +167,7 @@ class GameComponent extends HTMLElement {
 
         const word_components = shadow.querySelectorAll(`word-component`)
         word_components.forEach(word => word.content = ' '.repeat(this.len))
-        
+
         const p = shadow.querySelector('.input-hint')
         const keyboard = shadow.querySelector(`keyboard-component`)
         const keyboard_shadow = keyboard.shadowRoot
@@ -191,7 +191,7 @@ class GameComponent extends HTMLElement {
                         k_enter_button.disabled = false
                     }
                 }
-                
+
             })
         })
         const backspace_button = keyboard_shadow.querySelector('button[data-action="backspace"]')
@@ -211,7 +211,7 @@ class GameComponent extends HTMLElement {
                 const k_button = keyboard.findButton(letter)
                 k_button.click()
             }
-            
+
         }
         document.removeEventListener('keyup', mountKeyUpToKeyboardComponent)
         document.addEventListener('keyup', mountKeyUpToKeyboardComponent)
@@ -229,7 +229,7 @@ class GameComponent extends HTMLElement {
         } else {
             const word_revision = response.data
             word_component.setColors(word_revision)
-            
+
             // Set keyboard buttons color by color prority
             const keyboard = shadow.querySelector(`keyboard-component`)
             const priority = {
@@ -249,7 +249,7 @@ class GameComponent extends HTMLElement {
                     keyboard.setColor(button, new_result)
                 }
             })
-            const success_revision = Object.fromEntries( [...Array(this.len).keys()].map( x => [x, 'green']))
+            const success_revision = Object.fromEntries([...Array(this.len).keys()].map(x => [x, 'green']))
             this.spendAttempt(areMapsEqual(word_revision, success_revision))
         }
 

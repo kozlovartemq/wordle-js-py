@@ -137,6 +137,6 @@ class PopUpComponent extends HTMLElement {
         this.innerHTML = ``
     }
 }
-    
+
 
 customElements.define('pop-up', PopUpComponent)
