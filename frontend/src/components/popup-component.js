@@ -1,19 +1,17 @@
 import appConstants from '../common/constants'
+import { goTo } from '../router'
 
 
 class PopUpComponent extends HTMLElement {
     constructor() {
         super()
-        // this._suppressCallback = true
-        // this.type = appConstants.container.types.main
-
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'popup-overlay')
         wrapper.innerHTML = `
             <div class="popup-container">
                 <div class="popup-content"></div>
-                <button class="submit-button">Закрыть</button>
+                <button class="submit-button position-right" data-action="close">Закрыть</button>
             </div>
         `
         const style = document.createElement('style')
@@ -54,8 +52,15 @@ class PopUpComponent extends HTMLElement {
                 cursor: pointer;
                 transition: background-color 0.3s, transform 0.2s;
                 height: 41px;
-                right: 1rem;
                 bottom: 1rem;
+            }
+
+            .position-right {
+                right: 1rem;
+            }
+
+            .position-left {
+                left: 1rem;
             }
             
             .submit-button:hover {
@@ -101,8 +106,7 @@ class PopUpComponent extends HTMLElement {
             }
         })
 
-
-        wrapper.querySelector('.submit-button').addEventListener('click', () => {
+        wrapper.querySelector('button[data-action="close"]').addEventListener('click', () => {
             this.remove()
         })
     }
@@ -128,13 +132,28 @@ class PopUpComponent extends HTMLElement {
 
     }
 
-
     renderResults() {
         this.innerHTML = ``
     }
 
     renderArchiveGames() {
         this.innerHTML = ``
+    }
+
+    renderGotoAlert(path) {
+        const shadow = this.shadowRoot
+        const content = shadow.querySelector(".popup-content")
+        content.innerHTML = `
+        <h2>Вы покидаете страницу игры!</h2>
+        <p>
+            После ухода со страницы весь прогресс игры будет утерян. Продолжить?
+        </p>
+        <button class="submit-button position-left" data-action="goto">Уйти</button>
+        `
+
+        content.querySelector('button[data-action="goto"]').addEventListener('click', () => {
+            goTo(path)
+        })
     }
 }
 
