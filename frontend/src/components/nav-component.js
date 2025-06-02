@@ -49,64 +49,16 @@ class NavComponent extends HTMLElement {
             l.setAttribute('text', link.name)
             wrapper.appendChild(l)
         })
-
-        const search = document.createElement('input')
-        search.setAttribute('class', 'global-search')
-        search.addEventListener('keyup', (e) => {
-            e.stopPropagation()
-            if (e.key === 'Enter') {
-                e.preventDefault()
-                const text = e.target.value
-                console.log('search', text)
-            }
-        })
-
-        // wrapper.appendChild(search)
-
     }
 
-    // updateSearch() {
-    //     const shadow = this.shadowRoot
-    //     const input = shadow.querySelector('input')
-    //     const search = this.getAttribute('search')
-    //     input.value = search
-    //     if(this.searchType === appConstants.search.types.game){
-    //         input.setAttribute('placeholder', 'Search game by id...')
-    //     }
-
-    // }
-
     connectedCallback() {
-        const shadow = this.shadowRoot;
-        // const searchText = this.getAttribute('search')
-        this.searchType = this.getAttribute('type') ? this.getAttribute('type') : appConstants.search.types.game
-
-        // if(searchText){
-        //     const input = shadow.querySelector('input')
-        //     input.value = searchText
-        // }
-
+        const shadow = this.shadowRoot
         const { pathname: path } = new URL(window.location.href)
         const link = this.links.find((l) => l.href === path)
 
         if (link) {
             const linkElement = shadow.querySelector(`.${link.class}`)
             linkElement.setAttribute('selected', 'true')
-        }
-    }
-
-
-    static get observedAttributes() {
-        return ['search', 'type']
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        // if(name === 'search'){
-        //     this.updateSearch()
-        // }
-        if (name === 'type') {
-            this.searchType = newValue
-            // this.updateSearch()
         }
     }
 }

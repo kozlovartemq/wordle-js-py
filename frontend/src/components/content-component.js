@@ -422,6 +422,13 @@ class ContentComponent extends HTMLElement {
                 submit_button.disabled = true
             }
         })
+        input.addEventListener('keyup', (e) => {
+            e.stopPropagation()
+            if (e.key === 'Enter') {
+                e.preventDefault()
+                submit_button.click()
+            }
+        })
     }
 
     getGamesPage() {
@@ -440,15 +447,15 @@ class ContentComponent extends HTMLElement {
             <button class="submit-button" data-action="check-game">Проверить</button>
         </div>
         `
-        const button = shadow.querySelector('button[data-action="check-game"]')
-        button.disabled = true
+        const submit_button = shadow.querySelector('button[data-action="check-game"]')
+        submit_button.disabled = true
         const input = shadow.querySelector('input.game-input')
         const p = wrapper.querySelector('.input-hint')
 
-        button.addEventListener('click', async (e) => {
+        submit_button.addEventListener('click', async (e) => {
             e.stopPropagation()
             const game_uuid = input.value.trim().toLowerCase()
-            button.disabled = true
+            submit_button.disabled = true
             p.textContent = ""
 
             const game_response = await getGameByUUID(game_uuid)
@@ -465,9 +472,16 @@ class ContentComponent extends HTMLElement {
             e.stopPropagation()
             e.target.value = e.target.value.replace(" ", "")
             if (isValidUUID(input.value)) {
-                button.disabled = false
+                submit_button.disabled = false
             } else {
-                button.disabled = true
+                submit_button.disabled = true
+            }
+        })
+        input.addEventListener('keyup', (e) => {
+            e.stopPropagation()
+            if (e.key === 'Enter') {
+                e.preventDefault()
+                submit_button.click()
             }
         })
     }
