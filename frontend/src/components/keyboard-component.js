@@ -97,11 +97,20 @@ class KeyboardComponent extends HTMLElement {
             background-color: #ccc;
         }
 
+        .keyboard-row button.letter:disabled {
+            background-color: #ccc;
+            cursor: auto;
+        }
+
         .keyboard-row .letter-red {
             background-color: ${appConstants.letter_color.red};
         }
         
         .keyboard-row .letter-red:hover {
+            background-color: ${appConstants.custom_color.dark_red};
+        }
+
+        .keyboard-row button.letter-red:disabled {
             background-color: ${appConstants.custom_color.dark_red};
         }
 
@@ -113,11 +122,19 @@ class KeyboardComponent extends HTMLElement {
             background-color: ${appConstants.custom_color.dark_yellow};
         }
 
+        .keyboard-row button.letter-yellow:disabled {
+            background-color: ${appConstants.custom_color.dark_yellow};
+        }
+
         .keyboard-row .letter-green {
             background-color: ${appConstants.letter_color.green};
         }
         
         .keyboard-row .letter-green:hover {
+            background-color: ${appConstants.custom_color.dark_green};
+        }
+
+        .keyboard-row button.letter-green:disabled {
             background-color: ${appConstants.custom_color.dark_green};
         }
 
@@ -165,21 +182,12 @@ class KeyboardComponent extends HTMLElement {
         button.classList.add('letter-' + value)
     }
 
-
-    connectedCallback() {
+    disable() {
         const shadow = this.shadowRoot
-        // buttons.forEach(button => {
-        //     button.addEventListener('click', (e) => {
-        //         e.stopPropagation()
-        //         this.setColor(button, true)
-        //     })
-        // })
-
-        // shadow.querySelector('button[data-action="check-word"]').addEventListener('click', (e) => {
-        //     e.stopPropagation()
-        //     const url = routes.Daily.reverse()
-        //     goTo(url)
-        // })
+        const buttons = shadow.querySelectorAll('button')
+        buttons.forEach(button => {
+            button.disabled = true
+        })
     }
 }
 

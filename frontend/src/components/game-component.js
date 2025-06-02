@@ -136,6 +136,8 @@ class GameComponent extends HTMLElement {
         this.updateAttemptsH2()
         if (this.current_word_id === 6 || success) {
             const shadow = this.shadowRoot
+            const keyboard = shadow.querySelector(`keyboard-component`)
+            keyboard.disable()
             const popup = document.createElement('pop-up')
             popup.renderResults()
             shadow.appendChild(popup)
@@ -185,9 +187,9 @@ class GameComponent extends HTMLElement {
                 e.stopPropagation()
                 const current_word = this.getCurrentWord()
                 const was_filled = current_word.fillNextEmpty(button.textContent)
-                if (was_filled === true) {
+                if (was_filled) {
                     this.pressed_buttons.push(button)
-                    if (current_word.is_full() === true) {
+                    if (current_word.is_full()) {
                         k_enter_button.disabled = false
                     }
                 }
