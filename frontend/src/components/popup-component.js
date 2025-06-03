@@ -133,6 +133,16 @@ class PopUpComponent extends HTMLElement {
     }
 
     renderResults() {
+        let copy_text = `
+        Я разгадал(a) 5-буквенное слово с 3/6 попыток. 
+
+        ⬛⬛⬛🟨🟩
+        🟨⬛⬛🟨🟩
+        🟩🟩🟩🟩🟩
+
+        Сможешь ли ты разгадать это слово? 
+        ${url}
+        `
         this.innerHTML = ``
     }
 
