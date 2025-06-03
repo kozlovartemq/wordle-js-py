@@ -38,6 +38,23 @@ class ContentComponent extends HTMLElement {
                 width: 500px;
             }
 
+            .button-container {
+                display: flex;
+                align-items: center;
+                margin-top: 20px;
+            }
+
+            .button-group {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            countdown-timer {
+                padding: 8px 10px;
+            }
 
             .input-container {
                 display: flex;
@@ -215,16 +232,6 @@ class ContentComponent extends HTMLElement {
         this.updateComponent()
     }
 
-    // static get observedAttributes(){
-    //     return ['type']
-    // }
-
-    // attributeChangedCallback(name, oldValue, newValue){
-    //     console.log('attributeChangedCallback')
-    //     if (this._suppressCallback) return;
-    //     this.updateComponent()
-    // }
-
     updateComponent() {
         const type = this.getAttribute('type')
         if (type) {
@@ -301,10 +308,14 @@ class ContentComponent extends HTMLElement {
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
         <h2 class="content-title"><b>Wordle</b> – игра-головоломка, в которой нужно угадать слово из пяти букв.</h2>
-        
-        <button class="submit-button" data-action="rules">Правила</button>
-        <button class="submit-button" data-action="start-daily">Начать ежедневную игру!</button>
-        <button class="submit-button" data-action="start-casual">Начать случайную игру!</button>
+        <div class="button-container">
+            <div class="button-group">
+                <button class="submit-button" data-action="rules">Правила</button>
+                <button class="submit-button" data-action="start-daily">Начать ежедневную игру!</button>
+                <button class="submit-button" data-action="start-casual">Начать случайную игру!</button>
+            </div>
+            <countdown-timer></countdown-timer>
+        </div>
         `
         wrapper.querySelector('button[data-action="rules"]').addEventListener('click', (e) => {
             e.stopPropagation()
