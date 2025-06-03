@@ -34,18 +34,25 @@ async def lifespan(app: FastAPI):
         cursor.executescript(sql_script)
         sqlite3_conn.commit()
 
-    # launch scheduler that will delete games (24 hour old games every day by default)
-    scheduler: AsyncIOScheduler | None = None
+    # launch scheduler that will create daily game AND delete games (24 hour old games every day by default)
+    scheduler = AsyncIOScheduler()
+    
+    async def create_daily_game_job():
+        async with db_helper.session_factory() as session:
+            await create_daily_game(session, to_replace=False)
+    
+    scheduler.add_job(
+        create_daily_game_job,
+        trigger=CronTrigger(hour=0, minute=0, second=5, timezone="UTC"),
+        id="Create Daily Game",
+        replace_existing=True
+    )
+
     if settings.deleteJob.enable:
-        scheduler = AsyncIOScheduler()
 
         async def delete_old_games_job():
             async with db_helper.session_factory() as session:
-                await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours)
-        
-        async def create_daily_game_job():
-            async with db_helper.session_factory() as session:
-                await create_daily_game(session, to_replace=False)
+                await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours) 
         
         scheduler.add_job(
             delete_old_games_job,
@@ -54,21 +61,15 @@ async def lifespan(app: FastAPI):
             id="Delete Old Games"
         )
 
-        scheduler.add_job(
-            create_daily_game_job,
-            trigger=CronTrigger(hour=0, minute=0, second=5, timezone="UTC"),
-            id="Create Daily Game",
-            replace_existing=True
-        )
-        scheduler.start()
-        logging.info("[lifespan][AsyncIOScheduler] Jobs set:\n%s", scheduler.get_jobs())
-        # run the jobs at the application start
+    scheduler.start()
+    logging.info("[lifespan][AsyncIOScheduler] Jobs set:\n%s", scheduler.get_jobs())
+    # run the jobs at the application start
+    if settings.deleteJob.enable:
         await delete_old_games_job()
-        await create_daily_game_job()
+    await create_daily_game_job()
 
     yield
-    if scheduler:
-        scheduler.shutdown()
+    scheduler.shutdown()
     await db_helper.dispose()
     
 
