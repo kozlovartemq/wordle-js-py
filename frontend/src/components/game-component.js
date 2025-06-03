@@ -1,5 +1,5 @@
 import appConstants from '../common/constants'
-import { arrayRemove, areMapsEqual } from "../common/utils.js"
+import { arrayRemove, areObjectsEqual } from "../common/utils.js"
 import { checkWord } from '../api/endpoints'
 
 
@@ -122,6 +122,14 @@ class GameComponent extends HTMLElement {
         shadow.appendChild(style)
         shadow.appendChild(wrapper)
         this.updateAttemptsH2()
+
+        this.mountKeyUpToKeyboardComponent = (event) => {
+            const letter = appConstants.map_key[event.code]
+            if (letter) {
+                const k_button = keyboard.findButton(letter)
+                k_button.click()
+            }
+        }
     }
 
     updateAttemptsH2() {
@@ -207,17 +215,12 @@ class GameComponent extends HTMLElement {
                 this.pressed_buttons = arrayRemove(this.pressed_buttons, keyboard.findButton(cleared_letter))
             }
         })
-        const mountKeyUpToKeyboardComponent = (event) => {
-            const letter = appConstants.map_key[event.code]
-            if (letter) {
-                const k_button = keyboard.findButton(letter)
-                k_button.click()
-            }
 
-        }
-        document.removeEventListener('keyup', mountKeyUpToKeyboardComponent)
-        document.addEventListener('keyup', mountKeyUpToKeyboardComponent)
+        document.addEventListener('keyup', this.mountKeyUpToKeyboardComponent)
+    }
 
+    disconnectedCallback() {
+        document.removeEventListener('keyup', this.mountKeyUpToKeyboardComponent)
     }
 
     async checkCurrent(game_id, word) {
@@ -252,7 +255,7 @@ class GameComponent extends HTMLElement {
                 }
             })
             const success_revision = Object.fromEntries([...Array(this.len).keys()].map(x => [x, 'green']))
-            this.spendAttempt(areMapsEqual(word_revision, success_revision))
+            this.spendAttempt(areObjectsEqual(word_revision, success_revision))
         }
 
     }
