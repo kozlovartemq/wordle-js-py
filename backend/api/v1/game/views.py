@@ -14,6 +14,7 @@ from api.v1.schemas import (
     CreateCustomRequest,
     SuccessGameResponse,
     GameParamsResponse,
+    GameArchiveResponse,
     DefaultHTTPError
 )
 from core.models.db_helper import db_helper
@@ -21,12 +22,12 @@ from core.models.game import (
     create_game,
     get_game_by_word_dictionary,
     get_game_by_uuid,
-    get_game_by_is_daily
+    get_game_by_is_daily,
+    get_games_by_is_archived
 )
 from core.models.word import get_random_word, get_word
-from utils.time_helper import utc_now_timestamp
+from utils.time_helper import utc_now_timestamp, timestamp_to_date_str
 from utils.game_handler import GameHandler
-
 
 game_router = APIRouter(tags=["Game"], prefix='/games')
 
@@ -139,6 +140,16 @@ async def get_daily_game(
         raise HTTPException(HTTP_404_NOT_FOUND, "Ежедневная игра не найдена")
 
     return {"msg": "Ежедневная игра существует", "game_uuid": daily.uuid}
+
+
+@game_router.get("/get_archive", response_model=list[GameArchiveResponse])
+async def get_archive_games(
+    page: int = 1,
+    limit: int = 20,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    archive_games = await get_games_by_is_archived(session=session, page=page, limit=limit)
+    return [GameArchiveResponse(game_uuid=game.uuid, game_date=timestamp_to_date_str(game.created_at)) for game in archive_games]
 
 
 @game_router.get(

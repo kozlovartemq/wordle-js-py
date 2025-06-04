@@ -48,6 +48,18 @@ class GameParamsResponse(BaseModel):
     dictionary: bool
 
 
+class GameArchiveResponse(BaseModel):
+    game_uuid: UUID
+    game_date: str
+
+    @field_validator('game_date')
+    @classmethod
+    def validate_cyrillic(cls, value):
+        if not re.fullmatch(r'^(\d{2})\.(\d{2})\.(\d{4})$', value):
+            raise ValueError('Date should match "%d.%m.%Y" format')
+        return value
+
+
 class GameBase(WordRequest):
     uuid: UUID
     dictionary: bool

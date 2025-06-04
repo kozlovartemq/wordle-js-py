@@ -57,7 +57,7 @@ async def get_game_by_is_daily(
     session: AsyncSession,
 ) -> GameModel | None:
     
-    stmt = select(GameModel).where(GameModel.is_daily == True)
+    stmt = select(GameModel).where(GameModel.is_daily.is_(True))
     res = await session.scalars(stmt)
     all_results = res.all()
     if all_results:
@@ -65,6 +65,17 @@ async def get_game_by_is_daily(
         return all_results[0] 
     else:
         return None
+
+
+async def get_games_by_is_archived(
+    session: AsyncSession,
+    page: int = 1,
+    limit: int = 20,
+) -> Sequence[GameModel]:
+    offset = limit * (page-1)
+    stmt = select(GameModel).where(GameModel.is_archived.is_(True)).order_by(GameModel.id).offset(offset).limit(limit)
+    res = await session.scalars(stmt)
+    return res.all()
 
 
 async def create_game(

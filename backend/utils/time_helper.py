@@ -31,3 +31,7 @@ def timedelta_from_now_timestamp(
             weeks=weeks
         )
     ).timestamp()
+
+
+def timestamp_to_date_str(timestamp: float) -> str:
+    return datetime.fromtimestamp(timestamp).strftime("%d.%m.%Y")
