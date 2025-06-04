@@ -62,7 +62,6 @@ class ContentComponent extends HTMLElement {
                 align-items: flex-start;
                 gap: 12px;
                 margin-top: 30px;
-                padding-bottom: 20px;
                 width: 500px;
             }
 
@@ -364,7 +363,7 @@ class ContentComponent extends HTMLElement {
         </div>
         <div class="input-container">
             <div class="input-wrapper">
-                <input type="text" class="word-input" maxLength=5 placeholder="Загадайте слово!" />
+                <input type="text" class="word-input" name="word-input" maxLength=5 placeholder="Загадайте слово!" />
                 <p class="input-hint"></p>
             </div>
             <button class="submit-button" data-action="create-word">Создать</button>
@@ -452,11 +451,12 @@ class ContentComponent extends HTMLElement {
         <h2 class="content-title">Найди игру, если у тебя есть его id!</h2>
         <div class="input-container">
             <div class="input-wrapper">
-                <input type="text" class="game-input" maxLength=36 placeholder="Найди игру по его id!" />
+                <input type="text" class="game-input" name="game-input" maxLength=36 placeholder="Найди игру по его id!" />
                 <p class="input-hint"></p>
             </div>
             <button class="submit-button" data-action="check-game">Проверить</button>
         </div>
+        <button class="submit-button" data-action="archive-game">Архивные игры</button>
         `
         const submit_button = shadow.querySelector('button[data-action="check-game"]')
         submit_button.disabled = true
@@ -471,7 +471,7 @@ class ContentComponent extends HTMLElement {
 
             const game_response = await getGameByUUID(game_uuid)
             if (game_response.status >= 400 && game_response.status < 500) {
-                p.textContent = game_response.data["detail"]["0"]["msg"]
+                p.textContent = game_response.data["detail"]
             }
             if (game_response.ok) {
                 const url = routes.Game.reverse({ game: game_uuid })
@@ -494,6 +494,12 @@ class ContentComponent extends HTMLElement {
                 e.preventDefault()
                 submit_button.click()
             }
+        })
+        wrapper.querySelector('button[data-action="archive-game"]').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const popup = document.createElement('pop-up')
+            popup.renderArchiveGames()
+            shadow.appendChild(popup)
         })
     }
 

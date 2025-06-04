@@ -1,5 +1,6 @@
 import appConstants from '../common/constants'
 import { goTo } from '../router'
+import { getArchive } from '../api/endpoints'
 
 
 class PopUpComponent extends HTMLElement {
@@ -32,7 +33,7 @@ class PopUpComponent extends HTMLElement {
 
             .popup-container {
                 background: white;
-                padding: 4rem;
+                padding: 1rem 4rem 4rem;
                 border-radius: 10px;
                 max-width: 90vw;
                 max-height: 90vh;
@@ -90,6 +91,48 @@ class PopUpComponent extends HTMLElement {
                 color:${appConstants.custom_color.red};
                 border-bottom: 1px dashed ${appConstants.custom_color.red};
             }
+
+            .archive-list {
+                max-height: 400px;         /* или 60vh — если хочешь адаптивность */
+                overflow-y: auto;
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+
+                background-color: #f9f9f9;
+                border-radius: 12px;
+                box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            }
+
+            /* Стили плитки */
+            .archive-tile {
+                display: block;
+                padding: 14px 18px;
+                background-color: #e7ffe7;
+                border-left: 6px solid #28a745;
+                border-radius: 8px;
+                color: #222;
+                text-decoration: none;
+                font-weight: 500;
+                transition: background-color 0.2s, transform 0.1s;
+            }
+
+            .archive-tile:hover {
+                background-color: #d9fdd9;
+                transform: translateX(3px);
+            }
+
+            .loader {
+                text-align: center;
+                padding: 10px;
+                font-size: 14px;
+                color: #888;
+            }
+
+            .hidden {
+                display: none;
+            }
         `
 
         shadow.appendChild(style)
@@ -146,10 +189,6 @@ class PopUpComponent extends HTMLElement {
         this.innerHTML = ``
     }
 
-    renderArchiveGames() {
-        this.innerHTML = ``
-    }
-
     renderGotoAlert(path) {
         const shadow = this.shadowRoot
         const content = shadow.querySelector(".popup-content")
@@ -164,6 +203,66 @@ class PopUpComponent extends HTMLElement {
         content.querySelector('button[data-action="goto"]').addEventListener('click', () => {
             goTo(path)
         })
+    }
+
+    async renderArchiveGames() {
+        this.archivePage = 1
+        this.isLoading = false
+        this.hasMore = true
+
+        const shadow = this.shadowRoot
+        const content = shadow.querySelector(".popup-content")
+        content.innerHTML = `
+        <h2>Архивные игры</h2>
+        <div class="archive-list"></div>        
+        <div id="loader" class="loader hidden">Загрузка...</div>
+        `
+        await this.loadArchivePage(this.archivePage)
+        
+        const observer = new IntersectionObserver(async (entries) => {
+            if (entries[0].isIntersecting) {
+                this.archivePage++
+                await this.loadArchivePage(this.archivePage)
+            }
+        }, {
+            root: content,
+            threshold: 1.0
+        }) // TODO test new archive pages loading
+        observer.observe(shadow.querySelector(".loader"))
+    }
+
+    async loadArchivePage() {
+        if (this.isLoading || !this.hasMore) return
+        this.isLoading = true
+        const shadow = this.shadowRoot
+        const loader = shadow.querySelector('.loader')
+        const archiveList = shadow.querySelector('.archive-list')
+        loader.classList.remove('hidden')
+        const archiveResponse = await getArchive(this.archivePage)
+        if (archiveResponse.ok) {
+            if (archiveResponse.data.length === 0 && this.archivePage === 1) {
+                archiveList.textContent = "Архивных игр пока нет :("
+                this.hasMore = false
+            } else if (archiveResponse.data.length === 0) {
+                this.hasMore = false
+                loader.textContent = 'Больше игр нет'
+                return
+            }
+            archiveResponse.data.forEach(game => {
+                const tile = document.createElement('a');
+                tile.className = 'archive-tile'
+                tile.href = `games/${game.game_uuid}`
+                tile.textContent = `Ежедневная игра от ${game.game_date}`
+                archiveList.appendChild(tile)
+            })
+        } else {
+            const error_text = 'Ошибка загрузки архива'
+            console.error(error_text)
+            loader.textContent = error_text
+            this.hasMore = false
+        }
+        this.isLoading = false;
+        loader.classList.add('hidden')
     }
 }
 

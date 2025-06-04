@@ -23,10 +23,15 @@ export const getDailyGame = () => {
     return baseApi.get(`/games/daily`)
 }
 
+export const getArchive = (page = 1) => {
+    return baseApi.get(`/games/get_archive?page=${page}`)
+}
+
 export default {
     createCustomGame,
     createCasualGame,
     getGameByUUID,
     checkWord,
     getDailyGame,
+    getArchive,
 }
