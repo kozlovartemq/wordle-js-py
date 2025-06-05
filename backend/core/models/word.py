@@ -17,7 +17,6 @@ class WordModel(Base):
     soul: Mapped[int]
 
 
-
 async def get_random_word(
     session: AsyncSession,
     length: int

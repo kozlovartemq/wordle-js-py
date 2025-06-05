@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from starlette.status import HTTP_403_FORBIDDEN
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.schemas import GameRead, GameDelete, SuccessGameResponse
+from api.v1.schemas import GameRead, GameDelete, SuccessGameResponse, StatUpdate
 from core.config import settings
 from core.models.db_helper import db_helper
 from core.models.game import get_all_games, delete_old_games, create_daily_game
+from core.models.stat import update_stat
 
 
 async def verify_admin_header(X_Admin_Token: str = Header(...)):
@@ -29,6 +30,16 @@ async def get_games(
 ):
     games = await get_all_games(session=session)
     return games
+
+
+@admin_router.patch("/update_stat", response_model=list[StatUpdate])
+async def update_stat_by_game_id(
+    game_id: str,
+    tries: int,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    stat = await update_stat(session=session, game_id=game_id, tries=tries)
+    return stat
 
 
 ### the implementation is taken out for use within the application

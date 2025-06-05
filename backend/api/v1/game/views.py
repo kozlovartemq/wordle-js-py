@@ -15,7 +15,8 @@ from api.v1.schemas import (
     SuccessGameResponse,
     GameParamsResponse,
     GameArchiveResponse,
-    DefaultHTTPError
+    DefaultHTTPError,
+    StatCreate
 )
 from core.models.db_helper import db_helper
 from core.models.game import (
@@ -26,6 +27,7 @@ from core.models.game import (
     get_games_by_is_archived
 )
 from core.models.word import get_random_word, get_word
+from core.models.stat import create_stat
 from utils.time_helper import utc_now_timestamp, timestamp_to_date_str
 from utils.game_handler import GameHandler
 
@@ -85,6 +87,10 @@ async def create_game_if_not_exists(
             is_daily=False,
             is_archived=False
         )
+    )
+    new_stat = await create_stat(
+        session=session,
+        stat_create=StatCreate(game_id=new_game.id)
     )
     return {"msg": "Игра успешно создана", "game_uuid": new_game.uuid}
 

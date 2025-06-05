@@ -84,3 +84,24 @@ class GameDelete(WordRequest):
 
 class DefaultHTTPError(BaseModel):
     detail: str
+
+
+class StatBase(BaseModel):
+    id: int
+    game_id: int
+    games_overall: int = 0
+    lost: int = 0
+    first_try: int = 0
+    second_try: int = 0
+    third_try: int = 0
+    fourth_try: int = 0
+    fifth_try: int = 0
+    sixth_try: int = 0
+
+
+class StatCreate(StatBase):
+    pass
+
+
+class StatUpdate(StatBase):
+    pass
