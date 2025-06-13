@@ -38,7 +38,7 @@ async def get_game_by_word_dictionary(
     dictionary: bool
 ) -> GameModel | None:
     
-    stmt = select(GameModel).where(GameModel.word == game_word.upper()).where(GameModel.dictionary == dictionary)
+    stmt = select(GameModel).where(GameModel.word == game_word.upper()).where(GameModel.dictionary.is_(dictionary))
     res = await session.scalars(stmt)
     return res.first()
 

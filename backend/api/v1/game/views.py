@@ -40,7 +40,7 @@ game_router = APIRouter(tags=["Game"], prefix='/games')
     responses={
         404: {
             "model": DefaultHTTPError,
-            "description": "The word not found"
+            "description": "The game or the word not found"
         }
     }
 )
@@ -50,7 +50,9 @@ async def check_word(
 ):
 
     game = await get_game_by_uuid(session, data.uuid)
-    assert game
+    if not game:
+        raise HTTPException(HTTP_404_NOT_FOUND, "Игра с таким идентификатором не найдена")
+        
     if len(data.word) != len(game.word):
         raise HTTPException(HTTP_422_UNPROCESSABLE_ENTITY, "Введнное слово и эталонное слово имеют разную длину.")
       
@@ -134,7 +136,7 @@ async def create_casual_game(
     responses={
         404: {
             "model": DefaultHTTPError,
-            "description": "The game not found"
+            "description": "The daily game not found"
         }
     }    
 )
@@ -148,7 +150,7 @@ async def get_daily_game(
     return {"msg": "Ежедневная игра существует", "game_uuid": daily.uuid}
 
 
-@game_router.get("/get_archive", response_model=list[GameArchiveResponse])
+@game_router.get("/archive", response_model=list[GameArchiveResponse])
 async def get_archive_games(
     page: int = 1,
     limit: int = 20,

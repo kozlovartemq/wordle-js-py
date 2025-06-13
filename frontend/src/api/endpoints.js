@@ -24,7 +24,7 @@ export const getDailyGame = () => {
 }
 
 export const getArchive = (page = 1) => {
-    return baseApi.get(`/games/get_archive?page=${page}`)
+    return baseApi.get(`/games/archive?page=${page}`)
 }
 
 export default {
