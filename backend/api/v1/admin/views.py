@@ -1,12 +1,32 @@
+import logging
 from fastapi import APIRouter, Depends, Header, HTTPException
-from starlette.status import HTTP_403_FORBIDDEN
+from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.v1.schemas import GameRead, GameDelete, SuccessGameResponse, StatUpdate
+from api.v1.schemas import (
+    GameRead,
+    GameDelete,
+    SuccessGameResponse,
+    StatRead,
+    StatUpdate,
+    StatDelete,
+    DefaultHTTPError,
+    UpdateRequest
+)
 from core.config import settings
 from core.models.db_helper import db_helper
-from core.models.game import get_all_games, delete_old_games, create_daily_game
-from core.models.stat import update_stat
+from core.models.game import (
+    get_all_games,
+    delete_old_games,
+    create_daily_game,
+    get_game_by_uuid
+)
+from core.models.stat import (
+    get_all_stats,
+    update_stat,
+    delete_stat,
+    get_stat_by_game_uuid
+)
 
 
 async def verify_admin_header(X_Admin_Token: str = Header(...)):
@@ -32,14 +52,38 @@ async def get_games(
     return games
 
 
-@admin_router.patch("/update_stat", response_model=list[StatUpdate])
-async def update_stat_by_game_id(
-    game_id: str,
-    tries: int,
+@admin_router.get("/get_stats", response_model=list[StatRead])
+async def get_stats(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
-    stat = await update_stat(session=session, game_id=game_id, tries=tries)
-    return stat
+    games = await get_all_stats(session=session)
+    return games
+
+# todo game_router
+@admin_router.patch(
+    "/update_stat",
+    response_model=StatUpdate,
+    responses={
+        404: {
+            "model": DefaultHTTPError,
+            "description": "The game or the word not found"
+        }
+    }
+)
+async def update_stat_by_game_uuid(
+    data: UpdateRequest,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    game = await get_game_by_uuid(session, data.game_uuid)
+    if not game:
+        raise HTTPException(HTTP_404_NOT_FOUND, "Игра с таким идентификатором не найдена")
+    stat = await get_stat_by_game_uuid(session, game_uuid=game.uuid)
+    if not stat:
+        stat = await create_stat(session, StatCreate(game_id=game.id))
+        # raise HTTPException(HTTP_404_NOT_FOUND, "Статистика для этой игры не найдена")
+
+    new_stat = await update_stat(session=session, stat=stat, tries=data.try_)
+    return new_stat
 
 
 ### the implementation is taken out for use within the application
@@ -48,10 +92,19 @@ async def update_stat_by_game_id(
                     response_model=list[GameDelete]
 )
 async def delete_old(
-    session: AsyncSession = Depends(db_helper.session_dependency)
+    session: AsyncSession = Depends(db_helper.session_dependency),
+    threshold_hours: float = settings.deleteJob.threshold_hours
 ) -> list[GameDelete]:
     
-    deleted_games = await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours)
+    deleted_games: list[GameDelete] = await delete_old_games(session, delta_hours=threshold_hours)
+    deleted_stats: list[StatDelete] = await delete_stat(session, [game.uuid for game in deleted_games])
+    if len(deleted_games) != len(deleted_stats):
+        logging.error(
+            "[delete_old] Some stats did not delete.\n"
+            "deleted_games: %s\n"
+            "deleted_stats: %s",
+            deleted_games, deleted_stats
+        )
     return deleted_games
 
 

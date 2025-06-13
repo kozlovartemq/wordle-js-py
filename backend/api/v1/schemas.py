@@ -87,7 +87,6 @@ class DefaultHTTPError(BaseModel):
 
 
 class StatBase(BaseModel):
-    id: int
     game_id: int
     games_overall: int = 0
     lost: int = 0
@@ -104,4 +103,20 @@ class StatCreate(StatBase):
 
 
 class StatUpdate(StatBase):
-    pass
+    id: int
+
+
+class StatRead(StatBase):
+    id: int
+
+
+class StatDelete(StatBase):
+    id: int
+
+
+class TryRequest(BaseModel):
+    try_: int = Field(ge=0, le=6)
+
+
+class UpdateRequest(TryRequest):
+    game_uuid: UUID
