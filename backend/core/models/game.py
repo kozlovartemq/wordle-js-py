@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
 from api.v1.schemas import GameCreate, GameDelete
+from core.exceptions import GameNotFound, DailyGameNotFound
 from core.models.base import Base
 from core.models.word import get_random_word
 from utils.time_helper import timedelta_from_now_timestamp, todays_first_timestamp, utc_now_timestamp
@@ -46,25 +47,29 @@ async def get_game_by_word_dictionary(
 async def get_game_by_uuid(
     session: AsyncSession,
     game_uuid: UUID
-) -> GameModel | None:
+) -> GameModel:
     
     stmt = select(GameModel).where(GameModel.uuid == game_uuid)
     res = await session.scalars(stmt)
-    return res.first()
+    game = res.first()
+    if not game:
+        raise GameNotFound()
+    return game
 
 
 async def get_game_by_is_daily(
     session: AsyncSession,
-) -> GameModel | None:
+) -> GameModel:
     
     stmt = select(GameModel).where(GameModel.is_daily.is_(True))
     res = await session.scalars(stmt)
     all_results = res.all()
-    if all_results:
-        assert len(all_results) == 1, "There must only be one daily game"
-        return all_results[0] 
-    else:
-        return None
+    if not all_results:
+        raise DailyGameNotFound()
+
+    assert len(all_results) == 1, "There must be only one daily game"
+    return all_results[0] 
+
 
 
 async def get_games_by_is_archived(
@@ -94,9 +99,8 @@ async def create_daily_game(
     session: AsyncSession,
     to_replace: bool,
 ) -> GameModel | None:
-    
-    old_daily = await get_game_by_is_daily(session)
-    if old_daily is not None:
+    try:
+        old_daily = await get_game_by_is_daily(session)
         if to_replace:
             await session.delete(old_daily)
         else:
@@ -115,6 +119,9 @@ async def create_daily_game(
             old_daily.is_archived = True
             await session.commit()
 
+    except DailyGameNotFound as ex:
+        logging.info('[create_daily_game] DailyGameNotFound: %s', str(ex))
+
     game_uuid = uuid4()
     random_word = await get_random_word(session, length=5)
     new_word = random_word.word
@@ -129,6 +136,10 @@ async def create_daily_game(
             is_archived=False
         )
     )
+    new_stat = await create_stat(
+        session=session,
+        stat_create=StatCreate(game_id=new_daily.id)
+    )
     logging.info("[create_daily_game] New daily game is set: %s", new_daily.word)
     return new_daily
         
@@ -136,7 +147,7 @@ async def create_daily_game(
 async def delete_old_games(
     session: AsyncSession,
     delta_hours: float
-) -> list[GameDelete]:
+) -> list[GameModel]:
     
     threshold = timedelta_from_now_timestamp(hours=-delta_hours)
     games = (await session.execute(
@@ -146,11 +157,25 @@ async def delete_old_games(
         where(GameModel.is_archived.is_(False))
     )).scalars().all()
 
-    deleted_games = [GameDelete(id=game.id, word=game.word, uuid=game.uuid, dictionary=game.dictionary) for game in games]
     for game in games:
         await session.delete(game)
 
+    await session.commit() 
+    logging.info("[delete_old_games] Games deleted: %s", games)
+    return games
+
+
+async def delete_game_by_id(
+    session: AsyncSession,
+    game_id: int
+) -> GameDelete:
+    
+    res = await session.execute(select(GameModel).where(GameModel.id == game_id))
+    game = res.scalars().first()
+    if not game:
+        raise GameNotFound()
+
+    await session.delete(game)
     await session.commit()
-    if deleted_games:
-        logging.info("[delete_old_games] Games deleted: %s", deleted_games)
-    return deleted_games
+    logging.info("[delete_game_by_id] Game deleted: %s", game)
+    return GameDelete(id=game.id, word=game.word, uuid=game.uuid, dictionary=game.dictionary)

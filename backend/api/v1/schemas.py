@@ -118,5 +118,5 @@ class TryRequest(BaseModel):
     try_: int = Field(ge=0, le=6)
 
 
-class UpdateRequest(TryRequest):
+class UpdateStatRequest(TryRequest):
     game_uuid: UUID

@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.sql.expression import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
+from core.exceptions import WordNotFound
 from core.models.base import Base
 
 
@@ -32,8 +33,11 @@ async def get_random_word(
 async def get_word(
     session: AsyncSession,
     word: str
-) -> WordModel | None:
+) -> WordModel:
     
     stmt = select(WordModel).where(WordModel.word == word.lower())
     res = await session.scalars(stmt)
-    return res.first()
+    word = res.first()
+    if not word:
+        raise WordNotFound()
+    return word

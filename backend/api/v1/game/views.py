@@ -18,6 +18,7 @@ from api.v1.schemas import (
     DefaultHTTPError,
     StatCreate
 )
+from core.exceptions import GameNotFound, DailyGameNotFound, WordNotFound
 from core.models.db_helper import db_helper
 from core.models.game import (
     create_game,
@@ -49,24 +50,24 @@ async def check_word(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
 
-    game = await get_game_by_uuid(session, data.uuid)
-    if not game:
-        raise HTTPException(HTTP_404_NOT_FOUND, "Игра с таким идентификатором не найдена")
-        
+    try:
+        game = await get_game_by_uuid(session, data.uuid)
+    except GameNotFound as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+
     if len(data.word) != len(game.word):
         raise HTTPException(HTTP_422_UNPROCESSABLE_ENTITY, "Введнное слово и эталонное слово имеют разную длину.")
       
     def check():
         return GameHandler(game.word).check_word(data.word)
   
-    if game.dictionary:
-        word_in_dictionary = await get_word(session=session, word=data.word)
-        if word_in_dictionary is not None:
-            return check()
-        else:
-            raise HTTPException(HTTP_404_NOT_FOUND, "Такого слова нет в словаре.")
-    else:
+    try:
+        if game.dictionary:
+            word_in_dictionary = await get_word(session, data.word)
         return check()
+    except WordNotFound as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+
 
 
 async def create_game_if_not_exists(
@@ -112,9 +113,10 @@ async def create_custom_game(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
     if data.dictionary:
-        dictionary_word = await get_word(session, data.word)
-        if dictionary_word is None:
-            raise HTTPException(HTTP_404_NOT_FOUND, "Такого слова нет в словаре.")
+        try:
+            dictionary_word = await get_word(session, data.word)
+        except WordNotFound as ex:
+            raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
 
     new_word = data.word
     return await create_game_if_not_exists(session, new_word, dictionary=data.dictionary)
@@ -143,11 +145,11 @@ async def create_casual_game(
 async def get_daily_game(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
-    daily = await get_game_by_is_daily(session)
-    if daily is None:
-        raise HTTPException(HTTP_404_NOT_FOUND, "Ежедневная игра не найдена")
-
-    return {"msg": "Ежедневная игра существует", "game_uuid": daily.uuid}
+    try:
+        daily = await get_game_by_is_daily(session)
+        return {"msg": "Ежедневная игра существует", "game_uuid": daily.uuid}
+    except DailyGameNotFound as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
 
 
 @game_router.get("/archive", response_model=list[GameArchiveResponse])
@@ -174,11 +176,12 @@ async def get_game(
     game_id: uuid.UUID,
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
-    game = await get_game_by_uuid(session, game_id)
-    if game is None:
-        raise HTTPException(HTTP_404_NOT_FOUND, "Игра с таким идентификатором не найдена")
-        
-    return {"msg": "Игра существует", "len": len(game.word), "dictionary": game.dictionary}
+    try:
+        game = await get_game_by_uuid(session, game_id)
+        return {"msg": "Игра существует", "len": len(game.word), "dictionary": game.dictionary}
+    except GameNotFound as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+    
     
 
 @game_router.get('/')
