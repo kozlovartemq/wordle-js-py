@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from core.models.game import delete_old_games, create_daily_game
+    from core.service import delete_old_games, create_daily_game
 
     async with db_helper.engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
@@ -36,6 +36,7 @@ async def lifespan(app: FastAPI):
 
     # launch scheduler that will create daily game AND delete games (24 hour old games every day by default)
     scheduler = AsyncIOScheduler()
+    run_on_start_jobs = []
     
     async def create_daily_game_job():
         async with db_helper.session_factory() as session:
@@ -47,6 +48,7 @@ async def lifespan(app: FastAPI):
         id="Create Daily Game",
         replace_existing=True
     )
+    run_on_start_jobs.append(create_daily_game_job)
 
     if settings.deleteJob.enable:
 
@@ -60,13 +62,13 @@ async def lifespan(app: FastAPI):
             hours=settings.deleteJob.interval_hours,
             id="Delete Old Games"
         )
+        run_on_start_jobs.append(delete_old_games_job)
 
     scheduler.start()
     logging.info("[lifespan][AsyncIOScheduler] Jobs set:\n%s", scheduler.get_jobs())
     # run the jobs at the application start
-    if settings.deleteJob.enable:
-        await delete_old_games_job()
-    await create_daily_game_job()
+    for job in run_on_start_jobs:
+        await job()
 
     yield
     scheduler.shutdown()

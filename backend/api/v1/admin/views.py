@@ -1,4 +1,5 @@
 import logging
+from typing import Sequence
 from fastapi import APIRouter, Depends, Header, HTTPException
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,7 @@ from api.v1.schemas import (
     GameRead,
     GameDelete,
     SuccessGameResponse,
+    StatCreate,
     StatRead,
     StatUpdate,
     DefaultHTTPError,
@@ -15,14 +17,15 @@ from api.v1.schemas import (
 from core.exceptions import GameNotFound, StatNotFound
 from core.config import settings
 from core.models.db_helper import db_helper
+from core.service import create_daily_game, delete_old_games
 from core.models.game import (
+    GameModel,
     get_all_games,
     delete_game_by_id,
-    delete_old_games,
-    create_daily_game,
     get_game_by_uuid
 )
 from core.models.stat import (
+    create_stat,
     get_all_stats,
     update_stat,
     delete_stat_by_game_uuid,
@@ -89,7 +92,7 @@ async def update_stat_by_game_uuid(
         # raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
 
     new_stat = await update_stat(session=session, stat=stat, tries=data.try_)
-    return new_stat
+    return StatUpdate.model_validate(new_stat)
 
 
 @admin_router.delete('/delete_game', response_model=GameDelete)
@@ -97,12 +100,13 @@ async def delete_game(
     game_id: int,
     session: AsyncSession = Depends(db_helper.session_dependency)
 ) -> GameDelete:
-
+    
     try:
         game = await delete_game_by_id(session, game_id)
-        stat = await delete_stat_by_game_uuid(session, game.uuid)
     except GameNotFound as ex:
         raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+    try:
+        await delete_stat_by_game_uuid(session, game.uuid)
     except StatNotFound as ex:
         logging.warning('[delete_game] StatNotFound for game.id=%s, game.uuid=%s', game.id, game.uuid)    
     
@@ -120,7 +124,7 @@ async def delete_old(
     threshold_hours: float = settings.deleteJob.threshold_hours
 ) -> list[GameDelete]:
     
-    games: list[GameModel] = await delete_old_games(session, delta_hours=threshold_hours)
+    games: Sequence[GameModel] = await delete_old_games(session, delta_hours=threshold_hours)
     for game in games:
         try:
             await delete_stat_by_game_uuid(session, game.uuid)

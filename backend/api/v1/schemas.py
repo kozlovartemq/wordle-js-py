@@ -97,6 +97,9 @@ class StatBase(BaseModel):
     fifth_try: int = 0
     sixth_try: int = 0
 
+    class Config:
+        from_attributes = True
+
 
 class StatCreate(StatBase):
     pass

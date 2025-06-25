@@ -1,15 +1,14 @@
 import logging
 from typing import Sequence
 from uuid import UUID
-from sqlalchemy import select, update, ForeignKey
+from sqlalchemy import select, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-from api.v1.schemas import StatCreate, StatDelete, StatRead
-from core.exceptions import GameNotFound, StatNotFound
+from api.v1.schemas import StatCreate
+from core.exceptions import StatNotFound
 from core.models.base import Base
 from core.models.game import GameModel
-from utils.time_helper import timedelta_from_now_timestamp, todays_first_timestamp, utc_now_timestamp
 
 
 class StatModel(Base):
@@ -60,7 +59,8 @@ async def get_stat_by_game_uuid(
     if not join_res_first:
         raise StatNotFound()
     stmt = select(StatModel).where(GameModel.id == join_res_first.id)
-    stat = await session.scalars(stmt).first()
+    stat_res = await session.scalars(stmt)
+    stat = stat_res.first()
     if not stat:
         raise StatNotFound()
     return stat
