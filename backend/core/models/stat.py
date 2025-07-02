@@ -55,14 +55,10 @@ async def get_stat_by_game_uuid(
 
     stmt = select(StatModel).join(GameModel, StatModel.game_id == GameModel.id).where(GameModel.uuid == game_uuid)
     join_res = await session.scalars(stmt)
-    join_res_first = join_res.first()
-    if not join_res_first:
-        raise StatNotFound()
-    stmt = select(StatModel).where(GameModel.id == join_res_first.id)
-    stat_res = await session.scalars(stmt)
-    stat = stat_res.first()
+    stat = join_res.first()
     if not stat:
         raise StatNotFound()
+    logging.info("[get_stat_by_game_uuid] Stat: %s", stat)
     return stat
 
 
@@ -99,6 +95,18 @@ async def update_stat(
     await session.commit()
     return stat
 
+   
+async def delete_stat_by_game_id(
+    session: AsyncSession,
+    game_id: int 
+) -> StatModel:
+
+    stat = await get_stat_by_game_id(session, game_id)
+    await session.delete(stat)
+    await session.commit()
+    logging.info("[delete_stat_by_game_id] Stat deleted: %s", stat)
+    return stat
+
 
 async def delete_stat_by_game_uuid(
     session: AsyncSession,
@@ -108,5 +116,5 @@ async def delete_stat_by_game_uuid(
     stat = await get_stat_by_game_uuid(session, game_uuid)
     await session.delete(stat)
     await session.commit()
-    logging.info("[delete_stat] Stat deleted: %s", stat)
+    logging.info("[delete_stat_by_game_uuid] Stat deleted: %s", stat)
     return stat

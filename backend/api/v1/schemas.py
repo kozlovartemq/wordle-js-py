@@ -3,6 +3,14 @@ from typing import Annotated, Literal, Dict
 from uuid import UUID
 from pydantic import BaseModel, RootModel, Field, field_validator, model_validator
 
+from api.v1.health.enum import HealthStatus
+
+
+class DefaultHTTPError(BaseModel):
+    detail: str
+
+# Game schemas
+
 
 class WordRequest(BaseModel):
     word: str = Field(min_length=4, max_length=6)
@@ -82,8 +90,7 @@ class GameDelete(WordRequest):
     dictionary: bool
 
 
-class DefaultHTTPError(BaseModel):
-    detail: str
+# Stat schemas
 
 
 class StatBase(BaseModel):
@@ -113,8 +120,9 @@ class StatRead(StatBase):
     id: int
 
 
-class StatDelete(StatBase):
+class StatDelete(BaseModel):
     id: int
+    game_id: int
 
 
 class TryRequest(BaseModel):
@@ -123,3 +131,18 @@ class TryRequest(BaseModel):
 
 class UpdateStatRequest(TryRequest):
     game_uuid: UUID
+
+
+# Health schemas
+
+
+class HealthCheckResponse(BaseModel):
+    api_status: HealthStatus = HealthStatus.HEALTHY
+    db_status: HealthStatus = HealthStatus.HEALTHY
+    
+    
+class HealthCheckResponseSQLError(HealthCheckResponse):
+    api_status: HealthStatus = HealthStatus.HEALTHY
+    db_status: HealthStatus = HealthStatus.UNHEALTHY
+    db_error: str
+    

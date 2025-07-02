@@ -11,6 +11,7 @@ from api.v1.schemas import (
     StatCreate,
     StatRead,
     StatUpdate,
+    StatDelete,
     DefaultHTTPError,
     UpdateStatRequest
 )
@@ -28,8 +29,9 @@ from core.models.stat import (
     create_stat,
     get_all_stats,
     update_stat,
+    delete_stat_by_game_id,
     delete_stat_by_game_uuid,
-    get_stat_by_game_uuid
+    get_stat_by_game_uuid,
 )
 
 
@@ -88,8 +90,8 @@ async def update_stat_by_game_uuid(
     try:
         stat = await get_stat_by_game_uuid(session, game_uuid=game.uuid)
     except StatNotFound as ex:
-        stat = await create_stat(session, StatCreate(game_id=game.id))
-        # raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+        # stat = await create_stat(session, StatCreate(game_id=game.id))
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
 
     new_stat = await update_stat(session=session, stat=stat, tries=data.try_)
     return StatUpdate.model_validate(new_stat)
@@ -111,6 +113,20 @@ async def delete_game(
         logging.warning('[delete_game] StatNotFound for game.id=%s, game.uuid=%s', game.id, game.uuid)    
     
     return GameDelete(id=game.id, word=game.word, uuid=game.uuid, dictionary=game.dictionary)
+
+
+@admin_router.delete('/delete_stat', response_model=StatDelete)
+async def delete_stat(
+    game_id: int,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+) -> StatDelete:
+    
+    try:
+        stat = await delete_stat_by_game_id(session, game_id)
+    except StatNotFound as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex)) 
+    
+    return StatDelete(id=stat.id, game_id=stat.game_id)
 
 
 ### the implementation is taken out for use within the application
