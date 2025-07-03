@@ -175,18 +175,40 @@ class PopUpComponent extends HTMLElement {
 
     }
 
-    renderResults() {
+    renderResults(resultArray, game_uuid) {
+        const getWordsSchema = (resultArray) => {
+            const squareMap = {
+            'red': '⬛',
+            'yellow': '🟨',
+            'green': '🟩',
+            }
+            let wordsSchema = ''
+            resultArray.forEach(word => {
+                word.forEach(letter => {
+                    wordsSchema += squareMap[letter]
+                })
+                wordsSchema += '<br>'
+            })
+            return wordsSchema
+        }
+        
         let copy_text = `
-        Я разгадал(a) 5-буквенное слово с 3/6 попыток. 
+        Я разгадал(a) ${resultArray[0].length}-буквенное слово с ${resultArray.length}/6 попыток. <br><br>
 
-        ⬛⬛⬛🟨🟩
-        🟨⬛⬛🟨🟩
-        🟩🟩🟩🟩🟩
+        ${getWordsSchema(resultArray)} <br>
 
-        Сможешь ли ты разгадать это слово? 
-        ${url}
+        Сможешь ли ты разгадать это слово? <br>
+        ${window.location.origin}/${game_uuid}
         `
-        this.innerHTML = ``
+        
+        const shadow = this.shadowRoot
+        const content = shadow.querySelector(".popup-content")
+        content.innerHTML = `
+        <h2>Результаты игры!</h2>
+        <p>
+            ${copy_text}
+        </p>
+        `
     }
 
     renderGotoAlert(path) {

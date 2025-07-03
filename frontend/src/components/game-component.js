@@ -12,6 +12,7 @@ class GameComponent extends HTMLElement {
         this.current_word_id = 0
         this.pressed_buttons = []
         this.colored_letters = {}
+        this.result_colors = []
 
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
@@ -144,10 +145,16 @@ class GameComponent extends HTMLElement {
         this.updateAttemptsH2()
         if (this.current_word_id === 6 || success) {
             const shadow = this.shadowRoot
+            const p = shadow.querySelector('.input-hint')
+            if (success) {
+                p.textContent = "Победа"
+                p.style.color = appConstants.custom_color.green
+            } else p.textContent = "Поражение"
+
             const keyboard = shadow.querySelector(`keyboard-component`)
             keyboard.disable()
             const popup = document.createElement('pop-up')
-            popup.renderResults()
+            popup.renderResults(this.result_colors, this.game_id)
             shadow.appendChild(popup)
         }
     }
@@ -233,10 +240,11 @@ class GameComponent extends HTMLElement {
             p.textContent = response.data["detail"]
         } else {
             const word_revision = response.data
+            this.result_colors.push(Object.values(word_revision))
             word_component.setColors(word_revision)
 
             // Set keyboard buttons color by color prority
-            const keyboard = shadow.querySelector(`keyboard-component`)
+            const keyboard = shadow.querySelector('keyboard-component')
             const priority = {
                 'red': 0,
                 'yellow': 1,
