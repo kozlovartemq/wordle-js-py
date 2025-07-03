@@ -28,3 +28,7 @@ export const arrayRemove = (array, element) => {
 export const areObjectsEqual = (map1, map2) => {
     return JSON.stringify(map1) === JSON.stringify(map2)
 }
+
+export const getElementByXpath = (path, contextNode = document) => {
+    return document.evaluate(path, contextNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+}

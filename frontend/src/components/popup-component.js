@@ -110,7 +110,7 @@ class PopUpComponent extends HTMLElement {
                 display: block;
                 padding: 14px 18px;
                 background-color: #e7ffe7;
-                border-left: 6px solid #28a745;
+                border-left: 6px solid ${appConstants.custom_color.wordle_green};
                 border-radius: 8px;
                 color: #222;
                 text-decoration: none;
@@ -207,44 +207,48 @@ class PopUpComponent extends HTMLElement {
 
     async renderArchiveGames() {
         this.archivePage = 1
-        this.isLoading = false
-        this.hasMore = true
+        this.isLoadingArchive = false
+        this.hasMoreArchive = true
 
         const shadow = this.shadowRoot
         const content = shadow.querySelector(".popup-content")
         content.innerHTML = `
         <h2>Архивные игры</h2>
-        <div class="archive-list"></div>        
-        <div id="loader" class="loader hidden">Загрузка...</div>
+        <div class="archive-list">
+            <div id="loader" class="loader">Загрузка...</div>
+        </div>
         `
         await this.loadArchivePage(this.archivePage)
-        
-        const observer = new IntersectionObserver(async (entries) => {
+
+        this.archiveObserver = new IntersectionObserver(async (entries) => {
             if (entries[0].isIntersecting) {
                 this.archivePage++
                 await this.loadArchivePage(this.archivePage)
             }
         }, {
-            root: content,
+            root: null,
             threshold: 1.0
-        }) // TODO test new archive pages loading
-        observer.observe(shadow.querySelector(".loader"))
+        })
+        this.archiveObserver.observe(shadow.querySelector('.loader'))
     }
 
     async loadArchivePage() {
-        if (this.isLoading || !this.hasMore) return
-        this.isLoading = true
+        if (!this.hasMoreArchive) this.archiveObserver.disconnect()
+
+        if (this.isLoadingArchive || !this.hasMoreArchive) return
+
+        this.isLoadingArchive = true
         const shadow = this.shadowRoot
         const loader = shadow.querySelector('.loader')
         const archiveList = shadow.querySelector('.archive-list')
-        loader.classList.remove('hidden')
         const archiveResponse = await getArchive(this.archivePage)
         if (archiveResponse.ok) {
             if (archiveResponse.data.length === 0 && this.archivePage === 1) {
-                archiveList.textContent = "Архивных игр пока нет :("
-                this.hasMore = false
+                loader.textContent = "Архивных игр пока нет :("
+                this.hasMoreArchive = false
+                return
             } else if (archiveResponse.data.length === 0) {
-                this.hasMore = false
+                this.hasMoreArchive = false
                 loader.textContent = 'Больше игр нет'
                 return
             }
@@ -253,16 +257,15 @@ class PopUpComponent extends HTMLElement {
                 tile.className = 'archive-tile'
                 tile.href = `games/${game.game_uuid}`
                 tile.textContent = `Ежедневная игра от ${game.game_date}`
-                archiveList.appendChild(tile)
+                archiveList.insertBefore(tile, loader)
             })
         } else {
             const error_text = 'Ошибка загрузки архива'
             console.error(error_text)
             loader.textContent = error_text
-            this.hasMore = false
+            this.hasMoreArchive = false
         }
-        this.isLoading = false;
-        loader.classList.add('hidden')
+        this.isLoadingArchive = false;
     }
 }
 
