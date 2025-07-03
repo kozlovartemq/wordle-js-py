@@ -305,15 +305,19 @@ class ContentComponent extends HTMLElement {
 
         const shadow = this.shadowRoot
         const wrapper = shadow.querySelector('.common-container')
+        // TODO countdown-timer styles
         wrapper.innerHTML = `
         <h2 class="content-title"><b>Wordle</b> – игра-головоломка, в которой нужно угадать слово из пяти букв.</h2>
         <div class="button-container">
             <div class="button-group">
                 <button class="submit-button" data-action="rules">Правила</button>
-                <button class="submit-button" data-action="start-daily">Начать ежедневную игру!</button>
+                <button class="submit-button" data-action="start-daily">Начать ежедневную игру!
+                    <countdown-timer></countdown-timer>
+                </button>
                 <button class="submit-button" data-action="start-casual">Начать случайную игру!</button>
+                <button class="submit-button" data-action="archive-game">Архивные игры</button>
             </div>
-            <countdown-timer></countdown-timer>
+        
         </div>
         `
         wrapper.querySelector('button[data-action="rules"]').addEventListener('click', (e) => {
@@ -335,7 +339,12 @@ class ContentComponent extends HTMLElement {
                 goTo(url)
             }
         })
-
+        wrapper.querySelector('button[data-action="archive-game"]').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const popup = document.createElement('pop-up')
+            popup.renderArchiveGames()
+            shadow.appendChild(popup)
+        })
     }
 
     getCreatePage() {
@@ -456,7 +465,6 @@ class ContentComponent extends HTMLElement {
             </div>
             <button class="submit-button" data-action="check-game">Проверить</button>
         </div>
-        <button class="submit-button" data-action="archive-game">Архивные игры</button>
         `
         const submit_button = shadow.querySelector('button[data-action="check-game"]')
         submit_button.disabled = true
@@ -494,12 +502,6 @@ class ContentComponent extends HTMLElement {
                 e.preventDefault()
                 submit_button.click()
             }
-        })
-        wrapper.querySelector('button[data-action="archive-game"]').addEventListener('click', (e) => {
-            e.stopPropagation()
-            const popup = document.createElement('pop-up')
-            popup.renderArchiveGames()
-            shadow.appendChild(popup)
         })
     }
 
