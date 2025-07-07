@@ -1,5 +1,5 @@
 import appConstants from '../common/constants'
-import { goTo } from '../router'
+import { goTo, routes } from '../router'
 import { getArchive } from '../api/endpoints'
 import { mergeStyles } from '../common/utils.js'
 import popupStyles from '../styles/popup.css.js'
@@ -29,15 +29,34 @@ class PopUpComponent extends HTMLElement {
     connectedCallback() {
         const shadow = this.shadowRoot
         const wrapper = shadow.querySelector(".popup-overlay")
+
         wrapper.addEventListener('click', (e) => {
             if (e.target === wrapper) {
-                this.remove()
+                this.hide()
             }
-        })
+        }, { once: true })
 
         wrapper.querySelector('button[data-action="close"]').addEventListener('click', () => {
-            this.remove()
+            this.hide()
+        }, { once: true })
+    }
+
+    show() {
+        requestAnimationFrame(() => {
+            // вторым кадром — ещё надёжнее
+            requestAnimationFrame(() => {
+                this.classList.add('visible')
+            })
         })
+    }
+
+    hide() {
+        this.classList.remove('visible');
+
+        // Удаляем элемент после завершения анимации
+        this.addEventListener('transitionend', () => {
+            this.remove();
+        }, { once: true });
     }
 
     renderRules() {
@@ -58,7 +77,7 @@ class PopUpComponent extends HTMLElement {
 
         </p>
         `
-
+        this.show()
     }
 
     renderResults(resultArray, game_uuid) {
@@ -84,7 +103,7 @@ class PopUpComponent extends HTMLElement {
         ${getWordsSchema(resultArray)} <br>
 
         Сможешь ли ты разгадать это слово? <br>
-        ${window.location.origin}/${game_uuid}
+        ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}
         `
 
         const shadow = this.shadowRoot
@@ -95,6 +114,9 @@ class PopUpComponent extends HTMLElement {
             ${copy_text}
         </p>
         `
+        setTimeout(() => {
+            this.show()
+        }, 800);
     }
 
     renderGotoAlert(path) {
@@ -111,6 +133,7 @@ class PopUpComponent extends HTMLElement {
         content.querySelector('button[data-action="goto"]').addEventListener('click', () => {
             goTo(path)
         })
+        this.show()
     }
 
     async renderArchiveGames() {
@@ -138,6 +161,7 @@ class PopUpComponent extends HTMLElement {
             threshold: 1.0
         })
         this.archiveObserver.observe(shadow.querySelector('.loader'))
+        this.show()
     }
 
     async loadArchivePage() {

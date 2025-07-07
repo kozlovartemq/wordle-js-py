@@ -1,6 +1,29 @@
 import appConstants from '../common/constants'
 
 export default () => `
+:host {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+
+    display: block;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+:host(.visible) {
+    opacity: 1;
+    transform: scale(1);
+}
+
 .popup-overlay {
     position: fixed;
     top: 0;
