@@ -24,11 +24,12 @@ export default () => `
     margin-right: auto;
 }
 
-.input-hint {
+.result-hint {
     text-align: center;
     font-size: 16px;
+    font-weight: bold;
     color: ${appConstants.custom_color.red};
-    margin-top: 10px;
+    margin-top: 5px;
     height: 20px;
 }
 

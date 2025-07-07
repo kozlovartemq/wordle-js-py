@@ -19,7 +19,7 @@ class GameComponent extends HTMLElement {
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'common-container')
 
-        wrapper.innerHTML = `
+        wrapper.innerHTML = `        
             <div class="dictionary-status">
                 <span class="status-indicator"></span>
                 <span class="status-text"></span>
@@ -31,7 +31,7 @@ class GameComponent extends HTMLElement {
             <word-component id="3"></word-component>
             <word-component id="4"></word-component>
             <word-component id="5"></word-component>
-            <p class="input-hint"></p>
+            <p class="result-hint "></p>
             <keyboard-component></keyboard-component>
         `
 
@@ -41,7 +41,8 @@ class GameComponent extends HTMLElement {
         shadow.appendChild(style)
         shadow.appendChild(wrapper)
         this.updateAttemptsH2()
-
+        
+        const keyboard = shadow.querySelector(`keyboard-component`)
         this.mountKeyUpToKeyboardComponent = (event) => {
             const letter = appConstants.map_key[event.code]
             if (letter) {
@@ -63,11 +64,11 @@ class GameComponent extends HTMLElement {
         this.updateAttemptsH2()
         if (this.current_word_id === 6 || success) {
             const shadow = this.shadowRoot
-            const p = shadow.querySelector('.input-hint')
+            const p = shadow.querySelector('.result-hint')
             if (success) {
-                p.textContent = "Победа"
+                p.textContent = "ПОБЕДА"
                 p.style.color = appConstants.custom_color.green
-            } else p.textContent = "Поражение"
+            } else p.textContent = "ПОРАЖЕНИЕ"
 
             const keyboard = shadow.querySelector(`keyboard-component`)
             keyboard.disable()
@@ -103,7 +104,7 @@ class GameComponent extends HTMLElement {
         const word_components = shadow.querySelectorAll(`word-component`)
         word_components.forEach(word => word.content = ' '.repeat(this.len))
 
-        const p = shadow.querySelector('.input-hint')
+        const p = shadow.querySelector('.result-hint')
         const keyboard = shadow.querySelector(`keyboard-component`)
         const keyboard_shadow = keyboard.shadowRoot
         const k_enter_button = keyboard_shadow.querySelector('button[data-action="check-word"]')
@@ -150,7 +151,7 @@ class GameComponent extends HTMLElement {
 
     async checkCurrent(game_id, word) {
         const shadow = this.shadowRoot
-        const p = shadow.querySelector('.input-hint')
+        const p = shadow.querySelector('.result-hint')
         p.textContent = ""
         const word_component = this.getCurrentWord()
         const response = await checkWord(game_id, word.toUpperCase())
