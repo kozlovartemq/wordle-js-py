@@ -1,5 +1,6 @@
 import appConstants from '../common/constants'
 import { countOccurrences } from '../common/utils'
+import wordStyles from '../styles/word.css.js'
 
 
 class WordComponent extends HTMLElement {
@@ -11,31 +12,7 @@ class WordComponent extends HTMLElement {
         this._content = ''
 
         const style = document.createElement('style')
-        style.textContent = `
-        .word-container {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            justify-content: center;
-        }
-        
-        .letter-box {
-            width: 50px;
-            height: 50px;
-            border: 2px solid #ccc;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            vertical-align: middle;
-            line-height: 50px;
-            text-transform: uppercase;
-            background-color: white;
-            color: black;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
-        }
-           
-        `
+        style.textContent = wordStyles()
 
         shadow.appendChild(style)
         shadow.appendChild(wrapper)

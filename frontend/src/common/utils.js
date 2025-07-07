@@ -25,10 +25,14 @@ export const arrayRemove = (array, element) => {
     return array
 }
 
-export const areObjectsEqual = (map1, map2) => {
-    return JSON.stringify(map1) === JSON.stringify(map2)
+export const areObjectsEqual = (obj1, obj2) => {
+    return JSON.stringify(obj1) === JSON.stringify(obj2)
 }
 
-export const getElementByXpath = (path, contextNode = document) => {
-    return document.evaluate(path, contextNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+export const getElementByXpath = (xpath, contextNode = document) => {
+    return document.evaluate(xpath, contextNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+}
+
+export const mergeStyles = (...styles) => {
+    return styles.map(style => style()).join('\n')
 }

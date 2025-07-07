@@ -1,6 +1,7 @@
 import appConstants from '../common/constants'
 import { arrayRemove, areObjectsEqual } from "../common/utils.js"
 import { checkWord } from '../api/endpoints'
+import gameStyles from '../styles/game.css.js'
 
 
 class GameComponent extends HTMLElement {
@@ -30,96 +31,13 @@ class GameComponent extends HTMLElement {
             <word-component id="3"></word-component>
             <word-component id="4"></word-component>
             <word-component id="5"></word-component>
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <p class="input-hint"></p>
-                </div>
-            </div>
+            <p class="input-hint"></p>
             <keyboard-component></keyboard-component>
         `
 
         const style = document.createElement('style')
-        style.textContent = `
-            .common-container {
-                display: flex;
-                flex-direction: column;
-                gap: 0px;
-                align-items: center;
-            }
+        style.textContent = gameStyles()
 
-            .content-title {
-                font-size: 1.5rem;
-                font-weight: 600;
-                margin: 20px 0 10px;
-                padding: 10px 20px;
-                text-align: center;
-                background-color: #f0f0f0;
-                color: #333;
-                border-left: 5px solid #6c63ff;
-                border-radius: 8px;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-                width: 500px;
-            }
-
-            .attempts-remaining {
-                font-size: 20px;
-                font-weight: 700;
-                color: #4a4a4a;
-                text-align: center;
-                margin-bottom: 20px;
-                padding: 8px 16px;
-                background-color: #f0f0f0;
-                border-radius: 12px;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-                width: fit-content;
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .input-container {
-                display: flex;
-                justify-content: center;
-                align-items: flex-start;
-                gap: 12px;
-                margin-top: 30px;
-                padding-bottom: 20px;
-                width: 500px;
-            }
-
-            .input-wrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 0px
-                flex-grow: 1;
-            }
-            
-            .input-hint {
-                text-align: center;
-                font-size: 16px;
-                color: ${appConstants.custom_color.red};
-                margin-top: 10px;
-                height: 20px;
-            }
-
-            /* dictionary-status */
-
-            .dictionary-status {
-                display: flex;
-                gap: 8px;
-                margin-bottom: 12px;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .status-indicator {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                background-color: gray; /* по умолчанию */
-            }
-
-        `
         shadow.appendChild(style)
         shadow.appendChild(wrapper)
         this.updateAttemptsH2()

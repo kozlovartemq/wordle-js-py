@@ -1,0 +1,26 @@
+export default () => `
+.timer {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #222;
+    color: #0f0;
+    border-radius: 8px;
+    display: inline-block;
+    box-shadow: 0 0 10px rgba(0,255,0,0.5);
+    animation: pulse 1s infinite;
+}
+
+.update-message {
+    display: none;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: #00ff00;
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px rgba(0,255,0,0.3); }
+    50% { box-shadow: 0 0 20px rgba(0,255,0,0.7); }
+    100% { box-shadow: 0 0 5px rgba(0,255,0,0.3); }
+}`;
