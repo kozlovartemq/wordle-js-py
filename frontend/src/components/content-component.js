@@ -103,7 +103,6 @@ class ContentComponent extends HTMLElement {
 
         const shadow = this.shadowRoot
         const wrapper = shadow.querySelector('.common-container')
-        // TODO countdown-timer styles
         wrapper.innerHTML = `
         <h2 class="content-title"><b>Wordle</b> – игра-головоломка, в которой нужно угадать слово из пяти букв.</h2>
         <div class="button-container">

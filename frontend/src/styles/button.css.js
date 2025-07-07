@@ -3,7 +3,7 @@ import appConstants from '../common/constants'
 
 export default () => `
 .submit-button {
-    padding: 10px 20px;
+    padding: 10px 10px;
     font-size: 18px;
     background-color: ${appConstants.custom_color.green};
     color: white;
@@ -11,7 +11,6 @@ export default () => `
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-    height: 41px;
 }
 
 .submit-button:hover {

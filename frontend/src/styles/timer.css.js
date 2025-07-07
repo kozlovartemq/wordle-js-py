@@ -1,8 +1,6 @@
 export default () => `
 .timer {
-    font-family: 'Courier New', monospace;
-    font-size: 1.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.2rem 0.5rem;
     background-color: #222;
     color: #0f0;
     border-radius: 8px;
