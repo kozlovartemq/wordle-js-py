@@ -52,6 +52,7 @@ class SuccessGameResponse(BaseModel):
 
 class GameParamsResponse(BaseModel):
     msg: str
+    name: str
     len: int
     dictionary: bool
 
@@ -62,7 +63,7 @@ class GameArchiveResponse(BaseModel):
 
     @field_validator('game_date')
     @classmethod
-    def validate_cyrillic(cls, value):
+    def validate_date_format(cls, value):
         if not re.fullmatch(r'^(\d{2})\.(\d{2})\.(\d{4})$', value):
             raise ValueError('Date should match "%d.%m.%Y" format')
         return value
@@ -125,12 +126,8 @@ class StatDelete(BaseModel):
     game_id: int
 
 
-class TryRequest(BaseModel):
+class UpdateStatRequest(BaseModel):
     try_: int = Field(ge=0, le=6)
-
-
-class UpdateStatRequest(TryRequest):
-    game_uuid: UUID
 
 
 # Health schemas

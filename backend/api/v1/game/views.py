@@ -16,7 +16,10 @@ from api.v1.schemas import (
     GameParamsResponse,
     GameArchiveResponse,
     DefaultHTTPError,
-    StatCreate
+    StatCreate,
+    StatUpdate,
+    StatRead,
+    UpdateStatRequest
 )
 from core.exceptions import GameNotFound, DailyGameNotFound, WordNotFound
 from core.models.db_helper import db_helper
@@ -162,6 +165,59 @@ async def get_archive_games(
     return [GameArchiveResponse(game_uuid=game.uuid, game_date=timestamp_to_date_str(game.created_at)) for game in archive_games]
 
 
+@game_router.patch(
+    "/{game_id}/update_stat",
+    response_model=StatUpdate,
+    responses={
+        404: {
+            "model": DefaultHTTPError,
+            "description": "The game or the stat not found"
+        }
+    }
+)
+async def update_stat_by_game_uuid(
+    game_id: uuid.UUID,
+    data: UpdateStatRequest,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+) -> StatUpdate:
+
+    try:
+        game = await get_game_by_uuid(session, game_id)
+    except GameNotFound as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+
+    try:
+        stat = await get_stat_by_game_uuid(session, game_uuid=game.uuid)
+    except StatNotFound as ex:
+        # stat = await create_stat(session, StatCreate(game_id=game.id))
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+
+    new_stat = await update_stat(session=session, stat=stat, tries=data.try_)
+    return StatUpdate.model_validate(new_stat)
+
+
+@game_router.get(
+    "/{game_id}/get_stat",
+    response_model=StatRead,
+    responses={
+        404: {
+            "model": DefaultHTTPError,
+            "description": "The stat not found"
+        }
+    }
+)
+async def get_stat(
+    game_id: uuid.UUID,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+) -> StatRead:
+
+    try:
+        stat = await get_stat_by_game_uuid(session, game_uuid=game.uuid)
+        return StatRead.model_validate(stat)
+    except StatNotFound as ex:
+        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
+    
+
 @game_router.get(
     '/{game_id}',
     response_model=GameParamsResponse,
@@ -181,12 +237,3 @@ async def get_game(
         return {"msg": "Игра существует", "len": len(game.word), "dictionary": game.dictionary}
     except GameNotFound as ex:
         raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
-    
-    
-
-@game_router.get('/')
-def all_games():
-    # todo html- img
-    raise HTTPException(HTTP_401_UNAUTHORIZED)
-
-

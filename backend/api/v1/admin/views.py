@@ -12,8 +12,7 @@ from api.v1.schemas import (
     StatRead,
     StatUpdate,
     StatDelete,
-    DefaultHTTPError,
-    UpdateStatRequest
+    DefaultHTTPError
 )
 from core.exceptions import GameNotFound, StatNotFound
 from core.config import settings
@@ -64,37 +63,6 @@ async def get_stats(
 ):
     games = await get_all_stats(session=session)
     return games
-
-# todo /games/game_uuid/get_stat
-# todo game_router /games/game_uuid/update_stat
-@admin_router.patch(
-    "/update_stat",
-    response_model=StatUpdate,
-    responses={
-        404: {
-            "model": DefaultHTTPError,
-            "description": "The game or the word not found"
-        }
-    }
-)
-async def update_stat_by_game_uuid(
-    data: UpdateStatRequest,
-    session: AsyncSession = Depends(db_helper.session_dependency)
-) -> StatUpdate:
-
-    try:
-        game = await get_game_by_uuid(session, data.game_uuid)
-    except GameNotFound as ex:
-        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
-
-    try:
-        stat = await get_stat_by_game_uuid(session, game_uuid=game.uuid)
-    except StatNotFound as ex:
-        # stat = await create_stat(session, StatCreate(game_id=game.id))
-        raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
-
-    new_stat = await update_stat(session=session, stat=stat, tries=data.try_)
-    return StatUpdate.model_validate(new_stat)
 
 
 @admin_router.delete('/delete_game', response_model=GameDelete)

@@ -27,6 +27,14 @@ export const getArchive = (page = 1) => {
     return baseApi.get(`/games/archive?page=${page}`)
 }
 
+export const getStatByGameUUID = (game_uuid) => {
+    return baseApi.get(`/games/${game_uuid}/get_stat`)
+}
+
+export const updateStatByGameUUID = (game_uuid, tries) => {
+    return baseApi.patch(`/games/${game_uuid}/update_stat`, { try_: tries })
+}
+
 export default {
     createCustomGame,
     createCasualGame,
@@ -34,4 +42,6 @@ export default {
     checkWord,
     getDailyGame,
     getArchive,
+    getStatByGameUUID,
+    updateStatByGameUUID,
 }
