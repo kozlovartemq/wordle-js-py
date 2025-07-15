@@ -28,11 +28,11 @@ export const getArchive = (page = 1) => {
 }
 
 export const getStatByGameUUID = (game_uuid) => {
-    return baseApi.get(`/games/${game_uuid}/get_stat`)
+    return baseApi.get(`/games/${game_uuid}/stat`)
 }
 
-export const updateStatByGameUUID = (game_uuid, tries) => {
-    return baseApi.patch(`/games/${game_uuid}/update_stat`, { try_: tries })
+export const finishGameByGameUUID = (game_uuid, tries) => {
+    return baseApi.patch(`/games/${game_uuid}/finish`, { try_: tries })
 }
 
 export default {
@@ -43,5 +43,5 @@ export default {
     getDailyGame,
     getArchive,
     getStatByGameUUID,
-    updateStatByGameUUID,
+    finishGameByGameUUID,
 }

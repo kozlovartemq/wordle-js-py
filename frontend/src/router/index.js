@@ -45,6 +45,7 @@ export const getPathRoute = async (path) => {
             if (!game_response.ok) {
                 return null
             }
+            params.name = game_response.data.name
             params.len = game_response.data.len
             params.dictionary = game_response.data.dictionary
         }
