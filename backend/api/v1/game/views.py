@@ -19,9 +19,10 @@ from api.v1.schemas import (
     StatCreate,
     StatUpdate,
     StatRead,
-    UpdateStatRequest
+    FinishGameRequest,
+    FinishGameResponse
 )
-from core.exceptions import GameNotFound, DailyGameNotFound, WordNotFound
+from core.exceptions import GameNotFound, DailyGameNotFound, WordNotFound, StatNotFound
 from core.models.db_helper import db_helper
 from core.models.game import (
     create_game,
@@ -31,7 +32,11 @@ from core.models.game import (
     get_games_by_is_archived
 )
 from core.models.word import get_random_word, get_word
-from core.models.stat import create_stat
+from core.models.stat import (
+    create_stat,
+    get_stat_by_game_uuid,
+    update_stat,
+)
 from utils.time_helper import utc_now_timestamp, timestamp_to_date_str
 from utils.game_handler import GameHandler
 
@@ -76,7 +81,8 @@ async def check_word(
 async def create_game_if_not_exists(
     session: AsyncSession,
     word: str,
-    dictionary: bool
+    dictionary: bool,
+    is_custom: bool
 ):
     game = await get_game_by_word_dictionary(session, word, dictionary)
     if game is not None:
@@ -91,7 +97,8 @@ async def create_game_if_not_exists(
             dictionary=dictionary,
             created_at=utc_now_timestamp(),
             is_daily=False,
-            is_archived=False
+            is_archived=False,
+            is_custom=is_custom
         )
     )
     new_stat = await create_stat(
@@ -122,7 +129,7 @@ async def create_custom_game(
             raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
 
     new_word = data.word
-    return await create_game_if_not_exists(session, new_word, dictionary=data.dictionary)
+    return await create_game_if_not_exists(session, new_word, dictionary=data.dictionary, is_custom=True)
 
 
 @game_router.post("/create_casual", response_model=SuccessGameResponse)
@@ -132,7 +139,7 @@ async def create_casual_game(
     random_word_response = await get_random_word(session=session, length=5)
 
     new_word = random_word_response.word
-    return await create_game_if_not_exists(session, new_word, dictionary=True)
+    return await create_game_if_not_exists(session, new_word, dictionary=True, is_custom=False)
 
 
 @game_router.get(
@@ -166,8 +173,8 @@ async def get_archive_games(
 
 
 @game_router.patch(
-    "/{game_id}/update_stat",
-    response_model=StatUpdate,
+    "/{game_id}/finish",
+    response_model=FinishGameResponse,
     responses={
         404: {
             "model": DefaultHTTPError,
@@ -175,11 +182,11 @@ async def get_archive_games(
         }
     }
 )
-async def update_stat_by_game_uuid(
+async def finish_game_and_update_stat(
     game_id: uuid.UUID,
-    data: UpdateStatRequest,
+    data: FinishGameRequest,
     session: AsyncSession = Depends(db_helper.session_dependency)
-) -> StatUpdate:
+) -> FinishGameResponse:
 
     try:
         game = await get_game_by_uuid(session, game_id)
@@ -193,11 +200,11 @@ async def update_stat_by_game_uuid(
         raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
 
     new_stat = await update_stat(session=session, stat=stat, tries=data.try_)
-    return StatUpdate.model_validate(new_stat)
+    return {'stat': StatUpdate.model_validate(new_stat), 'word': game.word}
 
 
 @game_router.get(
-    "/{game_id}/get_stat",
+    "/{game_id}/stat",
     response_model=StatRead,
     responses={
         404: {
@@ -212,7 +219,7 @@ async def get_stat(
 ) -> StatRead:
 
     try:
-        stat = await get_stat_by_game_uuid(session, game_uuid=game.uuid)
+        stat = await get_stat_by_game_uuid(session, game_uuid=game_id)
         return StatRead.model_validate(stat)
     except StatNotFound as ex:
         raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
@@ -234,6 +241,13 @@ async def get_game(
 ):
     try:
         game = await get_game_by_uuid(session, game_id)
-        return {"msg": "Игра существует", "len": len(game.word), "dictionary": game.dictionary}
+        if game.is_daily or game.is_archived:
+            name = f"Ежедневная игра от {timestamp_to_date_str(game.created_at)}"
+        elif game.is_custom:
+            name = f"Своя игра №{game.id}"
+        else:
+            name = f"Случайная игра №{game.id}"
+
+        return {"msg": "Игра существует", "name": name, "len": len(game.word), "dictionary": game.dictionary}
     except GameNotFound as ex:
         raise HTTPException(HTTP_404_NOT_FOUND, str(ex))

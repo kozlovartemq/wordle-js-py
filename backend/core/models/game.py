@@ -20,6 +20,7 @@ class GameModel(Base):
     created_at: Mapped[float]
     is_daily: Mapped[bool]
     is_archived: Mapped[bool]
+    is_custom: Mapped[bool]
 
 
 async def get_all_games(

@@ -75,6 +75,7 @@ class GameBase(WordRequest):
     created_at: float
     is_daily: bool = False
     is_archived: bool = False
+    is_custom: bool = False
 
 
 class GameCreate(GameBase):
@@ -126,8 +127,12 @@ class StatDelete(BaseModel):
     game_id: int
 
 
-class UpdateStatRequest(BaseModel):
+class FinishGameRequest(BaseModel):
     try_: int = Field(ge=0, le=6)
+
+
+class FinishGameResponse(WordRequest):
+    stat: StatUpdate 
 
 
 # Health schemas
