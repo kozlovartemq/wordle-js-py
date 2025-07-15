@@ -1,25 +1,29 @@
 import appConstants from '../common/constants'
 import { arrayRemove, areObjectsEqual } from "../common/utils.js"
-import { checkWord } from '../api/endpoints'
+import { checkWord, finishGameByGameUUID } from '../api/endpoints'
+import { mergeStyles } from '../common/utils.js'
 import gameStyles from '../styles/game.css.js'
+import buttonStyles from '../styles/button.css.js'
 
 
 class GameComponent extends HTMLElement {
     constructor() {
         super()
         this.game_id = this.getAttribute('id')
+        this.game_name = this.getAttribute('name')
         this.len = parseInt(this.getAttribute('len'))
         this.dictionary = this.getAttribute('dictionary') === "true"
         this.current_word_id = 0
         this.pressed_buttons = []
         this.colored_letters = {}
         this.result_colors = []
+        this.is_game_finished = false
 
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
         wrapper.setAttribute('class', 'common-container')
 
-        wrapper.innerHTML = `        
+        wrapper.innerHTML = `       
             <div class="dictionary-status">
                 <span class="status-indicator"></span>
                 <span class="status-text"></span>
@@ -31,17 +35,18 @@ class GameComponent extends HTMLElement {
             <word-component id="3"></word-component>
             <word-component id="4"></word-component>
             <word-component id="5"></word-component>
-            <p class="result-hint "></p>
+            <p class="result-hint"></p>
+            <button class="surrender-button" data-action="surrender">Сдаться</button>
             <keyboard-component></keyboard-component>
         `
 
         const style = document.createElement('style')
-        style.textContent = gameStyles()
+        style.textContent = mergeStyles(gameStyles, buttonStyles)
 
         shadow.appendChild(style)
         shadow.appendChild(wrapper)
         this.updateAttemptsH2()
-        
+
         const keyboard = shadow.querySelector(`keyboard-component`)
         this.mountKeyUpToKeyboardComponent = (event) => {
             const letter = appConstants.map_key[event.code]
@@ -58,23 +63,44 @@ class GameComponent extends HTMLElement {
         h2.textContent = `Использовано попыток: ${this.current_word_id}/6`
     }
 
-    spendAttempt(success) {
+    async finishGame() {
+        const shadow = this.shadowRoot
+        const p = shadow.querySelector('.result-hint')
+        let tries = 0
+        if (this.success) {
+            p.textContent = "ПОБЕДА"
+            p.style.color = appConstants.custom_color.green
+            tries = this.current_word_id
+        } else {
+            p.textContent = "ПОРАЖЕНИЕ"
+        }
+
+        const surrender_button = shadow.querySelector('button[data-action="surrender"]')
+        surrender_button.disabled = true
+        const keyboard = shadow.querySelector(`keyboard-component`)
+        keyboard.disable()
+        const finishResponse = await finishGameByGameUUID(this.game_id, tries)
+        if (finishResponse.ok) {
+            const popup = document.createElement('pop-up')
+            popup.renderResults({
+                resultArray: this.result_colors,
+                game_uuid: this.game_id,
+                tries: tries,
+                game_name: this.game_name,
+                game_length: this.len,
+                finishResponse: finishResponse.data
+            })
+            shadow.appendChild(popup)
+        }
+    }
+
+    async spendAttempt() {
         this.current_word_id++
         this.pressed_buttons = []
         this.updateAttemptsH2()
-        if (this.current_word_id === 6 || success) {
-            const shadow = this.shadowRoot
-            const p = shadow.querySelector('.result-hint')
-            if (success) {
-                p.textContent = "ПОБЕДА"
-                p.style.color = appConstants.custom_color.green
-            } else p.textContent = "ПОРАЖЕНИЕ"
-
-            const keyboard = shadow.querySelector(`keyboard-component`)
-            keyboard.disable()
-            const popup = document.createElement('pop-up')
-            popup.renderResults(this.result_colors, this.game_id)
-            shadow.appendChild(popup)
+        this.is_game_finished = this.success || this.current_word_id === 6
+        if (this.is_game_finished) {
+            await this.finishGame()
         }
     }
 
@@ -142,6 +168,13 @@ class GameComponent extends HTMLElement {
             }
         })
 
+        const surrender_button = shadow.querySelector('button[data-action="surrender"]')
+        surrender_button.addEventListener('click', async (e) => {
+            e.stopPropagation()
+            this.is_game_finished = true
+            this.success = false
+            await this.finishGame()
+        })
         document.addEventListener('keyup', this.mountKeyUpToKeyboardComponent)
     }
 
@@ -182,7 +215,8 @@ class GameComponent extends HTMLElement {
                 }
             })
             const success_revision = Object.fromEntries([...Array(this.len).keys()].map(x => [x, 'green']))
-            this.spendAttempt(areObjectsEqual(word_revision, success_revision))
+            this.success = areObjectsEqual(word_revision, success_revision)
+            this.spendAttempt()
         }
 
     }

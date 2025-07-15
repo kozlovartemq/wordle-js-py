@@ -80,15 +80,22 @@ class PopUpComponent extends HTMLElement {
         this.show()
     }
 
-    renderResults(resultArray, game_uuid) {
-        const getWordsSchema = (resultArray) => {
+    async renderResults(resultObj) {
+        const resultArray = resultObj.resultArray
+        const game_uuid = resultObj.game_uuid
+        const tries = resultObj.tries
+        const game_name = resultObj.game_name
+        const game_length = resultObj.game_length
+        const finishResponse = resultObj.finishResponse
+
+        const getWordsSchema = (colorArrays) => {
             const squareMap = {
                 'red': '⬛',
                 'yellow': '🟨',
                 'green': '🟩',
             }
             let wordsSchema = ''
-            resultArray.forEach(word => {
+            colorArrays.forEach(word => {
                 word.forEach(letter => {
                     wordsSchema += squareMap[letter]
                 })
@@ -96,24 +103,58 @@ class PopUpComponent extends HTMLElement {
             })
             return wordsSchema
         }
+        const getCopyText = (colorSchema, tries) => {
+            if (colorSchema) {}
+        }
+        
+        const colorSchema = getWordsSchema(resultArray)
+        let result
+        if (tries === 0) {
+            result = `<b>Поражение! Было загадано слово "${finishResponse.word}".</b>`
+            const copyText = `
+            Я не смог(лa) разгадать ${game_length}-буквенное слово. <br><br>
 
-        let copy_text = `
-        Я разгадал(a) ${resultArray[0].length}-буквенное слово с ${resultArray.length}/6 попыток. <br><br>
+            ${colorSchema} <br>
 
-        ${getWordsSchema(resultArray)} <br>
+            Может ты сможешь разгадать это слово? <br>
+            ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}
+            `
+        } else {
+            result = `<b>Победа! ${tries}/6! Загаданное слово "${finishResponse.word}".</b>`
+            const copy_text = `
+            Я разгадал(a) ${game_length}-буквенное слово за ${tries}/6 попыток. <br><br>
 
-        Сможешь ли ты разгадать это слово? <br>
-        ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}
-        `
+            ${colorSchema} <br>
 
+            Сможешь ли ты разгадать это слово? <br>
+            ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}
+            `
+        }
+        
         const shadow = this.shadowRoot
         const content = shadow.querySelector(".popup-content")
         content.innerHTML = `
-        <h2>Результаты игры!</h2>
-        <p>
-            ${copy_text}
-        </p>
+        <h2>${game_name}</h2>
+        <p>${result}</p>
+        <p>${colorSchema}</p>
+        <div class="copy-container">
+            <button class="submit-button" data-action="copy-result">📋Скопировать результат!</button>
+        </div> 
+        <p><b>Другие игры:</b></p>
+        <div class="other-games button-group">
+            <button class="submit-button" data-action="start-daily">Начни ежедневную игру!
+                <countdown-timer></countdown-timer>
+            </button>
+            <button class="submit-button" data-action="start-casual">Начни случайную игру!</button>
+            <button class="submit-button" data-action="start-custom">Создай свою игру!</button>
+            <button class="submit-button" data-action="archive-game">Архивные игры</button>
+        </div> 
         `
+        content.querySelector('button[data-action="copy-result"]').addEventListener('click', () => {
+            const copyText = getCopyText(colorSchema, tries)
+        })
+
+
         setTimeout(() => {
             this.show()
         }, 800);
