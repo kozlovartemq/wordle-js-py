@@ -23,24 +23,6 @@ export default () => `
     width: 500px;
 }
 
-.button-container {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-}
-
-.button-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-countdown-timer {
-    padding: 8px 10px;
-}
-
 .input-container {
     display: flex;
     justify-content: center;

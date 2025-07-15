@@ -105,7 +105,6 @@ class ContentComponent extends HTMLElement {
         const wrapper = shadow.querySelector('.common-container')
         wrapper.innerHTML = `
         <h2 class="content-title"><b>Wordle</b> – игра-головоломка, в которой нужно угадать слово из пяти букв.</h2>
-        <div class="button-container">
             <div class="button-group">
                 <button class="submit-button" data-action="rules">Правила</button>
                 <button class="submit-button" data-action="start-daily">Начать ежедневную игру!
@@ -115,7 +114,6 @@ class ContentComponent extends HTMLElement {
                 <button class="submit-button" data-action="archive-game">Архивные игры</button>
             </div>
         
-        </div>
         `
         wrapper.querySelector('button[data-action="rules"]').addEventListener('click', (e) => {
             e.stopPropagation()

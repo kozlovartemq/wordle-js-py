@@ -36,7 +36,6 @@ export default () => `
 .dictionary-status {
     display: flex;
     gap: 8px;
-    margin-bottom: 12px;
     justify-content: center;
     align-items: center;
 }
