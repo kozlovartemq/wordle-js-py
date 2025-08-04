@@ -55,6 +55,12 @@ class GameComponent extends HTMLElement {
                 k_button.click()
             }
         }
+        this.beforeUnloadHandler = (event) => {
+            if (this.is_game_finished) return
+            event.preventDefault();
+            event.returnValue = ""
+        }
+        document.querySelector('#app').isGameRunning = true
     }
 
     updateAttemptsH2() {
@@ -64,6 +70,9 @@ class GameComponent extends HTMLElement {
     }
 
     async finishGame() {
+        document.querySelector('#app').isGameRunning = false
+        window.removeEventListener('beforeunload', this.beforeUnloadHandler)
+        
         const shadow = this.shadowRoot
         const p = shadow.querySelector('.result-hint')
         let tries = 0
@@ -176,10 +185,12 @@ class GameComponent extends HTMLElement {
             await this.finishGame()
         })
         document.addEventListener('keyup', this.mountKeyUpToKeyboardComponent)
+        window.addEventListener('beforeunload', this.beforeUnloadHandler)
     }
 
     disconnectedCallback() {
         document.removeEventListener('keyup', this.mountKeyUpToKeyboardComponent)
+        window.removeEventListener('beforeunload', this.beforeUnloadHandler)
     }
 
     async checkCurrent(game_id, word) {

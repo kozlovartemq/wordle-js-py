@@ -37,7 +37,7 @@ class PopUpComponent extends HTMLElement {
         }, { once: true })
 
         wrapper.querySelector('button[data-action="close"]').addEventListener('click', () => {
-            this.hide()
+            this.hide()   
         }, { once: true })
     }
 
@@ -60,6 +60,7 @@ class PopUpComponent extends HTMLElement {
     }
 
     renderRules() {
+        this.setAttribute('type', 'rules')
         const shadow = this.shadowRoot
         const content = shadow.querySelector(".popup-content")
         content.innerHTML = `
@@ -81,6 +82,7 @@ class PopUpComponent extends HTMLElement {
     }
 
     async renderResults(resultObj) {
+        this.setAttribute('type', 'results')
         const resultArray = resultObj.resultArray
         const game_uuid = resultObj.game_uuid
         const tries = resultObj.tries
@@ -157,10 +159,11 @@ class PopUpComponent extends HTMLElement {
 
         setTimeout(() => {
             this.show()
-        }, 800);
+        }, 600);
     }
 
-    renderGotoAlert(path) {
+    renderGotoAlert() {
+        this.setAttribute('type', 'gotoalert')
         const shadow = this.shadowRoot
         const content = shadow.querySelector(".popup-content")
         content.innerHTML = `
@@ -170,14 +173,11 @@ class PopUpComponent extends HTMLElement {
         </p>
         <button class="submit-button position-left" data-action="goto">Уйти</button>
         `
-
-        content.querySelector('button[data-action="goto"]').addEventListener('click', () => {
-            goTo(path)
-        })
         this.show()
     }
 
     async renderArchiveGames() {
+        this.setAttribute('type', 'archive')
         this.archivePage = 1
         this.isLoadingArchive = false
         this.hasMoreArchive = true

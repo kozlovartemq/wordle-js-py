@@ -31,18 +31,7 @@ class LinkComponent extends HTMLElement {
         e.preventDefault()
         if (!this.selected) {
             const { pathname: path } = new URL(e.target.href)
-            const routesToAlert = [
-                routes.Game,
-                routes.Daily
-            ]
-            const current_pathname = window.location.pathname
-            if (routesToAlert.some(route => route.match(current_pathname))) {
-                const game_component = document.querySelector('game-component')
-                const shadow = game_component.shadowRoot
-                const popup = document.createElement('pop-up')
-                popup.renderGotoAlert(path)
-                shadow.appendChild(popup)
-            } else goTo(path)
+            goTo(path)
         }
     }
 

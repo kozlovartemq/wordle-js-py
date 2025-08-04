@@ -76,27 +76,106 @@ export const getRouterParams = async () => {
     return await getPathRoute(url)
 }
 
-export const goTo = (path) => {
-    window.history.pushState({ path }, path, path)
+let currentPath = window.location.pathname;
+
+export function getCurrentPath() {
+  return currentPath
+}
+
+export function setCurrentPath(newPath) {
+  currentPath = newPath
+}
+
+export const isGameRunning = () => document.querySelector('#app')?.isGameRunning || false
+
+const navigate = (path) => {
+    if (getCurrentPath() === path) return
+    window.history.pushState({ path }, '', path)
+    setCurrentPath(path)
     render(path)
+}
+
+export const goTo = (path) => {
+    if (isGameRunning()) {
+        const onConfirm = (e) => {
+            e.stopPropagation()
+            document.querySelector('#app').isGameRunning = false
+            navigate(path)
+        }
+        showGotoAlert(onConfirm)
+    } else {
+        navigate(path)
+    }
 }
 
 export const goTofailure = () => {
     goTo('/failure')
 }
 
-const initRouter = () => {
-    window.addEventListener('popstate', e => {
-        render(new URL(window.location.href).pathname)
+const showGotoAlert = (onConfirm) => {
+    const app = document.querySelector('#app')
+    let popup = app.querySelector('pop-up[type="gotoalert"]')
+
+    if (popup) {
+        const shadow = popup.shadowRoot 
+        const gotoBtn = shadow.querySelector('button[data-action="goto"]')
+
+        // The easiest way to remove all old event listeners is to clone the node.
+        const newGotoBtn = gotoBtn.cloneNode(true)
+        gotoBtn.parentNode.replaceChild(newGotoBtn, gotoBtn)
+        newGotoBtn.addEventListener('click', onConfirm, { once: true })
+
+    } else {
+        popup = document.createElement('pop-up')
+        popup.renderGotoAlert()
+        app.appendChild(popup)
+
+        const shadow = popup.shadowRoot 
+        shadow.querySelector('button[data-action="goto"]').addEventListener('click', onConfirm, { once: true })
+        shadow.querySelector('button[data-action="close"]').addEventListener('click', (e) => {
+            window.history.pushState({ path: getCurrentPath() }, '', getCurrentPath())
+        }, { once: true })
+        const wrapper = shadow.querySelector(".popup-overlay")
+        wrapper.addEventListener('click', (e) => {
+            if (e.target === wrapper) {
+                window.history.pushState({ path: getCurrentPath() }, '', getCurrentPath())
+            }
+        }, { once: true })
+    }
+}
+
+export const initRouter = () => {
+    // Listener for browser Back/Forward buttons
+    window.addEventListener('popstate', (e) => {
+        const newPath = new URL(window.location.href).pathname
+        
+        if (newPath === getCurrentPath()) return
+
+        if (isGameRunning()) {
+            const onConfirm = (e) => {
+                e.stopPropagation()
+                document.querySelector('#app').isGameRunning = false
+                // The URL is already correct, so we just accept it. We don't need to navigate(path), just render
+                setCurrentPath(newPath)
+                render(newPath)
+            }
+            showGotoAlert(onConfirm)
+        } else {
+            setCurrentPath(newPath)
+            render(newPath)
+        }
     })
-    document.querySelectorAll('[href^="/"]').forEach(el => {
-        el.addEventListener('click', (env) => {
-            env.preventDefault()
-            const { pathname: path } = new URL(env.target.href)
+
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href^="/"]')
+        if (link) {
+            e.preventDefault()
+            const { pathname: path } = new URL(link.href)
             goTo(path)
-        })
+        }
     })
-    render(new URL(window.location.href).pathname)
+
+    render(getCurrentPath())
 }
 
 export default initRouter
