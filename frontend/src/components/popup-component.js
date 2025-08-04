@@ -34,7 +34,7 @@ class PopUpComponent extends HTMLElement {
             if (e.target === wrapper) {
                 this.hide()
             }
-        }, { once: true })
+        })
 
         wrapper.querySelector('button[data-action="close"]').addEventListener('click', () => {
             this.hide()   
