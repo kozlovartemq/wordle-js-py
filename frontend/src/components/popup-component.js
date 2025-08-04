@@ -1,5 +1,5 @@
 import appConstants from '../common/constants'
-import { goTo, routes } from '../router'
+import { routes } from '../router'
 import { getArchive } from '../api/endpoints'
 import { mergeStyles } from '../common/utils.js'
 import popupStyles from '../styles/popup.css.js'
@@ -176,6 +176,21 @@ class PopUpComponent extends HTMLElement {
         this.show()
     }
 
+    renderSurrenderAlert(onConfirm) {
+        this.setAttribute('type', 'surrenderalert')
+        const shadow = this.shadowRoot
+        const content = shadow.querySelector(".popup-content")
+        content.innerHTML = `
+        <h2>Вы хотите сдаться?</h2>
+        <p>
+            Сдаться и увидеть загаданное слово?
+        </p>
+        <button class="submit-button surrender-button position-left position-bottom" data-action="action-surrender">Сдаться</button>
+        `
+        content.querySelector('button[data-action="action-surrender"]').addEventListener('click', onConfirm)
+        this.show()
+    }
+
     async renderArchiveGames() {
         this.setAttribute('type', 'archive')
         this.archivePage = 1
@@ -190,12 +205,48 @@ class PopUpComponent extends HTMLElement {
             <div id="loader" class="loader">Загрузка...</div>
         </div>
         `
-        await this.loadArchivePage(this.archivePage)
+        const loadArchivePage = async () => {
+            if (!this.hasMoreArchive) this.archiveObserver.disconnect()
+
+            if (this.isLoadingArchive || !this.hasMoreArchive) return
+
+            this.isLoadingArchive = true
+            const shadow = this.shadowRoot
+            const loader = shadow.querySelector('.loader')
+            const archiveList = shadow.querySelector('.archive-list')
+            const archiveResponse = await getArchive(this.archivePage)
+            if (archiveResponse.ok) {
+                if (archiveResponse.data.length === 0 && this.archivePage === 1) {
+                    loader.textContent = "Архивных игр пока нет :("
+                    this.hasMoreArchive = false
+                    return
+                } else if (archiveResponse.data.length === 0) {
+                    this.hasMoreArchive = false
+                    loader.textContent = 'Больше игр нет'
+                    return
+                }
+                archiveResponse.data.forEach(game => {
+                    const tile = document.createElement('a');
+                    tile.className = 'archive-tile'
+                    tile.href = `games/${game.game_uuid}`
+                    tile.textContent = `Ежедневная игра от ${game.game_date}`
+                    archiveList.insertBefore(tile, loader)
+                })
+            } else {
+                const error_text = 'Ошибка загрузки архива'
+                console.error(error_text)
+                loader.textContent = error_text
+                this.hasMoreArchive = false
+            }
+            this.isLoadingArchive = false
+        }
+        
+        await loadArchivePage(this.archivePage)
 
         this.archiveObserver = new IntersectionObserver(async (entries) => {
             if (entries[0].isIntersecting) {
                 this.archivePage++
-                await this.loadArchivePage(this.archivePage)
+                await loadArchivePage(this.archivePage)
             }
         }, {
             root: null,
@@ -205,41 +256,6 @@ class PopUpComponent extends HTMLElement {
         this.show()
     }
 
-    async loadArchivePage() {
-        if (!this.hasMoreArchive) this.archiveObserver.disconnect()
-
-        if (this.isLoadingArchive || !this.hasMoreArchive) return
-
-        this.isLoadingArchive = true
-        const shadow = this.shadowRoot
-        const loader = shadow.querySelector('.loader')
-        const archiveList = shadow.querySelector('.archive-list')
-        const archiveResponse = await getArchive(this.archivePage)
-        if (archiveResponse.ok) {
-            if (archiveResponse.data.length === 0 && this.archivePage === 1) {
-                loader.textContent = "Архивных игр пока нет :("
-                this.hasMoreArchive = false
-                return
-            } else if (archiveResponse.data.length === 0) {
-                this.hasMoreArchive = false
-                loader.textContent = 'Больше игр нет'
-                return
-            }
-            archiveResponse.data.forEach(game => {
-                const tile = document.createElement('a');
-                tile.className = 'archive-tile'
-                tile.href = `games/${game.game_uuid}`
-                tile.textContent = `Ежедневная игра от ${game.game_date}`
-                archiveList.insertBefore(tile, loader)
-            })
-        } else {
-            const error_text = 'Ошибка загрузки архива'
-            console.error(error_text)
-            loader.textContent = error_text
-            this.hasMoreArchive = false
-        }
-        this.isLoadingArchive = false;
-    }
 }
 
 

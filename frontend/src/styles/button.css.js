@@ -57,24 +57,27 @@ export default () => `
     bottom: 1rem;
 }
 
+.rectangle {
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+}
+
 .surrender-button {
-  background-color: ${appConstants.custom_color.red};
-  color: white;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-  cursor: pointer;
+    background-color: ${appConstants.custom_color.red};
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    cursor: pointer;
 }
 
 .surrender-button:hover {
-  background-color: ${appConstants.custom_color.dark_red};
+    background-color: ${appConstants.custom_color.dark_red};
 }
 
 .surrender-button:active {
-  transform: scale(0.97);
+    transform: scale(0.97);
 }
 
 .surrender-button:disabled {

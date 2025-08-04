@@ -36,7 +36,7 @@ class GameComponent extends HTMLElement {
             <word-component id="4"></word-component>
             <word-component id="5"></word-component>
             <p class="result-hint"></p>
-            <button class="surrender-button" data-action="surrender">Сдаться</button>
+            <button class="surrender-button rectangle" data-action="surrender">Сдаться</button>
             <keyboard-component></keyboard-component>
         `
 
@@ -178,11 +178,17 @@ class GameComponent extends HTMLElement {
         })
 
         const surrender_button = shadow.querySelector('button[data-action="surrender"]')
-        surrender_button.addEventListener('click', async (e) => {
-            e.stopPropagation()
+        const onSurrenderConfirm = async () => {
+            shadow.querySelector('pop-up[type="surrenderalert"]').hide()
             this.is_game_finished = true
             this.success = false
             await this.finishGame()
+        }
+        surrender_button.addEventListener('click', (e) => {
+            e.stopPropagation()
+            const popup = document.createElement('pop-up')
+            popup.renderSurrenderAlert(onSurrenderConfirm)
+            shadow.appendChild(popup)
         })
         document.addEventListener('keyup', this.mountKeyUpToKeyboardComponent)
         window.addEventListener('beforeunload', this.beforeUnloadHandler)
