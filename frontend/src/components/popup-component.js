@@ -141,7 +141,8 @@ class PopUpComponent extends HTMLElement {
         <p>${colorSchema}</p>
         <div class="copy-container">
             <button class="submit-button" data-action="copy-result">📋Скопировать результат!</button>
-        </div> 
+        </div>
+        <stat-component></stat-component> 
         <p><b>Другие игры:</b></p>
         <div class="other-games button-group">
             <button class="submit-button" data-action="start-daily">Начни ежедневную игру!
@@ -155,6 +156,7 @@ class PopUpComponent extends HTMLElement {
         content.querySelector('button[data-action="copy-result"]').addEventListener('click', () => {
             const copyText = getCopyText(colorSchema, tries)
         })
+        content.querySelector('stat-component').renderStatistics(finishResponse.stat, tries)
 
 
         setTimeout(() => {
@@ -181,9 +183,9 @@ class PopUpComponent extends HTMLElement {
         const shadow = this.shadowRoot
         const content = shadow.querySelector(".popup-content")
         content.innerHTML = `
-        <h2>Вы хотите сдаться?</h2>
+        <h2>Сдаться?</h2>
         <p>
-            Сдаться и увидеть загаданное слово?
+            Вот так просто сдаться и увидеть загаданное слово?
         </p>
         <button class="submit-button surrender-button position-left position-bottom" data-action="action-surrender">Сдаться</button>
         `
