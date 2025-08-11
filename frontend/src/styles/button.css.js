@@ -90,4 +90,36 @@ export default () => `
     background-color: ${appConstants.custom_color.dark_red};
     transform: scale(1);
 } 
+
+.other-games {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.other-games-btn {
+    background-color: ${appConstants.custom_color.green};
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.other-games-btn:hover {
+    background-color: #219150;
+}
+.other-games-btn:active {
+    transform: scale(0.97);
+}
+
+.other-games-btn {
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
 `;

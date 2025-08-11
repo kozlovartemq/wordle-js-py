@@ -42,7 +42,7 @@ class StatComponent extends HTMLElement {
         )
 
         const triesMap = [
-            { label: "Поражение", key: "lost" },
+            { label: "X/6", key: "lost" },
             { label: "1/6", key: "first_try" },
             { label: "2/6", key: "second_try" },
             { label: "3/6", key: "third_try" },

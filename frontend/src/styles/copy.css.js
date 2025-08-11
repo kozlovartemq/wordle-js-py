@@ -3,7 +3,6 @@ export default () => `
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1rem;
     background: #f2f2f2;
     border-radius: 8px;
     border: 1px solid #ccc;
@@ -12,6 +11,10 @@ export default () => `
     width: fit-content;
     font-family: sans-serif;
     cursor: default;
+}
+
+.padding {
+    padding: 0.6rem 1rem;
 }
 
 .copy-text {
@@ -30,6 +33,9 @@ export default () => `
     font-size: 1rem;
     border-radius: 6px;
     transition: background 0.2s ease;
+}
+
+.width {
     width: 2.5rem;
 }
 

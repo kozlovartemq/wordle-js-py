@@ -9,15 +9,15 @@ class CopyComponent extends HTMLElement {
 
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
-        wrapper.setAttribute('class', 'copy-container')
+        wrapper.classList.add('copy-container', 'padding')
 
         wrapper.innerHTML = `
             
             <p class="copy-text"></p>
-            <button class="copy-button" data-action="copy" title="Скопировать">
+            <button class="copy-button width" data-action="copy" title="Скопировать">
                 📋
             </button>
-            <button class="copy-button" data-action="goto" title="На страницу игры">
+            <button class="copy-button width" data-action="goto" title="На страницу игры">
                 🡕
             </button>
             <span class="copied-popup">Скопировано!</span>

@@ -48,11 +48,16 @@ export default () => `
     box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
 
+p {
+    margin: 0.5em 0em;
+}
+
 p a {
     color:rgb(11, 12, 14);
     text-decoration: none;
     transition: color 0.2s ease, border-color 0.2s ease;
     border-bottom: 1px dashed rgb(11, 12, 14);
+    cursor: pointer;
 }
 
 p a:focus,

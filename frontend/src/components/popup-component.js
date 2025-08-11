@@ -4,6 +4,7 @@ import { getArchive } from '../api/endpoints'
 import { mergeStyles } from '../common/utils.js'
 import popupStyles from '../styles/popup.css.js'
 import buttonStyles from '../styles/button.css.js'
+import copyStyles from '../styles/copy.css.js'
 
 
 class PopUpComponent extends HTMLElement {
@@ -19,7 +20,7 @@ class PopUpComponent extends HTMLElement {
             </div>
         `
         const style = document.createElement('style')
-        style.textContent = mergeStyles(popupStyles, buttonStyles)
+        style.textContent = mergeStyles(popupStyles, buttonStyles, copyStyles)
 
         shadow.appendChild(style)
         shadow.appendChild(wrapper)
@@ -37,7 +38,7 @@ class PopUpComponent extends HTMLElement {
         })
 
         wrapper.querySelector('button[data-action="close"]').addEventListener('click', () => {
-            this.hide()   
+            this.hide()
         }, { once: true })
     }
 
@@ -106,55 +107,72 @@ class PopUpComponent extends HTMLElement {
             return wordsSchema
         }
         const getCopyText = (colorSchema, tries) => {
-            if (colorSchema) {}
+            if (tries === 0) {
+                return `Я не смог(лa) разгадать ${game_length}-буквенное слово.
+
+${colorSchema.replaceAll('<br>', '\n')}
+Может ты сможешь разгадать это слово?
+${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
+            } else {
+                const triesMap = {
+                    1: '1/6 попытку',
+                    2: '2/6 попытки',
+                    3: '3/6 попытки',
+                    4: '4/6 попытки',
+                    5: '5/6 попыток',
+                    6: '6/6 попыток',
+                }
+                return `Я разгадал(a) ${game_length}-буквенное слово за ${triesMap[tries]}.
+
+${colorSchema.replaceAll('<br>', '\n')}
+Сможешь ли ты разгадать это слово?
+${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
+            }
         }
-        
+
         const colorSchema = getWordsSchema(resultArray)
         let result
         if (tries === 0) {
             result = `<b>Поражение! Было загадано слово "${finishResponse.word}".</b>`
-            const copyText = `
-            Я не смог(лa) разгадать ${game_length}-буквенное слово. <br><br>
-
-            ${colorSchema} <br>
-
-            Может ты сможешь разгадать это слово? <br>
-            ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}
-            `
         } else {
-            result = `<b>Победа! ${tries}/6! Загаданное слово "${finishResponse.word}".</b>`
-            const copy_text = `
-            Я разгадал(a) ${game_length}-буквенное слово за ${tries}/6 попыток. <br><br>
-
-            ${colorSchema} <br>
-
-            Сможешь ли ты разгадать это слово? <br>
-            ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}
-            `
+            result = `<b>Победа! ${tries}/6! Было загадано слово "${finishResponse.word}".</b>`
         }
-        
+
         const shadow = this.shadowRoot
         const content = shadow.querySelector(".popup-content")
         content.innerHTML = `
         <h2>${game_name}</h2>
         <p>${result}</p>
+        <p><a class="whatsit">Что означает это слово?</a></p>
         <p>${colorSchema}</p>
         <div class="copy-container">
-            <button class="submit-button" data-action="copy-result">📋Скопировать результат!</button>
+            <button class="copy-button" data-action="copy-result">📋Скопировать!</button>
+            <span class="copied-popup">Скопировано!</span>
         </div>
         <stat-component></stat-component> 
         <p><b>Другие игры:</b></p>
-        <div class="other-games button-group">
-            <button class="submit-button" data-action="start-daily">Начни ежедневную игру!
+        <div class="other-games">
+            <button class="other-games-btn" data-action="start-daily">Начни ежедневную игру!
                 <countdown-timer></countdown-timer>
             </button>
-            <button class="submit-button" data-action="start-casual">Начни случайную игру!</button>
-            <button class="submit-button" data-action="start-custom">Создай свою игру!</button>
-            <button class="submit-button" data-action="archive-game">Архивные игры</button>
+            <button class="other-games-btn" data-action="start-casual">Начни случайную игру!</button>
+            <button class="other-games-btn" data-action="start-custom">Создай свою игру!</button>
+            <button class="other-games-btn" data-action="archive-game">Архивные игры</button>
         </div> 
         `
+        content.querySelector("a.whatsit").onclick = function () {
+            const redirectWindow = window.open(`https://gramota.ru/poisk?query=${finishResponse.word}&mode=slovari&dicts[]=42&dicts[]=50&dicts[]=25&dicts[]=48&dicts[]=47`, '_blank')
+            redirectWindow.location
+        }
+        const copiedPopup = shadow.querySelector('.copied-popup')
         content.querySelector('button[data-action="copy-result"]').addEventListener('click', () => {
             const copyText = getCopyText(colorSchema, tries)
+            navigator.clipboard.writeText(copyText).then(() => {
+                copiedPopup.style.opacity = '1'
+                setTimeout(() => {
+                    copiedPopup.style.opacity = '0'
+                }, 2000)
+            })
         })
         content.querySelector('stat-component').renderStatistics(finishResponse.stat, tries)
 
@@ -242,7 +260,7 @@ class PopUpComponent extends HTMLElement {
             }
             this.isLoadingArchive = false
         }
-        
+
         await loadArchivePage(this.archivePage)
 
         this.archiveObserver = new IntersectionObserver(async (entries) => {

@@ -9,11 +9,12 @@ export default () => `
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     max-width: 500px;
-    margin: 30px auto;
+    margin: 10px auto;
     font-family: sans-serif;
 }
 
 .stats-container h3 {
+    margin-top: 0;
     margin-bottom: 5px;
     text-align: center;
     font-size: 20px;
