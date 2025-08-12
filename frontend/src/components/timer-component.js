@@ -8,11 +8,11 @@ class CountdownTimer extends HTMLElement {
 
         const wrapper = document.createElement('div')
         wrapper.classList.add('timer')
-        
+
         wrapper.innerHTML = `
             <span>00:00:00</span>
             <div class="update-message">Ежедневная игра обновилась!</div>
-        `    
+        `
 
         const style = document.createElement('style')
         style.textContent = timerStyles()
@@ -32,9 +32,9 @@ class CountdownTimer extends HTMLElement {
 
     updateTimer() {
         const shadow = this.shadowRoot
-            const timeDisplay = shadow.querySelector('span')
-            const message = shadow.querySelector('div.update-message')
-        
+        const timeDisplay = shadow.querySelector('span')
+        const message = shadow.querySelector('div.update-message')
+
         const now = new Date()
         const nextUtcMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
         nextUtcMidnight.setTime(nextUtcMidnight.getTime() + 5 * 1000) // Add 5 seconds to syncronize with 'update word' job time on backend

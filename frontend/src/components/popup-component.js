@@ -158,12 +158,12 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
             <button class="other-games-btn" data-action="archive-game">Архивные игры</button>
         </div> 
         `
-        
+
         if (!daily) {
             const dailyGameBtn = document.createElement('button')
             dailyGameBtn.classList.add('other-games-btn')
             dailyGameBtn.setAttribute('data-action', 'start-daily')
-            dailyGameBtn.textContent = 'Начни ежедневную игру!'
+            dailyGameBtn.textContent = 'Начни ежедневную игру! '
             const timer = document.createElement('countdown-timer')
             dailyGameBtn.appendChild(timer)
 
@@ -171,7 +171,7 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
             const casualGameBtn = shadow.querySelector('button[data-action="start-casual"]')
             otherGamesWrapper.insertBefore(dailyGameBtn, casualGameBtn)
         }
-        
+
         content.querySelector("a.whatsit").onclick = function () {
             const redirectWindow = window.open(`https://gramota.ru/poisk?query=${finishResponse.word}&mode=slovari&dicts[]=42&dicts[]=50&dicts[]=25&dicts[]=48&dicts[]=47`, '_blank')
             redirectWindow.location

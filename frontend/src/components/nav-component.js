@@ -7,7 +7,6 @@ class NavComponent extends HTMLElement {
         super()
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
-        this.searchType = appConstants.search.types.game
 
         wrapper.setAttribute('class', 'main-menu')
         this.links = [

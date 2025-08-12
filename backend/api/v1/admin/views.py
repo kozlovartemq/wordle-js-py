@@ -97,7 +97,6 @@ async def delete_stat(
     return StatDelete(id=stat.id, game_id=stat.game_id)
 
 
-### the implementation is taken out for use within the application
 @admin_router.delete(
     '/delete_old_games',
     summary=f"Delete games older than {settings.deleteJob.threshold_hours} hours",

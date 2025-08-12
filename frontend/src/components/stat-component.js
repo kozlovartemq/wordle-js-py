@@ -62,7 +62,7 @@ class StatComponent extends HTMLElement {
 
             const barFillContainer = document.createElement("div")
             barFillContainer.className = "bar-fill-container"
-            
+
             const barInner = document.createElement("div")
             barInner.className = "bar-inner"
             barInner.style.height = `${(count / maxCount) * 100}%`
@@ -83,9 +83,9 @@ class StatComponent extends HTMLElement {
             chart.appendChild(bar)
         })
 
-    container.appendChild(title)
-    container.appendChild(overall)
-    container.appendChild(chart)
+        container.appendChild(title)
+        container.appendChild(overall)
+        container.appendChild(chart)
     }
 }
 

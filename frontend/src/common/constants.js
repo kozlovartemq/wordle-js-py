@@ -7,12 +7,6 @@ export const appConstants = {
         fail: '/failure',
         daily: '/daily',
     },
-    search: {
-        types: {
-            game: 'game',
-            word: 'word',
-        }
-    },
     container: {
         types: {
             main: 'main',

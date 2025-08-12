@@ -72,7 +72,7 @@ class GameComponent extends HTMLElement {
     async finishGame() {
         document.querySelector('#app').isGameRunning = false
         window.removeEventListener('beforeunload', this.beforeUnloadHandler)
-        
+
         const shadow = this.shadowRoot
         const p = shadow.querySelector('.result-hint')
         let tries = 0
@@ -86,7 +86,7 @@ class GameComponent extends HTMLElement {
 
         const surrender_button = shadow.querySelector('button[data-action="surrender"]')
         if (surrender_button) surrender_button.disabled = true
-        
+
         const keyboard = shadow.querySelector(`keyboard-component`)
         keyboard.disable()
         const finishResponse = await finishGameByGameUUID(this.game_id, tries)

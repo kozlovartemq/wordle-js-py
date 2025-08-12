@@ -77,14 +77,14 @@ export const getRouterParams = async () => {
     return await getPathRoute(url)
 }
 
-let currentPath = window.location.pathname;
+let currentPath = window.location.pathname
 
 export function getCurrentPath() {
-  return currentPath
+    return currentPath
 }
 
 export function setCurrentPath(newPath) {
-  currentPath = newPath
+    currentPath = newPath
 }
 
 export const isGameRunning = () => document.querySelector('#app')?.isGameRunning || false
@@ -118,7 +118,7 @@ const showGotoAlert = (onConfirm) => {
     let popup = app.querySelector('pop-up[type="gotoalert"]')
 
     if (popup) {
-        const shadow = popup.shadowRoot 
+        const shadow = popup.shadowRoot
         const gotoBtn = shadow.querySelector('button[data-action="goto"]')
 
         // The easiest way to remove all old event listeners is to clone the node.
@@ -131,7 +131,7 @@ const showGotoAlert = (onConfirm) => {
         popup.renderGotoAlert()
         app.appendChild(popup)
 
-        const shadow = popup.shadowRoot 
+        const shadow = popup.shadowRoot
         shadow.querySelector('button[data-action="goto"]').addEventListener('click', onConfirm, { once: true })
         shadow.querySelector('button[data-action="close"]').addEventListener('click', (e) => {
             window.history.pushState({ path: getCurrentPath() }, '', getCurrentPath())
@@ -149,7 +149,7 @@ export const initRouter = () => {
     // Listener for browser Back/Forward buttons
     window.addEventListener('popstate', (e) => {
         const newPath = new URL(window.location.href).pathname
-        
+
         if (newPath === getCurrentPath()) return
 
         if (isGameRunning()) {
