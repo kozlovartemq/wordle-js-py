@@ -104,7 +104,7 @@ export default () => `
     color: #fff;
     border: none;
     padding: 6px 12px;
-    margin: 4px 0;
+    margin: 2px 0;
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;

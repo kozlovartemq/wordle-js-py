@@ -1,6 +1,6 @@
 import appConstants from '../common/constants'
-import { routes } from '../router'
-import { getArchive } from '../api/endpoints'
+import { goTo, routes } from '../router'
+import { getArchive, createCasualGame } from '../api/endpoints'
 import { mergeStyles } from '../common/utils.js'
 import popupStyles from '../styles/popup.css.js'
 import buttonStyles from '../styles/button.css.js'
@@ -170,6 +170,12 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
             const otherGamesWrapper = shadow.querySelector('div.other-games')
             const casualGameBtn = shadow.querySelector('button[data-action="start-casual"]')
             otherGamesWrapper.insertBefore(dailyGameBtn, casualGameBtn)
+
+            dailyGameBtn.addEventListener('click', (e) => {
+                e.stopPropagation()
+                const url = routes.Daily.reverse()
+                goTo(url)
+            })
         }
 
         content.querySelector("a.whatsit").onclick = function () {
@@ -178,6 +184,7 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
         }
         const copiedPopup = shadow.querySelector('.copied-popup')
         content.querySelector('button[data-action="copy-result"]').addEventListener('click', () => {
+            e.stopPropagation()
             const copyText = getCopyText(colorSchema, tries)
             navigator.clipboard.writeText(copyText).then(() => {
                 copiedPopup.style.opacity = '1'
@@ -187,6 +194,26 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
             })
         })
         content.querySelector('stat-component').renderStatistics(finishResponse.stat, tries)
+        
+        content.querySelector('button[data-action="start-casual"]').addEventListener('click', async (e) => {
+            e.stopPropagation()
+            const create_response = await createCasualGame()
+            if (create_response.ok) {
+                const url = routes.Game.reverse({ game: create_response.data.game_uuid })
+                goTo(url)
+            }
+        })
+        content.querySelector('button[data-action="start-custom"]').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const url = routes.Create.reverse()
+            goTo(url)
+        })
+        content.querySelector('button[data-action="archive-game"]').addEventListener('click', (e) => {
+            e.stopPropagation()
+            const popup = document.createElement('pop-up')
+            popup.renderArchiveGames()
+            shadow.appendChild(popup)
+        })
 
 
         setTimeout(() => {
