@@ -248,6 +248,6 @@ async def get_game(
         else:
             name = f"Случайная игра №{game.id}"
 
-        return {"msg": "Игра существует", "name": name, "len": len(game.word), "dictionary": game.dictionary}
+        return {"msg": "Игра существует", "name": name, "len": len(game.word), "dictionary": game.dictionary, "daily": game.is_daily}
     except GameNotFound as ex:
         raise HTTPException(HTTP_404_NOT_FOUND, str(ex))

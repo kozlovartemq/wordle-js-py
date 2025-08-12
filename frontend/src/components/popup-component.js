@@ -89,6 +89,7 @@ class PopUpComponent extends HTMLElement {
         const tries = resultObj.tries
         const game_name = resultObj.game_name
         const game_length = resultObj.game_length
+        const daily = resultObj.daily
         const finishResponse = resultObj.finishResponse
 
         const getWordsSchema = (colorArrays) => {
@@ -152,14 +153,25 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
         <stat-component></stat-component> 
         <p><b>Другие игры:</b></p>
         <div class="other-games">
-            <button class="other-games-btn" data-action="start-daily">Начни ежедневную игру!
-                <countdown-timer></countdown-timer>
-            </button>
             <button class="other-games-btn" data-action="start-casual">Начни случайную игру!</button>
             <button class="other-games-btn" data-action="start-custom">Создай свою игру!</button>
             <button class="other-games-btn" data-action="archive-game">Архивные игры</button>
         </div> 
         `
+        
+        if (!daily) {
+            const dailyGameBtn = document.createElement('button')
+            dailyGameBtn.classList.add('other-games-btn')
+            dailyGameBtn.setAttribute('data-action', 'start-daily')
+            dailyGameBtn.textContent = 'Начни ежедневную игру!'
+            const timer = document.createElement('countdown-timer')
+            dailyGameBtn.appendChild(timer)
+
+            const otherGamesWrapper = shadow.querySelector('div.other-games')
+            const casualGameBtn = shadow.querySelector('button[data-action="start-casual"]')
+            otherGamesWrapper.insertBefore(dailyGameBtn, casualGameBtn)
+        }
+        
         content.querySelector("a.whatsit").onclick = function () {
             const redirectWindow = window.open(`https://gramota.ru/poisk?query=${finishResponse.word}&mode=slovari&dicts[]=42&dicts[]=50&dicts[]=25&dicts[]=48&dicts[]=47`, '_blank')
             redirectWindow.location
@@ -253,9 +265,9 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
                     archiveList.insertBefore(tile, loader)
                 })
             } else {
-                const error_text = 'Ошибка загрузки архива'
-                console.error(error_text)
-                loader.textContent = error_text
+                const errorText = 'Ошибка загрузки архива'
+                console.error(errorText)
+                loader.textContent = errorText
                 this.hasMoreArchive = false
             }
             this.isLoadingArchive = false

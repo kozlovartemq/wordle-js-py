@@ -13,6 +13,7 @@ class GameComponent extends HTMLElement {
         this.game_name = this.getAttribute('name')
         this.len = parseInt(this.getAttribute('len'))
         this.dictionary = this.getAttribute('dictionary') === "true"
+        this.daily = this.getAttribute('daily') === "true"
         this.current_word_id = 0
         this.pressed_buttons = []
         this.colored_letters = {}
@@ -97,6 +98,7 @@ class GameComponent extends HTMLElement {
                 tries: tries,
                 game_name: this.game_name,
                 game_length: this.len,
+                daily: this.daily,
                 finishResponse: finishResponse.data
             })
             shadow.appendChild(popup)

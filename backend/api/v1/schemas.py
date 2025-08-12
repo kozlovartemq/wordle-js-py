@@ -55,6 +55,7 @@ class GameParamsResponse(BaseModel):
     name: str
     len: int
     dictionary: bool
+    daily: bool
 
 
 class GameArchiveResponse(BaseModel):
