@@ -2,7 +2,6 @@
 wordle
 
 # TODOs
-- добавить завершение игры
 - BUG: нет слов, содержащих NULL (ex. вирус)
 - Backend tests (pytest?)
 - mobile css support
