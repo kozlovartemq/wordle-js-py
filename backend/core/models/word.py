@@ -10,12 +10,12 @@ class WordModel(Base):
     __tablename__ = "nouns" # type: ignore
     
     IID: Mapped[int] = mapped_column(primary_key=True)
-    word: Mapped[str] = mapped_column(index=True)
-    code: Mapped[int]
-    code_parent: Mapped[int]
-    gender: Mapped[str]
-    wcase: Mapped[str]
-    soul: Mapped[int]
+    word: Mapped[str] = mapped_column(index=True, nullable=False)
+    code: Mapped[int] = mapped_column(nullable=False)
+    code_parent: Mapped[int] = mapped_column(nullable=False)
+    gender: Mapped[str | None] = mapped_column(nullable=True)
+    wcase: Mapped[str | None] = mapped_column(nullable=True)
+    soul: Mapped[int | None] = mapped_column(nullable=True)
 
 
 async def get_random_word(

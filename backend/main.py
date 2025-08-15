@@ -1,17 +1,18 @@
+import uvicorn
+import sqlite3
 import logging
 from contextlib import asynccontextmanager, closing
-from fastapi.responses import ORJSONResponse
-from sqlalchemy import text
-import uvicorn
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
+from sqlalchemy import text
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+
 from core.config import settings
 from core.models.db_helper import db_helper
 from core.models.base import Base
 from api.v1 import router as v1_router
-import sqlite3
 
 
 settings.logging.setup_logging
