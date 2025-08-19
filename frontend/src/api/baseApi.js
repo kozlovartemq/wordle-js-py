@@ -1,8 +1,8 @@
 import { goTofailure } from '../router'
 
-const serverPort = VITE__RUN__SERVER_PORT ?? 8000
-const mainApiPrefix = VITE__MAIN_API_PREFIX ?? '/api'
-const secondaryApiPrefix = VITE__SECONDARY_API_PREFIX ?? '/v1'
+const serverPort = VITE__RUN__SERVER_PORT
+const mainApiPrefix = VITE__MAIN_API_PREFIX
+const secondaryApiPrefix = VITE__SECONDARY_API_PREFIX
 
 const apiServer = `http://localhost:${serverPort}`
 const api_prefix = `${mainApiPrefix}${secondaryApiPrefix}`
