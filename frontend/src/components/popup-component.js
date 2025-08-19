@@ -183,7 +183,7 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
             redirectWindow.location
         }
         const copiedPopup = shadow.querySelector('.copied-popup')
-        content.querySelector('button[data-action="copy-result"]').addEventListener('click', () => {
+        content.querySelector('button[data-action="copy-result"]').addEventListener('click', (e) => {
             e.stopPropagation()
             const copyText = getCopyText(colorSchema, tries)
             navigator.clipboard.writeText(copyText).then(() => {
