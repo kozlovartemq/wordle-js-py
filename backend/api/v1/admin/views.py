@@ -15,7 +15,7 @@ from api.v1.schemas import (
     DefaultHTTPError
 )
 from core.exceptions import GameNotFound, StatNotFound
-from core.config import settings
+from core.config import settings, common_settings
 from core.models.db_helper import db_helper
 from core.service import create_daily_game, delete_old_games
 from core.models.game import (
@@ -99,12 +99,12 @@ async def delete_stat(
 
 @admin_router.delete(
     '/delete_old_games',
-    summary=f"Delete games older than {settings.deleteJob.threshold_hours} hours",
+    summary=f"Delete games older than {common_settings.game_threshold_hours} hours",
     response_model=list[GameDelete]
 )
 async def delete_old(
     session: AsyncSession = Depends(db_helper.session_dependency),
-    threshold_hours: float = settings.deleteJob.threshold_hours
+    threshold_hours: float = common_settings.game_threshold_hours
 ) -> list[GameDelete]:
     
     games: Sequence[GameModel] = await delete_old_games(session, delta_hours=threshold_hours)

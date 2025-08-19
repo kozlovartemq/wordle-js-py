@@ -9,7 +9,7 @@ from sqlalchemy import text
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from core.config import settings
+from core.config import settings, common_settings
 from core.models.db_helper import db_helper
 from core.models.base import Base
 from api.v1 import router as v1_router
@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
     
     scheduler.add_job(
         create_daily_game_job,
-        trigger=CronTrigger(hour=0, minute=0, second=5, timezone="UTC"),
+        trigger=CronTrigger(hour=0, minute=0, second=5, timezone="UTC"), # TODO use var in env to sync with frontend timer
         id="Create Daily Game",
         replace_existing=True
     )
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
 
         async def delete_old_games_job():
             async with db_helper.session_factory() as session:
-                await delete_old_games(session, delta_hours=settings.deleteJob.threshold_hours) 
+                await delete_old_games(session, delta_hours=common_settings.game_threshold_hours) 
         
         scheduler.add_job(
             delete_old_games_job,
@@ -87,8 +87,8 @@ app.include_router(v1_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        f"http://localhost:{settings.run.port}",
-        f"http://127.0.0.1:{settings.run.port}",
+        f"http://localhost:{common_settings.run.server_port}",
+        f"http://127.0.0.1:{common_settings.run.server_port}",
         f"http://localhost:3000",
         f"http://127.0.0.1:3000"
     ],
@@ -101,7 +101,7 @@ app.add_middleware(
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host=settings.run.host,
-        port=settings.run.port,
+        host=common_settings.run.host,
+        port=common_settings.run.server_port,
         log_config=None,
         reload=True)

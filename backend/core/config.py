@@ -53,12 +53,6 @@ class LoggingConfig(BaseModel):
         })
     
 
-class RunConfig(BaseModel):
-    # host: str = "127.0.0.1"
-    host: str = "0.0.0.0"
-    port: int = 8000
-
-
 class DatabaseConfig(BaseModel):
     name: str = "database.sqlite3"
     echo: bool = False
@@ -71,7 +65,6 @@ class DatabaseConfig(BaseModel):
 class DeletingGamesJobConfig(BaseModel):
     enable: bool = True
     # could be less than 1
-    threshold_hours: float = 24
     interval_hours: float = 24
 
 
@@ -82,12 +75,30 @@ class Setting(BaseSettings):
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
     )
-    main_api_prefix: str = "/api"
     admin_secret: str = "admin"
-    run: RunConfig = RunConfig()
     logging: LoggingConfig = LoggingConfig()
     db: DatabaseConfig = DatabaseConfig()
     deleteJob: DeletingGamesJobConfig = DeletingGamesJobConfig()
 
 
+class RunConfig(BaseModel):
+    # host: str = "127.0.0.1"
+    host: str = "0.0.0.0"
+    server_port: int = 8000
+
+
+class CommonSetting(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=("../.env"),  # "../.env.template" is not supporting in VITE frontend, so we look into ../.env file only 
+        case_sensitive=False,
+        env_nested_delimiter="__",
+        env_prefix="VITE__",
+    )
+    run: RunConfig = RunConfig()
+    main_api_prefix: str = "/api"
+    secondary_api_prefix: str = "/v1"
+    game_threshold_hours: float = 24
+
+
 settings = Setting()
+common_settings = CommonSetting()

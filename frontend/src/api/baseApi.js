@@ -1,7 +1,11 @@
 import { goTofailure } from '../router'
 
-const apiServer = import.meta.env.DEV ? 'http://localhost:8000' : 'http://localhost:8000'
-const api_prefix = import.meta.env.DEV ? '/api/v1' : '/api/v1'
+const serverPort = VITE__RUN__SERVER_PORT ?? 8000
+const mainApiPrefix = VITE__MAIN_API_PREFIX ?? '/api'
+const secondaryApiPrefix = VITE__SECONDARY_API_PREFIX ?? '/v1'
+
+const apiServer = `http://localhost:${serverPort}`
+const api_prefix = `${mainApiPrefix}${secondaryApiPrefix}`
 
 const baseFetch = async (url, config = {}, params) => {
     const defaultHeaders = {
