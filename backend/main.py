@@ -42,10 +42,11 @@ async def lifespan(app: FastAPI):
     async def create_daily_game_job():
         async with db_helper.session_factory() as session:
             await create_daily_game(session, to_replace=False)
-    
+
+    hour, minute, second = common_settings.daily_update_time_utc.split(':')
     scheduler.add_job(
         create_daily_game_job,
-        trigger=CronTrigger(hour=0, minute=0, second=5, timezone="UTC"), # TODO use var in env to sync with frontend timer
+        trigger=CronTrigger(hour=hour, minute=minute, second=second, timezone="UTC"),
         id="Create Daily Game",
         replace_existing=True
     )

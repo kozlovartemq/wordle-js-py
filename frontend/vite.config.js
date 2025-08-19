@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
             VITE__MAIN_API_PREFIX: JSON.stringify(env.VITE__MAIN_API_PREFIX),
             VITE__SECONDARY_API_PREFIX: JSON.stringify(env.VITE__SECONDARY_API_PREFIX),
             VITE__GAME_THRESHOLD_HOURS: env.VITE__GAME_THRESHOLD_HOURS,
+            VITE__DAILY_UPDATE_TIME_UTC: JSON.stringify(env.VITE__DAILY_UPDATE_TIME_UTC),
         }
     }
 })

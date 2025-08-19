@@ -36,9 +36,20 @@ class CountdownTimer extends HTMLElement {
         const message = shadow.querySelector('div.update-message')
 
         const now = new Date()
-        const nextUtcMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
-        nextUtcMidnight.setTime(nextUtcMidnight.getTime() + 5 * 1000) // Add 5 seconds to syncronize with 'update word' job time on backend
-        const diff = nextUtcMidnight - now
+        const updateTime = VITE__DAILY_UPDATE_TIME_UTC
+        const [hour, minute, second] = updateTime.split(":").map(Number)
+
+        const next = new Date(Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate(),
+            hour,
+            minute,
+            second
+        ))
+
+        if (now >= next) next.setUTCDate(next.getUTCDate() + 1)
+        const diff = next - now
 
         if (diff <= 0) {
             clearInterval(this.interval)
