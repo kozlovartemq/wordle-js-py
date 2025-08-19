@@ -9,14 +9,6 @@ export default () => `
     animation: pulse 1s infinite;
 }
 
-.update-message {
-    display: none;
-    margin-top: 0.5rem;
-    font-size: 1rem;
-    color: #00ff00;
-    animation: fadeIn 1s ease-in;
-}
-
 @keyframes pulse {
     0% { box-shadow: 0 0 5px rgba(0,255,0,0.3); }
     50% { box-shadow: 0 0 20px rgba(0,255,0,0.7); }

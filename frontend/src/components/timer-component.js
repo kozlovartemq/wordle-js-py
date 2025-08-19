@@ -11,7 +11,6 @@ class CountdownTimer extends HTMLElement {
 
         wrapper.innerHTML = `
             <span>00:00:00</span>
-            <div class="update-message">Ежедневная игра обновилась!</div>
         `
 
         const style = document.createElement('style')
@@ -33,7 +32,6 @@ class CountdownTimer extends HTMLElement {
     updateTimer() {
         const shadow = this.shadowRoot
         const timeDisplay = shadow.querySelector('span')
-        const message = shadow.querySelector('div.update-message')
 
         const now = new Date()
         const updateTime = VITE__DAILY_UPDATE_TIME_UTC
@@ -49,15 +47,8 @@ class CountdownTimer extends HTMLElement {
         ))
 
         if (now >= next) next.setUTCDate(next.getUTCDate() + 1)
+        
         const diff = next - now
-
-        if (diff <= 0) {
-            clearInterval(this.interval)
-            timeDisplay.style.display = 'none'
-            message.style.display = 'block'
-            return
-        }
-
         const totalSeconds = Math.floor(diff / 1000)
         const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
         const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
