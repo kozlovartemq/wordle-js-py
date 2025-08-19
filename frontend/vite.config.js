@@ -29,10 +29,10 @@ export default defineConfig(({ mode }) => {
         ],
         define: {
             VITE__RUN__SERVER_PORT: env.VITE__RUN__SERVER_PORT ?? 8000,
-            VITE__MAIN_API_PREFIX: JSON.stringify(env.VITE__MAIN_API_PREFIX) ?? '/api',
-            VITE__SECONDARY_API_PREFIX: JSON.stringify(env.VITE__SECONDARY_API_PREFIX) ?? '/v1',
+            VITE__MAIN_API_PREFIX: JSON.stringify(env.VITE__MAIN_API_PREFIX) ?? JSON.stringify("/api"),
+            VITE__SECONDARY_API_PREFIX: JSON.stringify(env.VITE__SECONDARY_API_PREFIX) ?? JSON.stringify("/v1"),
             VITE__GAME_THRESHOLD_HOURS: env.VITE__GAME_THRESHOLD_HOURS ?? 24,
-            VITE__DAILY_UPDATE_TIME_UTC: JSON.stringify(env.VITE__DAILY_UPDATE_TIME_UTC) ?? "00:00:05",
+            VITE__DAILY_UPDATE_TIME_UTC: JSON.stringify(env.VITE__DAILY_UPDATE_TIME_UTC) ?? JSON.stringify("00:00:05"),
         }
     }
 })
