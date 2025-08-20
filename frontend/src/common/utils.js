@@ -36,3 +36,20 @@ export const getElementByXpath = (xpath, contextNode = document) => {
 export const mergeStyles = (...styles) => {
     return styles.map(style => style()).join('\n')
 }
+
+export const safeParse = (json, fallback) => {
+    if (json === null || json === undefined) return fallback
+    try {
+        return JSON.parse(json)
+    } catch {
+        return fallback
+    }
+}
+
+export const getlocalStorage = (key, fallback) => {
+    return safeParse(localStorage.getItem(key), fallback)
+}
+
+export const setlocalStorage = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value))
+}

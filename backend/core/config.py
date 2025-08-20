@@ -99,6 +99,7 @@ class CommonSetting(BaseSettings):
     secondary_api_prefix: str = "/v1"
     game_threshold_hours: float = 24
     daily_update_time_utc: str = "00:00:05"
+    cleanup_interval_days: float = 7
 
 
 settings = Setting()
