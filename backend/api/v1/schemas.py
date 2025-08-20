@@ -133,7 +133,8 @@ class FinishGameRequest(BaseModel):
 
 
 class FinishGameResponse(WordRequest):
-    stat: StatUpdate 
+    stat: StatUpdate
+    createdAt: float
 
 
 # Health schemas

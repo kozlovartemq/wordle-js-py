@@ -200,7 +200,7 @@ async def finish_game_and_update_stat(
         raise HTTPException(HTTP_404_NOT_FOUND, str(ex))
 
     new_stat = await update_stat(session=session, stat=stat, tries=data.try_)
-    return {'stat': StatUpdate.model_validate(new_stat), 'word': game.word}
+    return {'stat': StatUpdate.model_validate(new_stat), 'word': game.word, 'createdAt': game.created_at}
 
 
 @game_router.get(
