@@ -90,7 +90,8 @@ class PopUpComponent extends HTMLElement {
         const game_name = resultObj.game_name
         const game_length = resultObj.game_length
         const daily = resultObj.daily
-        const finishResponse = resultObj.finishResponse
+        const stat = resultObj.stat
+        const word = resultObj.word
 
         const getWordsSchema = (colorArrays) => {
             const squareMap = {
@@ -134,9 +135,9 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
         const colorSchema = getWordsSchema(resultArray)
         let result
         if (tries === 0) {
-            result = `<b>Поражение! Было загадано слово "${finishResponse.word}".</b>`
+            result = `<b>Поражение! Было загадано слово "${word}".</b>`
         } else {
-            result = `<b>Победа! ${tries}/6! Было загадано слово "${finishResponse.word}".</b>`
+            result = `<b>Победа! ${tries}/6! Было загадано слово "${word}".</b>`
         }
 
         const shadow = this.shadowRoot
@@ -179,7 +180,7 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
         }
 
         content.querySelector("a.whatsit").onclick = function () {
-            const redirectWindow = window.open(`https://gramota.ru/poisk?query=${finishResponse.word}&mode=slovari&dicts[]=42&dicts[]=50&dicts[]=25&dicts[]=48&dicts[]=47`, '_blank')
+            const redirectWindow = window.open(`https://gramota.ru/poisk?query=${word}&mode=slovari&dicts[]=42&dicts[]=50&dicts[]=25&dicts[]=48&dicts[]=47`, '_blank')
             redirectWindow.location
         }
         const copiedPopup = shadow.querySelector('.copied-popup')
@@ -193,7 +194,7 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
                 }, 2000)
             })
         })
-        content.querySelector('stat-component').renderStatistics(finishResponse.stat, tries)
+        content.querySelector('stat-component').renderStatistics(stat, tries)
         
         content.querySelector('button[data-action="start-casual"]').addEventListener('click', async (e) => {
             e.stopPropagation()

@@ -1,7 +1,8 @@
 import appConstants from '../common/constants'
 import { arrayRemove, areObjectsEqual } from "../common/utils.js"
-import { checkWord, finishGameByGameUUID } from '../api/endpoints'
+import { checkWord, finishGameByGameUUID, getStatByGameUUID } from '../api/endpoints'
 import { mergeStyles } from '../common/utils.js'
+import { GamesService } from "../services/gamesService"
 import gameStyles from '../styles/game.css.js'
 import buttonStyles from '../styles/button.css.js'
 
@@ -19,6 +20,7 @@ class GameComponent extends HTMLElement {
         this.colored_letters = {}
         this.result_colors = []
         this.is_game_finished = false
+        this.word = ''
 
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
@@ -60,6 +62,14 @@ class GameComponent extends HTMLElement {
             event.preventDefault();
             event.returnValue = ""
         }
+        this.storageHandler = async (event) => {
+            if (event.key === GamesService.gameKey(this.game_id)) {
+                const storedGame = GamesService.loadGame(this.game_id)
+                if ( storedGame ) {
+                    await this.finishWithStoredGame(storedGame)
+                }
+            }
+        }
         document.querySelector('#app').isGameRunning = true
     }
 
@@ -69,9 +79,12 @@ class GameComponent extends HTMLElement {
         h2.textContent = `Использовано попыток: ${this.current_word_id}/6`
     }
 
-    async finishGame() {
+    async finishGame(exist) {
         document.querySelector('#app').isGameRunning = false
+
+        document.removeEventListener('keyup', this.mountKeyUpToKeyboardComponent)
         window.removeEventListener('beforeunload', this.beforeUnloadHandler)
+        window.removeEventListener('storage', this.storageHandler)
 
         const shadow = this.shadowRoot
         const p = shadow.querySelector('.result-hint')
@@ -89,20 +102,45 @@ class GameComponent extends HTMLElement {
 
         const keyboard = shadow.querySelector(`keyboard-component`)
         keyboard.disable()
-        const finishResponse = await finishGameByGameUUID(this.game_id, tries)
-        if (finishResponse.ok) {
-            const popup = document.createElement('pop-up')
-            popup.renderResults({
-                resultArray: this.result_colors,
-                game_uuid: this.game_id,
-                tries: tries,
-                game_name: this.game_name,
-                game_length: this.len,
-                daily: this.daily,
-                finishResponse: finishResponse.data
-            })
-            shadow.appendChild(popup)
+        
+        let stat
+        if (!exist) {
+            const finishResponse = await finishGameByGameUUID(this.game_id, tries)
+            if (finishResponse.ok) {
+                const data = finishResponse.data
+                stat = data.stat
+                this.word = data.word
+                const createdAt = data.createdAt
+
+                GamesService.saveGame(
+                    this.game_id,
+                    this.word,
+                    this.result_colors,
+                    createdAt,
+                    tries
+                )
+            }
+        } else {
+            const finishResponse = await getStatByGameUUID(this.game_id)
+            if (finishResponse.ok) {
+                stat = finishResponse.data
+            }
         }
+ 
+
+        const popup = document.createElement('pop-up')
+        popup.renderResults({
+            resultArray: this.result_colors,
+            game_uuid: this.game_id,
+            tries: tries,
+            game_name: this.game_name,
+            game_length: this.len,
+            daily: this.daily,
+            stat: stat,
+            word: this.word,
+        })
+        shadow.appendChild(popup)
+        
     }
 
     async spendAttempt() {
@@ -111,7 +149,7 @@ class GameComponent extends HTMLElement {
         this.updateAttemptsH2()
         this.is_game_finished = this.success || this.current_word_id === 6
         if (this.is_game_finished) {
-            await this.finishGame()
+            await this.finishGame(false)
         } else if (this.current_word_id === 1) {
 
             const shadow = this.shadowRoot
@@ -124,7 +162,7 @@ class GameComponent extends HTMLElement {
                 shadow.querySelector('pop-up[type="surrenderalert"]').hide()
                 this.is_game_finished = true
                 this.success = false
-                await this.finishGame()
+                await this.finishGame(false)
             }
             surrender_button.addEventListener('click', (e) => {
                 e.stopPropagation()
@@ -143,7 +181,17 @@ class GameComponent extends HTMLElement {
         return shadow.querySelector(`word-component[id="${this.current_word_id}"]`)
     }
 
-    connectedCallback() {
+    async finishWithStoredGame(storedGame) {
+        this.result_colors = storedGame.result_colors
+        this.word = storedGame.word
+        if ( storedGame.tries > 0 ) {
+            this.success = true
+            this.current_word_id = storedGame.tries
+        }
+        await this.finishGame(true)
+    }
+
+    async connectedCallback() {
         const shadow = this.shadowRoot
         const documentTitle = document.head.querySelector('title')
         documentTitle.textContent = "Игра - Wordle"
@@ -204,11 +252,19 @@ class GameComponent extends HTMLElement {
 
         document.addEventListener('keyup', this.mountKeyUpToKeyboardComponent)
         window.addEventListener('beforeunload', this.beforeUnloadHandler)
+        window.addEventListener("storage", this.storageHandler)
+
+        const storedGame = GamesService.loadGame(this.game_id)
+        if ( storedGame ) {
+            await this.finishWithStoredGame(storedGame)
+        }
+
     }
 
     disconnectedCallback() {
         document.removeEventListener('keyup', this.mountKeyUpToKeyboardComponent)
         window.removeEventListener('beforeunload', this.beforeUnloadHandler)
+        window.removeEventListener('storage', this.storageHandler)
     }
 
     async checkCurrent(game_id, word) {

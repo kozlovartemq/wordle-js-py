@@ -9,6 +9,7 @@ import NotFoundPage from '../pages/not_found.template'
 import FailurePage from '../pages/failure.template'
 
 import { getGameByUUID, getDailyGame } from '../api/endpoints'
+import { GamesService } from "../services/gamesService"
 
 
 export const routes = {
@@ -67,6 +68,7 @@ export const render = async (path) => {
     const pathRoute = await getPathRoute(path)
 
     if (pathRoute) {
+        GamesService.cleanupExpiredGames()
         result = pathRoute.page(pathRoute.params)
     }
     document.querySelector('#app').innerHTML = result
