@@ -47,7 +47,7 @@ class CountdownTimer extends HTMLElement {
         ))
 
         if (now >= next) next.setUTCDate(next.getUTCDate() + 1)
-        
+
         const diff = next - now
         const totalSeconds = Math.floor(diff / 1000)
         const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')

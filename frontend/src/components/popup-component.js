@@ -195,7 +195,7 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
             })
         })
         content.querySelector('stat-component').renderStatistics(stat, tries)
-        
+
         content.querySelector('button[data-action="start-casual"]').addEventListener('click', async (e) => {
             e.stopPropagation()
             const create_response = await createCasualGame()

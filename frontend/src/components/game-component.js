@@ -65,7 +65,7 @@ class GameComponent extends HTMLElement {
         this.storageHandler = async (event) => {
             if (event.key === GamesService.gameKey(this.game_id)) {
                 const storedGame = GamesService.loadGame(this.game_id)
-                if ( storedGame ) {
+                if (storedGame) {
                     await this.finishWithStoredGame(storedGame)
                 }
             }
@@ -102,7 +102,7 @@ class GameComponent extends HTMLElement {
 
         const keyboard = shadow.querySelector(`keyboard-component`)
         keyboard.disable()
-        
+
         let stat
         if (!exist) {
             const finishResponse = await finishGameByGameUUID(this.game_id, tries)
@@ -126,7 +126,7 @@ class GameComponent extends HTMLElement {
                 stat = finishResponse.data
             }
         }
- 
+
 
         const popup = document.createElement('pop-up')
         popup.renderResults({
@@ -140,7 +140,7 @@ class GameComponent extends HTMLElement {
             word: this.word,
         })
         shadow.appendChild(popup)
-        
+
     }
 
     async spendAttempt() {
@@ -184,7 +184,7 @@ class GameComponent extends HTMLElement {
     async finishWithStoredGame(storedGame) {
         this.result_colors = storedGame.result_colors
         this.word = storedGame.word
-        if ( storedGame.tries > 0 ) {
+        if (storedGame.tries > 0) {
             this.success = true
             this.current_word_id = storedGame.tries
         }
@@ -255,7 +255,7 @@ class GameComponent extends HTMLElement {
         window.addEventListener("storage", this.storageHandler)
 
         const storedGame = GamesService.loadGame(this.game_id)
-        if ( storedGame ) {
+        if (storedGame) {
             await this.finishWithStoredGame(storedGame)
         }
 
