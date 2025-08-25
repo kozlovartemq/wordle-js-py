@@ -32,4 +32,4 @@ COPY nginx/default.conf.template /etc/nginx/conf.d/default.conf.template
 
 EXPOSE 80
 
-CMD ["/bin/sh", "-c", "envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "envsubst '${VITE__RUN__SERVER_PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]

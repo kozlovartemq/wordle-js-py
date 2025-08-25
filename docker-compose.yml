@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   wordle_backend:
     container_name: wordle_backend
@@ -20,7 +18,8 @@ services:
   wordle_frontend_nginx:
     container_name: wordle_frontend_nginx
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         VITE__RUN__SERVER_PORT: ${VITE__RUN__SERVER_PORT}
         VITE__MAIN_API_PREFIX: ${VITE__MAIN_API_PREFIX}

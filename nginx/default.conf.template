@@ -18,7 +18,7 @@ server {
     index index.html;
 
     location / {
-        try_files $uri /index.html;
+        try_files $uri $uri/ /index.html;
     }
 
     # Proxy all /api requests to backend
@@ -26,9 +26,5 @@ server {
         proxy_pass http://127.0.0.1:${VITE__RUN__SERVER_PORT}/;
         proxy_buffering off;
         proxy_cache off;
-    }
-
-    location /api {
-        return 301 /api/;
     }
 }
