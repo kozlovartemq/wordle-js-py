@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  wordle_backend:
+    container_name: wordle_backend
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    ports:
+      - "${VITE__RUN__SERVER_PORT}:${VITE__RUN__SERVER_PORT}"
+    healthcheck:
+      test: curl --fail http://localhost:${VITE__RUN__SERVER_PORT}/api/v1/health
+      start_period: 5s
+      interval: 600s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  wordle_frontend_nginx:
+    container_name: wordle_frontend_nginx
+    build:
+      context: ./frontend
+      args:
+        VITE__RUN__SERVER_PORT: ${VITE__RUN__SERVER_PORT}
+        VITE__MAIN_API_PREFIX: ${VITE__MAIN_API_PREFIX}
+        VITE__SECONDARY_API_PREFIX: ${VITE__SECONDARY_API_PREFIX}
+        VITE__GAME_THRESHOLD_HOURS: ${VITE__GAME_THRESHOLD_HOURS}
+        VITE__DAILY_UPDATE_TIME_UTC: ${VITE__DAILY_UPDATE_TIME_UTC}
+        VITE__CLEANUP_INTERVAL_DAYS: ${VITE__CLEANUP_INTERVAL_DAYS}
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+    depends_on:
+      - wordle_backend
+    restart: always

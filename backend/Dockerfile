@@ -1,10 +1,16 @@
 FROM python:3.11-slim
 
 WORKDIR /app
-COPY main.py .
 
-RUN pip install fastapi uvicorn
+# for the healthcheck
+RUN apk add --no-cache curl
 
-EXPOSE 5000
+COPY backend/requirements.txt .
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
+
+EXPOSE ${VITE__RUN__SERVER_PORT}
+
+CMD ["python3", "main.py"]

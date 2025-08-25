@@ -81,7 +81,6 @@ app = FastAPI(
     title="Wordle app (Backend)",
     lifespan=lifespan,
     default_response_class=ORJSONResponse,
-    # root_path="/proxy/8000"
 )
 app.include_router(v1_router)
 
@@ -92,6 +91,8 @@ app.add_middleware(
         f"http://127.0.0.1:{common_settings.run.server_port}",
         f"http://localhost:3000",
         f"http://127.0.0.1:3000"
+        f"http://localhost:80",
+        f"http://127.0.0.1:80"
     ],
     allow_methods=["*"],
     allow_headers=["*"]

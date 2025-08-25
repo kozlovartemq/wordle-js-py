@@ -13,11 +13,10 @@ export default defineConfig(({ mode }) => {
             outDir: 'build',
         },
         server: {
-            port: 3000,
-            host: '0.0.0.0',
+            port: env.VITE__RUN__CLIENT_PORT_DEV,
+            host: '127.0.0.1',
             hmr: {
-                // protocol: 'wss',
-                clientPort: 3000,
+                clientPort: env.VITE__RUN__CLIENT_PORT_DEV,
             },
         },
         plugins: [
