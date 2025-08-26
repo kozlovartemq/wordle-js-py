@@ -82,7 +82,7 @@ class Setting(BaseSettings):
 
 
 class RunConfig(BaseModel):
-    host: str = "127.0.0.1"
+    host: str = "0.0.0.0"
     server_port: int = 8000
     client_port_dev: int = 3000
 

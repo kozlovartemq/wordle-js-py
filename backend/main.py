@@ -86,14 +86,7 @@ app.include_router(v1_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        f"http://localhost:{common_settings.run.server_port}",
-        f"http://127.0.0.1:{common_settings.run.server_port}",
-        f"http://localhost:3000",
-        f"http://127.0.0.1:3000"
-        f"http://localhost:80",
-        f"http://127.0.0.1:80"
-    ],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"]
 )

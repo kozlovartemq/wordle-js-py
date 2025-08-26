@@ -1,3 +1,7 @@
+upstream backend {
+    server wordle_backend:${VITE__RUN__SERVER_PORT};
+}
+
 server {
     listen 80;
 
@@ -22,8 +26,14 @@ server {
     }
 
     # Proxy all /api requests to backend
-    location /api/ {
-        proxy_pass http://127.0.0.1:${VITE__RUN__SERVER_PORT}/;
+	location = /api {
+        proxy_pass http://backend/docs;
+        proxy_buffering off;
+        proxy_cache off;
+    }
+	
+	location ^~ /api/ {
+        proxy_pass http://backend/;
         proxy_buffering off;
         proxy_cache off;
     }
