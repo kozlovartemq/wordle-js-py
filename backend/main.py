@@ -94,9 +94,10 @@ app.add_middleware(
 
     
 if __name__ == "__main__":
+    host = '127.0.0.1' if common_settings.debug else '0.0.0.0'
     uvicorn.run(
         "main:app",
-        host=common_settings.run.host,
+        host=host,
         port=common_settings.run.server_port,
         log_config=None,
         reload=True)

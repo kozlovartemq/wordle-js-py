@@ -82,7 +82,6 @@ class Setting(BaseSettings):
 
 
 class RunConfig(BaseModel):
-    host: str = "0.0.0.0"
     server_port: int = 8000
     client_port_dev: int = 3000
 
@@ -95,6 +94,7 @@ class CommonSetting(BaseSettings):
         env_prefix="VITE__",
     )
     run: RunConfig = RunConfig()
+    debug: int = 0
     main_api_prefix: str = "/api"
     secondary_api_prefix: str = "/v1"
     game_threshold_hours: float = 24

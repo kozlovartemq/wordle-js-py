@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => {
             VITE__GAME_THRESHOLD_HOURS: env.VITE__GAME_THRESHOLD_HOURS ?? 24,
             VITE__DAILY_UPDATE_TIME_UTC: JSON.stringify(env.VITE__DAILY_UPDATE_TIME_UTC) ?? JSON.stringify("00:00:05"),
             VITE__CLEANUP_INTERVAL_DAYS: env.VITE__CLEANUP_INTERVAL_DAYS ?? 7,
+            VITE__DEBUG: env.VITE__DEBUG ?? 1
         }
     }
 })
