@@ -81,6 +81,7 @@ app = FastAPI(
     title="Wordle app (Backend)",
     lifespan=lifespan,
     default_response_class=ORJSONResponse,
+    root_path="/api" if not common_settings.debug else "/"
 )
 app.include_router(v1_router)
 

@@ -4,7 +4,7 @@ const serverPort = VITE__RUN__SERVER_PORT
 const mainApiPrefix = VITE__MAIN_API_PREFIX
 const secondaryApiPrefix = VITE__SECONDARY_API_PREFIX
 
-const apiServer = VITE__DEBUG ? `http://localhost:${serverPort}` : `${document.location.origin}`
+const apiServer = VITE__DEBUG ? `http://localhost:${serverPort}` : document.location.origin
 const api_prefix = `${mainApiPrefix}${secondaryApiPrefix}`
 
 const baseFetch = async (url, config = {}, params) => {

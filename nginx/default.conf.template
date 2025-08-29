@@ -28,9 +28,14 @@ server {
     # Proxy all /api requests to backend
 	location = /api {
         proxy_pass http://backend/docs;
+		proxy_redirect / /api/;
         proxy_buffering off;
         proxy_cache off;
     }
+	
+	location = /api/ {
+		return 301 /api;
+	}
 	
 	location ^~ /api/ {
         proxy_pass http://backend/;

@@ -5,6 +5,8 @@ services:
       context: ./backend
     env_file:
       - .env
+    volumes:
+      - ${PWD}/backend/database.sqlite3:/app/database.sqlite3
     expose:
       - "${VITE__RUN__SERVER_PORT}"
     healthcheck:
@@ -23,7 +25,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        VITE__RUN__SERVER_PORT: ${VITE__RUN__SERVER_PORT}
+        VITE__DEBUG: ${VITE__DEBUG}
         VITE__MAIN_API_PREFIX: ${VITE__MAIN_API_PREFIX}
         VITE__SECONDARY_API_PREFIX: ${VITE__SECONDARY_API_PREFIX}
         VITE__GAME_THRESHOLD_HOURS: ${VITE__GAME_THRESHOLD_HOURS}
