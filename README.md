@@ -4,7 +4,7 @@
 
 ### Technologies:
 - Backend: Python, FastAPI, Pydantic, SQLite
-- Frontend (SPA - Single Page Application): JS Vanila, route-parser
+- Frontend (SPA - Single Page Application): JS Vanila, VITE, route-parser
 - Infrastructure: Nginx, Docker, Docker-compose, Cloudflare Tunnel
 
 # Features:
