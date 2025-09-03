@@ -111,6 +111,7 @@ class PopUpComponent extends HTMLElement {
         const getCopyText = (colorSchema, tries) => {
             if (tries === 0) {
                 return `Я не смог(лa) разгадать ${game_length}-буквенное слово.
+${game_name}
 
 ${colorSchema.replaceAll('<br>', '\n')}
 Может ты сможешь разгадать это слово?
@@ -125,6 +126,7 @@ ${window.location.origin}${routes.Game.reverse({ game: game_uuid })}`
                     6: '6/6 попыток',
                 }
                 return `Я разгадал(a) ${game_length}-буквенное слово за ${triesMap[tries]}.
+${game_name}
 
 ${colorSchema.replaceAll('<br>', '\n')}
 Сможешь ли ты разгадать это слово?
