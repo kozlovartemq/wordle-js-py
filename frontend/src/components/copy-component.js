@@ -6,6 +6,7 @@ class CopyComponent extends HTMLElement {
     constructor() {
         super()
         this._content = ""
+        this._wordLength = ""
 
         const shadow = this.attachShadow({ mode: 'open' })
         const wrapper = document.createElement('div')
@@ -41,6 +42,15 @@ class CopyComponent extends HTMLElement {
         this.renderText()
     }
 
+    get wordLength() {
+        return this._wordLength;
+    }
+
+    set wordLength(value) {
+        if (this._wordLength === value) return;
+        this._wordLength = value
+    }
+
     renderText() {
         const shadow = this.shadowRoot
         const p = shadow.querySelector(".copy-text")
@@ -50,11 +60,14 @@ class CopyComponent extends HTMLElement {
     connectedCallback() {
         const shadow = this.shadowRoot
         const copyButton = shadow.querySelector('button[data-action="copy"]')
-        const copyText = shadow.querySelector('.copy-text')
+        const copyURL = shadow.querySelector('.copy-text').textContent
         const copiedPopup = shadow.querySelector('.copied-popup')
+        const copyText = `Я загадал(a) ${this.wordLength}-буквенное слово.
+Попробуй разгадать это слово!
+${copyURL}`
 
         copyButton.addEventListener('click', () => {
-            navigator.clipboard.writeText(copyText.textContent).then(() => {
+            navigator.clipboard.writeText(copyText).then(() => {
                 copiedPopup.style.opacity = '1'
                 setTimeout(() => {
                     copiedPopup.style.opacity = '0'

@@ -221,8 +221,11 @@ class ContentComponent extends HTMLElement {
             } else {
                 p.textContent = create_response.data.msg
                 const url = routes.Game.reverse({ game: create_response.data.game_uuid })
+                const selectedBtn = shadow.querySelector('button.selected')
+                const wordLength = selectedBtn.textContent
                 const copy_comp = document.createElement('copy-component')
                 copy_comp.content = url
+                copy_comp.wordLength = wordLength
                 wrapper.appendChild(copy_comp)
             }
 
