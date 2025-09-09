@@ -69,7 +69,7 @@ class ContentComponent extends HTMLElement {
         const timestamp = new Date().getTime()
         const title = document.createElement('h2')
         title.setAttribute('class', 'content-title')
-        title.innerHTML = `Произошла внутренняя ошибка! Сообщите админу что вы делали.<br>Timestamp: ${timestamp}`
+        title.innerHTML = `Произошла внутренняя ошибка! Сообщите админу, что вы делали.<br>Timestamp: ${timestamp}`
 
         wrapper.appendChild(word)
         wrapper.appendChild(title)
