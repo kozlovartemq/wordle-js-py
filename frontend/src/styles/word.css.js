@@ -2,7 +2,8 @@ export default () => `
 .word-container {
     display: flex;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-top: 6px;
+    margin-bottom: 6px;
     justify-content: center;
 }
 
@@ -16,8 +17,8 @@ export default () => `
     vertical-align: middle;
     line-height: 50px;
     text-transform: uppercase;
-    background-color: white;
-    color: black;
+    background: var(--bg-color-component);
+    color: var(--text-color);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }`;

@@ -37,6 +37,10 @@ export const appConstants = {
 
         Backspace: "BACKSPACE", KeyZ: "Я", KeyX: "Ч", KeyC: "С", KeyV: "М", KeyB: "И",
         KeyN: "Т", KeyM: "Ь", Comma: "Б", Period: "Ю", Enter: "ENTER"
+    },
+    theme: {
+        DARK: "dark",
+        LIGHT: "light"
     }
 }
 

@@ -7,20 +7,21 @@ export default () => `
     flex-direction: column;
     gap: 10px;
     align-items: center;
+    color: var(--text-color);
 }
 
 .content-title {
     font-size: 1.5rem;
     font-weight: 600;
     margin: 20px 0 10px;
-    padding: 10px 20px;
+    padding: 10px 10px;
     text-align: center;
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: var(--bg-color-component-soft);
+    transition: background 0.3s ease, color 0.3s ease;
     border-left: 5px solid ${appConstants.custom_color.wordle_green};
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    width: 500px;
+    width: 475px;
 }
 
 .input-container {
@@ -41,13 +42,15 @@ export default () => `
 }
 
 input {
+    background-color: var(--bg-color-component);
+    color: var(--text-color-soft);
     padding: 10px 16px;
     font-size: 18px;
     border: 2px solid #ccc;
     border-radius: 8px;
     outline: none;
     width: 350px;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s ease, color 0.3s ease;
     height: 1rem;
 }
 
@@ -75,7 +78,6 @@ input:focus {
     font-size: 1.25rem;
     font-weight: bold;
     margin-bottom: 0.75rem;
-    color: #333;
 }
 
 .length-buttons {
@@ -88,11 +90,11 @@ input:focus {
     padding: 0.5rem 1.2rem;
     font-size: 1.1rem;
     font-weight: bold;
-    background-color: #ffffff;
+    background-color: var(--bg-color-component);
+    color: var(--text-color);
     border: 2px solid ${appConstants.custom_color.wordle_green};
     border-radius: 8px;
     cursor: pointer;
-    color: #333;
     transition: all 0.2s ease-in-out;
 }
 
@@ -121,7 +123,7 @@ input:focus {
     cursor: pointer;
     font-size: 1.1rem;
     user-select: none;
-    color: #333;
+    color: var(--text-color);
 }
 
 /* Скрываем стандартный чекбокс */
@@ -138,7 +140,7 @@ input:focus {
     left: 0;
     height: 1.2rem;
     width: 1.2rem;
-    background-color: #fff;
+    background-color: var(--bg-color-component);
     border: 2px solid ${appConstants.custom_color.wordle_green};
     border-radius: 4px;
     transition: all 0.2s ease;

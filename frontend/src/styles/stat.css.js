@@ -5,7 +5,8 @@ export default () => `
 
 .stats-container {
     padding: 20px;
-    background: #f9f9f9;
+    background: var(--bg-color-component-soft);
+    color: var(--text-color-soft);
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     max-width: 500px;
@@ -14,6 +15,7 @@ export default () => `
 }
 
 .stats-container h3 {
+    color: var(--text-color);
     margin-top: 0;
     margin-bottom: 5px;
     text-align: center;
@@ -23,7 +25,6 @@ export default () => `
 .stats-container .overall {
     text-align: center;
     margin-bottom: 20px;
-    color: #666;
     font-size: 14px;
 }
 
@@ -66,12 +67,10 @@ export default () => `
 .bar-label {
     margin-top: 6px;
     font-size: 12px;
-    color: #333;
 }
 
 .bar-value {
     font-size: 12px;
-    color: #555;
     margin-top: 4px;
 }
 `;

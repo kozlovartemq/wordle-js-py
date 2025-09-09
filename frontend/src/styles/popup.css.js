@@ -38,7 +38,7 @@ export default () => `
 }
 
 .popup-container {
-    background: white;
+    background: var(--bg-color);
     padding: 1rem 4rem 4rem;
     border-radius: 10px;
     max-width: 90vw;
@@ -53,10 +53,10 @@ p {
 }
 
 p a {
-    color:rgb(11, 12, 14);
+    color: var(--text-color);
     text-decoration: none;
     transition: color 0.2s ease, border-color 0.2s ease;
-    border-bottom: 1px dashed rgb(11, 12, 14);
+    border-bottom: 1px dashed var(--text-color);
     cursor: pointer;
 }
 
@@ -81,7 +81,7 @@ p a:active {
     flex-direction: column;
     gap: 12px;
 
-    background-color: #f9f9f9;
+    background-color: var(--bg-color-archive);
     border-radius: 12px;
     box-shadow: 0 0 12px rgba(0,0,0,0.1);
 }

@@ -12,7 +12,8 @@ export default () => `
 
     justify-content: center;
     padding: 1rem 0;
-    background-color: #1e1e1e;
+    background-color: var(--bg-color-menu);
+    transition: background 0.3s ease, color 0.3s ease;
     border-bottom: 1px solid #333;
     border-radius: 12px;
 }`;

@@ -29,9 +29,11 @@
 - Mount physical keyboard with the visual one
 - Statistics in the form of a diagram
 - Countdown timer of a daily game
+- Dark theme using System Theme as default
 
 
 
 # TODOs
 - Backend tests (pytest?)
 - mobile css support
+- handle internet connection problem on frontend

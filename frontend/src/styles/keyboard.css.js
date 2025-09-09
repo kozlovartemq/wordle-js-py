@@ -7,7 +7,7 @@ export default () => `
     left: 0;
     right: 0;
     padding: 0.5rem;
-    background-color: #d3d6da;
+    background-color: var(--bg-color-keyboard);
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
@@ -31,7 +31,8 @@ export default () => `
     font-size: 1rem;
     font-weight: bold;
     text-transform: uppercase;
-    background-color: #eee;
+    background-color: var(--bg-color-component-soft);
+    color: var(--text-color);
     border: none;
     border-radius: 6px;
     cursor: pointer;

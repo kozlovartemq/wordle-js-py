@@ -1,4 +1,5 @@
 <header-component></header-component>
 <main-nav></main-nav>
+<bg-toggle></bg-toggle>
 <game-component id="${props.game}" name="${props.name}" len="${props.len}" dictionary="${props.dictionary}" daily="${props.daily}">
 </game-component>

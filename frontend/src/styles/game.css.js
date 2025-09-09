@@ -12,11 +12,12 @@ export default () => `
 .attempts-remaining {
     font-size: 20px;
     font-weight: 700;
-    color: #4a4a4a;
+    background-color: var(--bg-color-component-soft);
+    color: var(--text-color-soft);
+    transition: background 0.3s ease, color 0.3s ease;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
     padding: 8px 16px;
-    background-color: #f0f0f0;
     border-radius: 12px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     width: fit-content;

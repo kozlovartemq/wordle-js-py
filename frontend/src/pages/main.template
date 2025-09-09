@@ -1,3 +1,4 @@
 <header-component></header-component>
 <main-nav></main-nav>
+<bg-toggle></bg-toggle>
 <content-component type="main"></content-component>

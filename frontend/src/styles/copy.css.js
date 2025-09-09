@@ -3,7 +3,7 @@ export default () => `
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #f2f2f2;
+    background: var(--bg-color-component-soft);
     border-radius: 8px;
     border: 1px solid #ccc;
     position: relative;
@@ -11,6 +11,7 @@ export default () => `
     width: fit-content;
     font-family: sans-serif;
     cursor: default;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .padding {
@@ -20,13 +21,14 @@ export default () => `
 .copy-text {
     margin: 0;
     font-size: 0.95rem;
-    color: #333;
+    color: var(--text-color-soft);
     user-select: all;
     overflow-wrap: anywhere;
 }
 
 .copy-button {
-    background: #e5e5e5;
+    background: var(--bg-color-copy-button);
+    color: var(--text-color);
     border: none;
     cursor: pointer;
     padding: 0.4rem 0.6rem;
@@ -40,7 +42,7 @@ export default () => `
 }
 
 .copy-button:hover {
-    background: #d0d0d0;
+    background: var(--bg-color-hover-copy-button);
 }
 
 .copied-popup {
