@@ -1,4 +1,4 @@
-import { goTo, routes } from '../router'
+import { goTo } from '../router'
 import linkStyles from '../styles/link.css.js'
 
 
