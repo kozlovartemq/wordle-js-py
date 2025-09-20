@@ -37,3 +37,5 @@
 - Backend tests (pytest?)
 - mobile css support
 - handle internet connection problem on frontend
+- order by DESC in archive games list
+- add listener to NUM Enter to match Enter behaviour
