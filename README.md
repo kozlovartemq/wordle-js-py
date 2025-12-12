@@ -1,6 +1,6 @@
 # wordle-js-py
 - Production: https://wordle.kozlovartemq.ru
-- Api docs: https://wordle.kozlovartemq.ru/api
+- RESTful API docs: https://wordle.kozlovartemq.ru/api
 
 ### Technologies:
 - Backend: Python, FastAPI, Pydantic, SQLite
@@ -39,3 +39,4 @@
 - handle internet connection problem on frontend
 - order by DESC in archive games list
 - add listener to NUM Enter to match Enter behaviour
+- add current game progress in localStorage
