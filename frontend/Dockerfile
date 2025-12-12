@@ -24,6 +24,10 @@ FROM nginx:1.27-alpine
 
 WORKDIR /usr/share/nginx/html
 
+# index for the main domain
+RUN mkdir /usr/share/nginx/www
+COPY nginx/index.html /usr/share/nginx/www/index.html
+
 RUN rm -rf ./*
 
 COPY --from=builder /app/build .

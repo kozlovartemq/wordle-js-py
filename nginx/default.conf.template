@@ -1,9 +1,52 @@
+access_log /var/log/nginx/main-access.log main;
+error_log  /var/log/nginx/main-error.log warn;
+
 upstream backend {
     server wordle_backend:${VITE__RUN__SERVER_PORT};
 }
 
 server {
-    listen 80;
+	listen 80;
+	listen [::]:80;
+	server_name kozlovartemq.ru www.kozlovartemq.ru wordle.kozlovartemq.ru;
+	# Путь, который будет использоваться для ACME‑challenge
+	location ^~ /.well-known/acme-challenge/ {
+		root /var/www/certbot;
+	}
+	location / {
+		return 301 https://$host$request_uri;
+	}
+}
+
+server {
+    listen 443 ssl;
+	listen [::]:443 ssl;
+    server_name kozlovartemq.ru www.kozlovartemq.ru;
+	ssl_certificate     /etc/letsencrypt/live/kozlovartemq.ru/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/kozlovartemq.ru/privkey.pem;
+	
+	access_log /var/log/nginx/main-access.log main;
+
+    root /usr/share/nginx/www;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+	
+	location ^~ /.well-known/acme-challenge/ {
+		root /var/www/certbot;
+	}
+}
+
+server {
+    listen 443 ssl;
+	server_name wordle.kozlovartemq.ru;
+	
+	ssl_certificate     /etc/letsencrypt/live/kozlovartemq.ru/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/kozlovartemq.ru/privkey.pem;
+	
+	access_log /var/log/nginx/wordle-access.log main;
 
     # Disable sendfile for proxying
     sendfile off;
@@ -42,4 +85,8 @@ server {
         proxy_buffering off;
         proxy_cache off;
     }
+	
+	location ^~ /.well-known/acme-challenge/ {
+		root /var/www/certbot;
+	}
 }
